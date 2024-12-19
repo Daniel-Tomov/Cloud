@@ -10,6 +10,7 @@ from flask import (
 from datetime import datetime, timedelta
 from os import urandom, getenv
 from dotenv import load_dotenv
+load_dotenv()
 from utils import current_time_str, current_time_dt, convert_time_str_dt, hash_512
 from db import (
     add_session_to_db,
