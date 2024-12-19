@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mkdir /usr/src/ -p
-cd /usr/src/webapp
+cd /usr/src/
 wget https://github.com/Daniel-Tomov/Cloud/archive/refs/heads/main.zip -o cloud.zip
 
 unzip cloud.zip

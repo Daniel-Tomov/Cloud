@@ -1,14 +1,9 @@
 version: '3.8'
 services:
   webapp:
-    image: python:3.13.1-alpine3.21
+    image: python:3.13.1-bookworm
     volumes:
      - .:/usr/src/app
-    command: /bin/bash -c 'cd /usr/src/app; pip3 install -r requirements.txt; python3 /usr/src/app/main.py'
+    command: /bin/bash -c 'wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/postgres/run.sh ; sh run.sh'
     ports:
      - 5557:5557
-    networks:
-     - webapp
-networks:
-  webapp:
-    driver: bridge
