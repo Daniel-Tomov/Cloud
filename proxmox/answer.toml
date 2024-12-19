@@ -1,0 +1,26 @@
+[global]
+keyboard = "en-us"
+country = "us"
+fqdn = "{{ midas }}.local"
+mailto = "{{ midas }}@odu.edu"
+timezone = "America/New_York"
+root_password = "{{ password }}"
+
+
+[network]
+source = "from-dhcp"
+
+[disk-setup]
+filesystem = "ext4"
+disk_list = ["sda"]
+lvm.maxroot = 24
+
+[post-installation-webhook]
+url = "https://proxmox.lab.danieltomov.com/postinst"
+cert_fingerprint = "2F:42:2E:91:CC:14:7C:E5:55:88:EA:4C:24:EA:D0:EC:45:AE:10:75:88:6C:27:12:64:5F:66:3E:7A:46:A0:06"
+
+[first-boot]
+source = "from-url"
+ordering = "fully-up"
+url = "https://proxmox.lab.danieltomov.com/first-boot.sh"
+cert-fingerprint = "2F:42:2E:91:CC:14:7C:E5:55:88:EA:4C:24:EA:D0:EC:45:AE:10:75:88:6C:27:12:64:5F:66:3E:7A:46:A0:06"

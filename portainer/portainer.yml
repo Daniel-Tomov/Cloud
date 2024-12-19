@@ -1,0 +1,15 @@
+services:
+  portainer:
+    image: portainer/portainer-ce
+    volumes:
+     - ./data:/data
+     - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+     - 9443:9443
+     - 8000:8000
+    networks:
+     - backend
+
+networks:
+  backend:
+    driver: bridge

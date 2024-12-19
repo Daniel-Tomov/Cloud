@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        {% if extra_content != "" %}
+        <p>{{ extra_content }}</p>
+        {% endif %}
+        <form action="/{{ page }}" method="post">
+            <label for="username">Username:</label>
+            <textarea name="username" id="username"></textarea>
+            <label for="password">Password:</label>
+            <textarea name="password" id="password" type="password"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </body>
+</html>

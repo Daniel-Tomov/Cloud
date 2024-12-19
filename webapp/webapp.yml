@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  webapp:
+    image: python:3.13.1-alpine3.21
+    volumes:
+     - .:/usr/src/app
+    command: /bin/bash -c 'cd /usr/src/app; pip3 install -r requirements.txt; python3 /usr/src/app/main.py'
+    ports:
+     - 5555:5555
+    networks:
+     - webapp
+networks:
+  webapp:
+    driver: bridge

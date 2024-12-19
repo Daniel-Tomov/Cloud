@@ -1,0 +1,7 @@
+# Using nginx instead of traefik
+#services:
+#  traefik:
+#    image: traefik
+#
+#providers:
+#  docker: {}

@@ -1,0 +1,13 @@
+How to run with Docker Swarm (from Portainer UI):
+
+Create a new service, give it a name. Ex: webapp
+
+The tested image for the Docker container is python:3.13.1-bookworm, but the alpine version may work as well.
+
+This is the command:
+
+/bin/sh -c 'rm /usr/src/webapp.tar.gz; cd /usr/src; wget http://192.168.52.140:8000/webapp.tar.gz; tar -xvf webapp.tar.gz; cd webapp; pip3 install -r requirements.txt; python3 main.py'
+
+Expose port 5555:5555
+
+Change webapp ip in nginx config to the ip of the manager

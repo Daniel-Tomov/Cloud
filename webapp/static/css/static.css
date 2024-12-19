@@ -1,0 +1,70 @@
+* {
+    margin: 0;
+    padding: 0;
+    color: black;
+}
+
+.vm_table {
+    border: 1px solid black;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.running {
+    background-color: rgba(128, 255, 128, 0.35);
+}
+
+.stopped {
+    background-color: rgba(255, 103, 103, 0.35);
+}
+
+.float_left {
+    float: left;
+}
+
+.float_right {
+    float: right;
+}
+
+.clear_both {
+    clear: both;
+}
+
+td {
+    text-align: center;
+    height: 30px;
+}
+
+progress {
+    width: 90%;
+    height: 60%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 2px solid rgba(98, 98, 98, 0.7);
+}
+
+progress[value]::-webkit-progress-bar {
+
+}
+
+progress::-webkit-progress-value {
+    background: #0060a4;
+}
+
+
+td:has(> progress) {
+    display: flex;
+    justify-content: center;
+}
+
+.fa {
+    margin: 0 4%;
+}
+
+.tag_button {
+}
+
+.tags:hover{
+    text-decoration: line-through;
+}

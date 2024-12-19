@@ -1,0 +1,22 @@
+# This configuration does not work, use the command from Portainer
+#networks:
+#  portainer_agent_network:
+#    driver: overlay
+#
+#services:
+#  agent:
+#    image: portainer/agent:2.21.4
+#    networks:
+#      - portainer_agent_network
+#    ports:
+#    - 9001:9001
+#    volumes:
+#    - type: bind
+#      source: /var/run/docker.sock
+#      target: /var/run/docker.sock
+#    - type: bind
+#      source: /var/lib/docker/volumes
+#      target: /var/lib/docker/volumes
+#    - type: bind
+#      source: /
+#      target: /host
