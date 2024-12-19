@@ -2,6 +2,6 @@ version: '3.8'
 services:
   webapp:
     image: python:3.13.1-bookworm
-    command: 'https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/webapp/run.sh ; sh run.sh'
+    command: /bin/bash 'wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/webapp/run.sh ; sh run.sh'
     ports:
      - 5555:5555

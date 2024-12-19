@@ -2,10 +2,10 @@
 
 mkdir /usr/src/ -p
 cd /usr/src/
-wget https://github.com/Daniel-Tomov/Cloud/archive/refs/heads/main.zip -o cloud.zip
+wget https://github.com/Daniel-Tomov/Cloud/archive/refs/heads/main.zip -O cloud.zip
 
 unzip cloud.zip
-cd cloud
+cd Cloud-main
 cd proxmox
 
 pip3 install -r requirements.txt
