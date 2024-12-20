@@ -51,7 +51,7 @@ const interval = setInterval(async function () {
                     ip = document.createElement("a");
                     ip.className = "ip link"
                     ip.innerText = response[id]["ip"];
-                    ip.setAttribute("href", "/?ip=" + response[id]["ip"]) + "&port=8006";
+                    ip.setAttribute("href", "/?protocol=https&ip=" + response[id]["ip"]) + "&port=8006";
                     cell.appendChild(ip);
                 } else if (response[id]["status"] == "running"){
                     ip = document.createElement("p");
