@@ -13,7 +13,7 @@ apt install curl net-tools -y # basic tools
 
 # Add additional interfaces
 cat <<EOF >> /etc/network/interfaces
-#Proxmox Access
+
 
 auto vmbr1
 iface vmbr1 inet manual
@@ -34,7 +34,8 @@ ifreload -a
 # Download recommended firewall
 mkdir -p /var/lib/vz/template/iso
 cd /var/lib/vz/template/iso
-wget {{ firewall_img_domain }}/{{ FW_IMAGE }} --no-check-certificate #.bz2 # --no-check-certificate
+wget {{ iso_img_domain }}/{{ FW_IMAGE }} --no-check-certificate #.bz2 # --no-check-certificate
 #bunzip2 OPNsense-24.7-vga-amd64.img.bz2
+wget {{ iso_img_domain }}/{{ antix_IMAGE }} --no-check-certificate # --no-check-certificate
 
 curl -k -L {{ create_fw_url }}

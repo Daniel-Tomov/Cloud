@@ -117,7 +117,6 @@ def create_vm(
         "memory": memory,
         "numa": 0,
         "net0": net0,
-        "net1": net1,
         "ostype": "l26",
         "scsi0": scsi0,
         "scsihw": "virtio-scsi-single",
@@ -125,6 +124,8 @@ def create_vm(
         "ide2": ide2,
         "tags": tags,
     }
+    if net1 != "":
+        data["net1"] = net1
     if net2 != "":
         data["net2"] = net2
     return post_endpoint(
@@ -290,10 +291,11 @@ def send_answer_toml():
 def send_first_boot_get():
     return (
         first_boot_file.replace(
-            "{{ firewall_img_domain }}", getenv("firewall_img_domain")
+            "{{ iso_img_domain }}", getenv("iso_img_domain")
         )
         .replace("{{ FW_IMAGE }}", getenv("FW_IMAGE"))
         .replace("{{ create_fw_url }}", getenv("create_fw_url"))
+        .replace("{{ ANTIX_IMAGE }}", getenv("ANTIX_IMAGE"))
     )
 
 
@@ -335,9 +337,29 @@ def create_fw():
         ip=ip,
         headers=student_headers,
     )
+    print(f"created fw for {midas}")
+    
+    r = create_vm(
+        name="antix",
+        node=midas,
+        vmid=101,
+        cores=1,
+        memory=getenv("ANTIX_MEMORY"),
+        agent=0,
+        net0="virtio,bridge=vmbr2",
+        net1="",
+        net2="",
+        scsi0=f"local-lvm:{getenv("ANTIX_STORAGE")},iothread=on",
+        ide2=f"local:iso/{getenv("ANTIX_IMAGE")},media=cdrom",
+        start=0,
+        tags="",
+        ip=ip,
+        headers=student_headers,
+    )
+    print(f"created antix for {midas}")
+    
     # print(r)
     qentry = ""
-    print(f"guest vm for {midas} is done")
     ready_for_vm_creation = True
     return {"result": "success"}
 
