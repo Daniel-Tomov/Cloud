@@ -140,7 +140,7 @@ def recieve_postinst_ip(ip: str):
             f"toml and postinst ips do not match! using postinst if it is not empty. postinst: {ip}"
         )
     if ip == "":
-        """"""
+        print("postinst ip was empty")
     else:
         qentry.vm_ip = ip
 
@@ -179,13 +179,29 @@ def put_endpoint(
 
 
 def create_ticket():
-    global headers
+    global headers, ticket
     endpoint = "/api2/json/access/ticket"
     data = {"username": f"{USERNAME}", "password": f"{PASSWORD}"}
     result = post_endpoint(endpoint=endpoint, data=data)
     try:
         headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
         headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
+        ticket = result["ticket"]
+    except TypeError:
+        print("could not create ticket. Possible incorrect credentials")
+        exit(0)
+
+
+def refresh_ticket():
+    global headers, ticket
+    endpoint = "/api2/json/access/ticket"
+    data = {"username": f"{USERNAME}", "password": f"{ticket}"}
+
+    result = post_endpoint(endpoint=endpoint, data=data)
+    try:
+        headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
+        headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
+        ticket = result["ticket"]
     except TypeError:
         print("could not create ticket. Possible incorrect credentials")
         exit(0)
@@ -207,9 +223,14 @@ status = get_status()
 
 def async_status():
     global status
+    counter = 0
     while True:
         sleep(10)
         status = get_status()
+        counter += 1
+        if counter > 700:  # 7020 seconds
+            counter = 0
+            refresh_ticket()
 
 
 def get_user_vms(username: str) -> dict:
@@ -290,9 +311,7 @@ def send_answer_toml():
 
 def send_first_boot_get():
     return (
-        first_boot_file.replace(
-            "{{ iso_img_domain }}", getenv("iso_img_domain")
-        )
+        first_boot_file.replace("{{ iso_img_domain }}", getenv("iso_img_domain"))
         .replace("{{ FW_IMAGE }}", getenv("FW_IMAGE"))
         .replace("{{ create_fw_url }}", getenv("create_fw_url"))
         .replace("{{ ANTIX_IMAGE }}", getenv("ANTIX_IMAGE"))
@@ -338,7 +357,7 @@ def create_fw():
         headers=student_headers,
     )
     print(f"created fw for {midas}")
-    
+
     r = create_vm(
         name="antix",
         node=midas,
@@ -357,7 +376,7 @@ def create_fw():
         headers=student_headers,
     )
     print(f"created antix for {midas}")
-    
+
     # print(r)
     qentry = ""
     ready_for_vm_creation = True
