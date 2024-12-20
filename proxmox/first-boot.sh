@@ -13,8 +13,6 @@ apt install curl net-tools -y # basic tools
 
 # Add additional interfaces
 cat <<EOF >> /etc/network/interfaces
-        bridge-vlan-aware yes
-        bridge-vids 2-4094
 #Proxmox Access
 
 auto vmbr1
@@ -31,7 +29,7 @@ iface vmbr2 inet manual
         bridge-fd 0
 #Internal Adapter. Put your VMs and containers here.
 EOF
-
+ifreload -a
 
 # Download recommended firewall
 mkdir -p /var/lib/vz/template/iso
