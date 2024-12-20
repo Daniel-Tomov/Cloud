@@ -46,15 +46,19 @@ const interval = setInterval(async function () {
                 append_text_element(cell, "cpu", cpu);
                 row.appendChild(cell);
 
+                cell = document.createElement("td");
                 if (response[id]["ip"] !== "") {
-                    cell = document.createElement("td");
                     ip = document.createElement("a");
                     ip.className = "ip link"
                     ip.innerText = response[id]["ip"];
                     ip.setAttribute("href", "/?ip=" + response[id]["ip"]);
                     cell.appendChild(ip);
-                    row.appendChild(cell);
+                } else if (response[id]["status"] == "running"){
+                    ip = document.createElement("p");
+                    ip.innerText = "No IP address. Please Wait"
+                    cell.appendChild(ip);
                 }
+                row.appendChild(cell);
 
                 vm_table.appendChild(row);
                 row = document.createElement("tr");
