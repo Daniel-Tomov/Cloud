@@ -63,7 +63,9 @@ def async_vm_creation():
                     valid_id = location
                     break
             qentry.valid_id = valid_id
-            print(f"creating VM for {midas} password: {root_password}, on {valid_node} with id {valid_id}")
+            print(
+                f"creating VM for {midas} password: {root_password}, on {valid_node} with id {valid_id}"
+            )
             create_vm(
                 name=midas,
                 node=valid_node,
