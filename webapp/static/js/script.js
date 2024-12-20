@@ -66,7 +66,7 @@ const interval = setInterval(async function () {
                 cell = document.createElement("td");
                 mem = parseInt(response[id]["mem"]) / Math.pow(1024, 2);
                 maxmem = response[id]["maxmem"] / Math.pow(1024, 2)
-                append_progress_bar(cell, "mem_progress", mem / maxmem);
+                append_progress_bar(cell, "mem_progress", (mem / maxmem) * 100);
                 row.appendChild(cell);
                 cell = document.createElement("td");
                 mem = round(mem, 2);
