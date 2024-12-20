@@ -10,7 +10,8 @@ from db import (
     remove_session_from_db,
     update_session_in_db,
 )
-
+from dotenv import load_dotenv
+load_dotenv()
 
 class Main:
     def __init__(self):

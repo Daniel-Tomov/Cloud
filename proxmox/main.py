@@ -20,7 +20,7 @@ from proxmox import (
     create_fw
 )
 from json import loads
-
+load_dotenv()
 
 class Main:
     def __init__(self):
@@ -154,31 +154,70 @@ class Main:
         @self.app.route("/postinst", methods=["POST"])
         def postinst():
 
-            data = {}
-            try:
-                print(request.form)
-                for item in request.form:
-                    print(item)
-                    if item == "network-interfaces":
-                        print(item)
-                        print(request.form[item][0]["address"])
-                print(list(request.form))
-                print(list(request.form)[0])
-                data = loads(list(request.form)[0])
-                data["username"]
-            except:
-                try:
-                    data = request.json
-                    data["network-interfaces"]
-                except:
-                    return {"result":"fail"}
-                return {"result":"fail"}
+            data = request.json
+            # print(".data")
+            # print(request.data)
+            # try:
+            #     print(".form")
+            #     print(request.form)
+            #     print("for loop")
+            #     for item in request.form:
+            #         print(item)
+            #         if item == "network-interfaces":
+            #             print(item)
+            #             print(request.form[item][0]["address"])
+            #     print("list(request.form)")
+            #     print(list(request.form))
+            #     print("list(request.form)[0]") 
+            #     print(list(request.form)[0])
+            #     data = loads(list(request.form)[0])
+            #     print("data")
+            #     print(data)
+            #     print('data["username"]')
+            #     print(data["username"])
+            # except Exception as e:
+            #     print(e)
+            #     try:
+            #         print("request.json")
+            #         data = request.json
+            #         print(data)
+            #         
+            #     except Exception as e:
+            #         print(e)
+            #         try:
+            #             print('print(data)[0]')
+            #             print(data[0])
+            #             print('print(data)[1]')
+            #             print(data[1])
+            #             print('print(data)[2]')
+            #             print(data[2])
+            #             print('print(data)[3]')
+            #             print(data[3])
+            #             print('print(data)[4]')
+            #             print(data[4])
+            #             print('print(data)[5]')
+            #             print(data[5])
+            #         except Exception as e:
+            #             try:
+            #                 print(e)
+            #                 print('data["network-interfaces"]')
+            #                 print(data["network-interfaces"])
+            #                 
+            #                 print(data["network-interfaces"][0])
+            #                 print(data["network-interfaces"][0]["address"])
+            #                 ip = data["network-interfaces"][0]["address"].split("/")[0]
+            #                 print(ip)
+            #             except Exception as e:
+            #                 print(e)
+            #                 print("everything failed")
+            # print("print(data) before check for empty")
+            # print(data)
             if data == {}:
                 return {"result": "fail"}
             
-            print(data["network-interfaces"])
-            print(data["network-interfaces"][0])
-            print(data["network-interfaces"][0]["address"])
+            # print(data["network-interfaces"])
+            # print(data["network-interfaces"][0])
+            # print(data["network-interfaces"][0]["address"])
             ip = data["network-interfaces"][0]["address"].split("/")[0]
             print(ip)
             recieve_postinst_ip(ip=ip)

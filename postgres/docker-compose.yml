@@ -1,9 +1,8 @@
 version: '3.8'
 services:
-  webapp:
+  webapp_db:
     image: python:3.13.1-bookworm
-    volumes:
-     - .:/usr/src/app
     command: /bin/bash -c 'wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/postgres/run.sh ; sh run.sh'
     ports:
      - 5557:5557
+    env_file: .env

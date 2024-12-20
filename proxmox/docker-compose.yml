@@ -1,7 +1,8 @@
 version: '3.8'
 services:
-  webapp:
+  webapp_proxmox:
     image: python:3.13.1-bookworm
     command: /bin/bash -c 'wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/proxmox/run.sh ; sh run.sh'
     ports:
      - 5556:5556
+    env_file: .env

@@ -171,9 +171,12 @@ def create_ticket():
     endpoint = "/api2/json/access/ticket"
     data = {"username": f"{USERNAME}", "password": f"{PASSWORD}"}
     result = post_endpoint(endpoint=endpoint, data=data)
-    headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
-    headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
-
+    try:
+        headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
+        headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
+    except TypeError:
+        print("could not create ticket. Possible incorrect credentials")
+        exit(0)
 
 create_ticket()
 if headers["Cookie"] == "PVEAuthCookie=":
@@ -241,7 +244,7 @@ def get_interface_ip(node: str, vmid: str) -> str:
 
 def does_have_personal_vm_created(username: str) -> bool:
     for entry in status:
-        if entry["node"] == "node":
+        if "node" in entry and entry["node"] == "node":
             if username in entry["name"]:
                 return True
 

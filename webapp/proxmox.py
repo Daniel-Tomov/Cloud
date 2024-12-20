@@ -32,10 +32,13 @@ class Proxmox:
         def get_vm_status():
             if "id" not in session or not check_session():
                 return {"logout": True}
-            return get(
-                url=f"{PROXMOX_WEBAPP_HOST}/get_vm_status/{get_session_from_db()[0]}",
-                verify=PROXMOX_WEBAPP_verify_ssl,
-            ).json()
+            try:
+                return get(
+                    url=f"{PROXMOX_WEBAPP_HOST}/get_vm_status/{get_session_from_db()[0]}",
+                    verify=PROXMOX_WEBAPP_verify_ssl,
+                ).json()
+            except Exception:
+                return {"result": "proxmox communication server is down"}
 
         @self.app.route("/web/set_vm_power_state", methods=["POST"])
         def set_vm_power_state():
@@ -50,9 +53,9 @@ class Proxmox:
                     data = request.json
                     data["node"]
                 except:
-                    return {"result":"fail"}
-                return {"result":"fail"}
-            
+                    return {"result": "fail"}
+                return {"result": "fail"}
+
             if data == {}:
                 return {"result": "fail"}
 
@@ -87,9 +90,9 @@ class Proxmox:
                     data = request.json
                     data["username"]
                 except:
-                    return {"result":"fail"}
-                return {"result":"fail"}
-            
+                    return {"result": "fail"}
+                return {"result": "fail"}
+
             if data == {}:
                 return {"result": "fail"}
 
@@ -122,12 +125,12 @@ class Proxmox:
                     data = request.json
                     data["username"]
                 except:
-                    return {"result":"fail"}
-                return {"result":"fail"}
-            
+                    return {"result": "fail"}
+                return {"result": "fail"}
+
             if data == {}:
                 return {"result": "fail"}
-    
+
             print(data)
 
             username = get_session_from_db()[0]
@@ -151,17 +154,17 @@ class Proxmox:
             data = {}
             try:
                 data = loads(list(request.form)[0])
-                username_to_remove = data["password"]
+                data["password"]
             except:
                 try:
                     data = request.json
                     data["password"]
                 except:
-                    return {"result":"fail"}
-                return {"result":"fail"}
+                    return {"result": "fail"}
+                return {"result": "fail"}
             if data == {}:
                 return {"result": "fail"}
-            
+
             username = get_session_from_db()[0]
             password = data["password"]
 
