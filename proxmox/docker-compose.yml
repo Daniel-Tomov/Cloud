@@ -6,3 +6,5 @@ services:
     ports:
      - 5556:5556
     env_file: .env
+
+    

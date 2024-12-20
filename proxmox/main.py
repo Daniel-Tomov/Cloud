@@ -17,10 +17,12 @@ from proxmox import (
     vm_creation_queue,
     does_have_personal_vm_created,
     send_first_boot_get,
-    create_fw
+    create_fw,
 )
 from json import loads
+
 load_dotenv()
+
 
 class Main:
     def __init__(self):
@@ -88,10 +90,13 @@ class Main:
             return get_user_vms(user)
 
         @self.app.route(
-            "/set_vm_power_state/<string:username>/<string:node>/<string:vmid>/<string:power_value>",
+            "/set_vm_power_state/<string:username>/<string:node>/<string:vm_type>/<string:vmid>/<string:power_value>",
             methods=["GET"],
         )
-        def set_vm_power_state(username: str, node: str, vmid: str, power_value: str):
+        def set_vm_power_state(
+            username: str, node: str, vm_type: str, vmid: str, power_value: str
+        ):
+            vmid = f'{vm_type}/{vmid}'
             name, tags = does_user_own_vm(username=username, vmid=vmid)
             if name == "" or tags == "":
                 return {"result": "fail"}
@@ -108,9 +113,7 @@ class Main:
         def add_tag(
             username: str, node: str, vm_type: str, vmid: str, username_to_add: str
         ):
-            vmid = (
-                vm_type + "/" + vmid
-            )  # qemu/123 is passed to the request so need to recombine them
+            vmid = f'{vm_type}/{vmid}'  # qemu/123 is passed to the request so need to recombine them
             name, tags = does_user_own_vm(
                 username=username, vmid=vmid
             )  # returns "" if the user does not own the vm
@@ -133,9 +136,7 @@ class Main:
         def remove_tag(
             username: str, node: str, vm_type: str, vmid: str, username_to_remove: str
         ):
-            vmid = (
-                vm_type + "/" + vmid
-            )  # qemu/123 is passed to the request so need to recombine them
+            vmid = f'{vm_type}/{vmid}'  # qemu/123 is passed to the request so need to recombine them
             name, tags = does_user_own_vm(
                 username=username, vmid=vmid
             )  # returns "" if the user does not own the vm
@@ -155,69 +156,9 @@ class Main:
         def postinst():
 
             data = request.json
-            # print(".data")
-            # print(request.data)
-            # try:
-            #     print(".form")
-            #     print(request.form)
-            #     print("for loop")
-            #     for item in request.form:
-            #         print(item)
-            #         if item == "network-interfaces":
-            #             print(item)
-            #             print(request.form[item][0]["address"])
-            #     print("list(request.form)")
-            #     print(list(request.form))
-            #     print("list(request.form)[0]") 
-            #     print(list(request.form)[0])
-            #     data = loads(list(request.form)[0])
-            #     print("data")
-            #     print(data)
-            #     print('data["username"]')
-            #     print(data["username"])
-            # except Exception as e:
-            #     print(e)
-            #     try:
-            #         print("request.json")
-            #         data = request.json
-            #         print(data)
-            #         
-            #     except Exception as e:
-            #         print(e)
-            #         try:
-            #             print('print(data)[0]')
-            #             print(data[0])
-            #             print('print(data)[1]')
-            #             print(data[1])
-            #             print('print(data)[2]')
-            #             print(data[2])
-            #             print('print(data)[3]')
-            #             print(data[3])
-            #             print('print(data)[4]')
-            #             print(data[4])
-            #             print('print(data)[5]')
-            #             print(data[5])
-            #         except Exception as e:
-            #             try:
-            #                 print(e)
-            #                 print('data["network-interfaces"]')
-            #                 print(data["network-interfaces"])
-            #                 
-            #                 print(data["network-interfaces"][0])
-            #                 print(data["network-interfaces"][0]["address"])
-            #                 ip = data["network-interfaces"][0]["address"].split("/")[0]
-            #                 print(ip)
-            #             except Exception as e:
-            #                 print(e)
-            #                 print("everything failed")
-            # print("print(data) before check for empty")
-            # print(data)
+            
             if data == {}:
                 return {"result": "fail"}
-            
-            # print(data["network-interfaces"])
-            # print(data["network-interfaces"][0])
-            # print(data["network-interfaces"][0]["address"])
             ip = data["network-interfaces"][0]["address"].split("/")[0]
             print(ip)
             recieve_postinst_ip(ip=ip)
@@ -236,10 +177,10 @@ class Main:
         )
         def does_have_personal_vm_created_route(username: str):
             return {"result": does_have_personal_vm_created(username=username)}
+
         @self.app.route("/create_fw", methods=["GET"])
         def create_fw_route():
             return {"result": create_fw()}
-            
 
 
 if __name__ == "__main__":

@@ -38,6 +38,7 @@ class QueueEntry:
         self.root_password = root_password
         self.vm_ip = vm_ip
         self.valid_node = valid_node
+        self.valid_id = ""
 
 
 def async_vm_creation():
@@ -61,7 +62,7 @@ def async_vm_creation():
                 except:
                     valid_id = location
                     break
-
+            qentry.valid_id = valid_id
             create_vm(
                 name=midas,
                 node=valid_node,
@@ -69,12 +70,12 @@ def async_vm_creation():
                 cores=4,
                 memory=4096,
                 agent=1,
-                net0="virtio,bridge=vmbr0,tag=2",
-                net1="virtio,bridge=vmbr0,tag=7",
-                net2="virtio,bridge=vmbr0,tag=999",
-                scsi0="local-lvm:96,iothread=on",
+                net0=f"virtio,bridge=vmbr0,tag={getenv("PVE_VLAN")}",
+                net1=f"virtio,bridge=vmbr0,tag={getenv("FW_VLAN")}",
+                net2=f"virtio,bridge=vmbr0,tag={getenv("INTERNAL_VLAN")}",
+                scsi0=f"local-lvm:{getenv("PVE_GUEST_STORAGE")},iothread=on",
                 start=1,
-                ide2="local:iso/proxmox-ve_8.3-1-auto-from-http.iso,media=cdrom",
+                ide2=f"local:iso/{getenv('proxmox_http_iso')},media=cdrom",
                 tags=midas,
                 ip=URL,
                 verifySSL=False,
@@ -178,6 +179,7 @@ def create_ticket():
         print("could not create ticket. Possible incorrect credentials")
         exit(0)
 
+
 create_ticket()
 if headers["Cookie"] == "PVEAuthCookie=":
     print("Could not get ticket! Exiting")
@@ -258,13 +260,31 @@ def send_answer_toml():
 
     if midas == "" or root_password == "":
         return {"status": "not expecting VM"}
-    return answer_file.replace("{{ midas }}", midas).replace(
-        "{{ password }}", root_password
+    return (
+        answer_file.replace("{{ midas }}", midas)
+        .replace("{{ password }}", root_password)
+        .replace("{{ lvm_max_root }}", getenv("lvm_max_root"))
+        .replace("{{ post_installation_url }}", getenv("post_installation_url"))
+        .replace(
+            "{{ post_installation_url_fingerprint }}",
+            "post_installation_url_fingerprint",
+        )
+        .replace("{{ first_boot_script_url }}", getenv("first_boot_script_url"))
+        .replace(
+            "{{ first_boot_script_url_fingerprint }}",
+            getenv("first_boot_script_url_fingerprint"),
+        )
     )
 
 
 def send_first_boot_get():
-    return first_boot_file
+    return (
+        first_boot_file.replace(
+            "{{ firewall_img_domain }}", getenv("firewall_img_domain")
+        )
+        .replace("{{ FW_IMAGE }}", getenv("FW_IMAGE"))
+        .replace("{{ create_fw_url }}", getenv("create_fw_url"))
+    )
 
 
 def create_fw():
@@ -274,8 +294,11 @@ def create_fw():
     root_password = qentry.root_password
     if midas == "" or root_password == "":
         return {"status": "not expecting VM"}
+    if ip == None or ip == "":
+        get_interface_ip(qentry.valid_node, qentry.valid_id)
     print(f"creating fw on {ip}")
 
+    # Get ticket for the Guest Proxmox VM to create OPNsense Firewall VM
     student_headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
     endpoint = "/api2/json/access/ticket"
     data = {"username": "root@pam", "password": f"{root_password}"}
@@ -286,17 +309,17 @@ def create_fw():
     student_headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
 
     r = create_vm(
-        name="opnsense-firwall",
+        name="opnsense-firewall",
         node=midas,
         vmid=100,
         cores=2,
-        memory=2048,
+        memory=getenv("FW_MEMORY"),
         agent=0,
         net0="virtio,bridge=vmbr2",
         net1="virtio,bridge=vmbr1",
         net2="",
-        scsi0="local-lvm:16,iothread=on",
-        ide2="local:iso/OPNsense-24.7-vga-amd64.img,media=cdrom",
+        scsi0=f"local-lvm:{getenv("FW_STORAGE")},iothread=on",
+        ide2=f"local:iso/{getenv("FW_IMAGE")},media=cdrom",
         start=0,
         tags="",
         ip=ip,

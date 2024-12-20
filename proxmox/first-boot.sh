@@ -36,7 +36,7 @@ EOF
 # Download recommended firewall
 mkdir -p /var/lib/vz/template/iso
 cd /var/lib/vz/template/iso
-wget https://proxmox.lab.danieltomov.com/OPNsense-24.7-vga-amd64.img --no-check-certificate #.bz2 # --no-check-certificate
+wget {{ firewall_img_domain }}/{{ FW_IMAGE }} --no-check-certificate #.bz2 # --no-check-certificate
 #bunzip2 OPNsense-24.7-vga-amd64.img.bz2
 
-curl -k -L https://proxmox.lab.danieltomov.com/create_fw
+curl -k -L {{ create_fw_url }} # TODO
