@@ -63,12 +63,13 @@ def async_vm_creation():
                     valid_id = location
                     break
             qentry.valid_id = valid_id
+            print(f"creating VM for {midas} password: {root_password}, on {valid_node} with id {valid_id}")
             create_vm(
                 name=midas,
                 node=valid_node,
                 vmid=valid_id,
-                cores=4,
-                memory=4096,
+                cores=getenv("PVE_CORES"),
+                memory=getenv("PVE_MEMORY"),
                 agent=1,
                 net0=f"virtio,bridge=vmbr0,tag={getenv("PVE_VLAN")}",
                 net1=f"virtio,bridge=vmbr0,tag={getenv("FW_VLAN")}",
@@ -131,7 +132,14 @@ def create_vm(
 
 def recieve_postinst_ip(ip: str):
     global qentry
-    qentry.vm_ip = ip
+    if ip != qentry.vm_ip:
+        print(
+            f"toml and postinst ips do not match! using postinst if it is not empty. postinst: {ip}"
+        )
+    if ip == "":
+        """"""
+    else:
+        qentry.vm_ip = ip
 
 
 def get_endpoint(endpoint: str, url=URL, verifySSL=verify_ssl) -> str:
@@ -267,7 +275,7 @@ def send_answer_toml():
         .replace("{{ post_installation_url }}", getenv("post_installation_url"))
         .replace(
             "{{ post_installation_url_fingerprint }}",
-            "post_installation_url_fingerprint",
+            getenv("post_installation_url_fingerprint"),
         )
         .replace("{{ first_boot_script_url }}", getenv("first_boot_script_url"))
         .replace(
@@ -327,6 +335,7 @@ def create_fw():
     )
     # print(r)
     qentry = ""
+    print(f"guest vm for {midas} is done")
     ready_for_vm_creation = True
     return {"result": "success"}
 

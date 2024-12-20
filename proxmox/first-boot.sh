@@ -39,4 +39,4 @@ cd /var/lib/vz/template/iso
 wget {{ firewall_img_domain }}/{{ FW_IMAGE }} --no-check-certificate #.bz2 # --no-check-certificate
 #bunzip2 OPNsense-24.7-vga-amd64.img.bz2
 
-curl -k -L {{ create_fw_url }} # TODO
+curl -k -L {{ create_fw_url }}

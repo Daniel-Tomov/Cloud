@@ -36,5 +36,5 @@ cat proxmox.conf | sed "s/_domain_/$proxmox_domain/g" | sed "s/_webapp_ip_/$prox
 ln -s /etc/nginx/sites-available/$proxmox_domain.conf /etc/nginx/sites-enabled/
 echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$proxmox_domain\n" | openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/certs/$proxmox_domain.key.pem -out /etc/nginx/certs/$proxmox_domain.cert.pem -sha256 -days 365 -nodes
 
-echo "THIS GOES INTO THE .env /proxmox"
+echo "This goes into .env in /proxmox and DHCP option 251. Put the full URL to answer.toml (Proxmox domain) in DHCP option 250."
 openssl x509 -noout -fingerprint -sha256 -inform pem -in /etc/nginx/certs/$proxmox_domain.cert.pem

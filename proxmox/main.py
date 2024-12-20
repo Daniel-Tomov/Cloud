@@ -73,7 +73,7 @@ class Main:
             # choose a node
             nodes = []
             for entry in status:
-                if entry["type"] == "node":
+                if "node" in entry and entry["type"] == "node":
                     nodes.append(entry["node"])
 
             node = choice(nodes)
@@ -154,13 +154,12 @@ class Main:
 
         @self.app.route("/postinst", methods=["POST"])
         def postinst():
-
             data = request.json
             
             if data == {}:
                 return {"result": "fail"}
             ip = data["network-interfaces"][0]["address"].split("/")[0]
-            print(ip)
+            print(f'recieved postinst from {ip}')
             recieve_postinst_ip(ip=ip)
             return {}
 
@@ -170,6 +169,7 @@ class Main:
 
         @self.app.route("/answer.toml", methods=["POST"])
         def answer_toml():
+            recieve_postinst_ip(ip=request.headers["X-Forwarded-For"])
             return send_answer_toml()
 
         @self.app.route(
