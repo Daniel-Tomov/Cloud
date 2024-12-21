@@ -32,7 +32,7 @@ class Auth:
         self.register_routes()
 
     def register_routes(self):
-        @self.app.route("/register", methods=["GET", "POST"])
+        @self.app.route("/web/register", methods=["GET", "POST"])
         def register():
             if request.method == "GET":
                 if "id" not in session or not check_session():
@@ -62,7 +62,7 @@ class Auth:
             #create_session(username=username)
             return redirect(url_for("login"))
 
-        @self.app.route("/login", methods=["GET", "POST"])
+        @self.app.route("/web/login", methods=["GET", "POST"])
         def login():
             if request.method == "GET":
                 if "id" not in session or not check_session():
@@ -99,11 +99,11 @@ class Auth:
 
             return redirect(url_for("index"))
 
-        @self.app.route("/update_session", methods=["GET"])
+        @self.app.route("/web/update_session", methods=["GET"])
         def update_session_route():
             update_session_in_db()
 
-        @self.app.route("/logout")
+        @self.app.route("/web/logout")
         def logout():
             return invalidate_session()
 
@@ -121,7 +121,7 @@ def compare_sessions(time_old: datetime, time_new: datetime) -> bool:
 def check_session() -> bool:
     from_db = get_session_from_db()
     if len(from_db) == 0:
-        return False
+        return False # TODO: increase performance by returning from_db[0], which is the username
     return compare_sessions(convert_time_str_dt(from_db[2]), current_time_dt())
 
 

@@ -68,3 +68,27 @@ td:has(> progress) {
 .tags:hover{
     text-decoration: line-through;
 }
+
+.custom-address-input{
+}
+
+.custom-address-text{
+    margin: 0.5rw 0 0 1vw;
+    width: auto;
+    float: left;
+}
+
+.protocol {
+    width: 2rem;
+    float:left;
+}
+
+.ip{
+    width: 7rem;
+    float:left;
+}
+
+.port{
+    width:3rem;
+    float:left;
+}

@@ -67,10 +67,9 @@ class Main:
 
     def register_routes(self):
         # set multiple routes for index.html as user may forget the exact URL
+        @self.app.route("/web/home", methods=["GET"])
+        @self.app.route("/web/index", methods=["GET"])
         @self.app.route("/web", methods=["GET"])
-        @self.app.route("/index", methods=["GET"])
-        @self.app.route("/home", methods=["GET"])
-        @self.app.route("/", methods=["GET"])
         def index():
             if "id" not in session:
                 return invalidate_session()
