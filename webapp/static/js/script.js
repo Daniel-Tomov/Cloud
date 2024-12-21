@@ -1,4 +1,8 @@
+var paused = false;
 const interval = setInterval(async function () {
+    if (paused) {
+        return;
+    }
     fetch("/web/get_vm_status")
         .then(response => response.json())
         .then(response => {
@@ -9,7 +13,7 @@ const interval = setInterval(async function () {
             }
             const dict = Object.keys(response);
             var vms_container = document.getElementById("vms_container");
-            var cpu, mem, maxmem, netin, netout, status, uptime, tags, child, vm_table, row, cell, box, icon, ip, button = "";
+            var cpu, mem, maxmem, netin, netout, status, uptime, tags, child, vm_table, row, cell, box, icon, button, textarea = "";
 
             if (dict.length === 0) {
                 vms_container.innerHTML = "";
@@ -17,7 +21,7 @@ const interval = setInterval(async function () {
                 button.innerText = "Create VM";
                 button.setAttribute("action", "create_vm");
                 vms_container.appendChild(button);
-                return; 
+                return;
             }
 
             var vms_container_temp = document.createElement("div");
@@ -48,12 +52,89 @@ const interval = setInterval(async function () {
 
                 cell = document.createElement("td");
                 if (response[id]["ip"] !== "") {
-                    ip = document.createElement("a");
-                    ip.className = "ip link"
-                    ip.innerText = response[id]["ip"];
-                    ip.setAttribute("href", "/?protocol=https&ip=" + response[id]["ip"]) + "&port=8006";
-                    cell.appendChild(ip);
-                } else if (response[id]["status"] == "running"){
+                    if (document.getElementById(id + "-protocol") === null) {
+                        child = append_text_element(cell, "custom-address-text", "Protocol:");
+                        child.id = id + "-protocol-text";
+                        textarea = document.createElement("input");
+                        textarea.className = "custom-address-input protocol";
+                        textarea.setAttribute("value", "https");
+                        textarea.id = id + "-protocol"
+                        cell.appendChild(textarea);
+                    } else if (document.getElementById(id + "-protocol").value === "") {
+                        child = append_text_element(cell, "custom-address-text", "Protocol:");
+                        child.id = id + "-protocol-text";
+                        textarea = document.createElement("input");
+                        textarea.setAttribute("value", "https");
+                        textarea.className = "custom-address-input protocol";
+                        textarea.id = id + "-protocol";
+                        cell.appendChild(textarea);
+                    } else {
+                        child = append_text_element(cell, "custom-address-text", "Protocol:");
+                        child.id = id + "-protocol-text";
+                        textarea = document.createElement("input");
+                        textarea.setAttribute("value", document.getElementById(id + "-protocol").value);
+                        textarea.className = "custom-address-input protocol";
+                        textarea.id = id + "-protocol";
+                        cell.appendChild(textarea);
+                    }
+                    if (document.getElementById(id + "-ip") === null) {
+                        child = append_text_element(cell, "custom-address-text", "IP:");
+                        child.id = id + "-ip-text";
+                        textarea = document.createElement("input");
+                        textarea.type = "text";
+                        textarea.className = "custom-address-input ip";
+                        textarea.setAttribute("value", response[id]["ip"]);
+                        textarea.id = id + "-ip"
+                        cell.appendChild(textarea);
+                    } else if (document.getElementById(id + "-ip").value === "") {
+                        child = append_text_element(cell, "custom-address-text", "IP:");
+                        child.id = id + "-ip-text";
+                        textarea.type = "text";
+                        textarea = document.createElement("input");
+                        textarea.setAttribute("value", response[id]["ip"]);
+                        textarea.className = "custom-address-input ip";
+                        textarea.id = id + "-ip";
+                        cell.appendChild(textarea);
+                    } else {
+                        child = append_text_element(cell, "custom-address-text", "IP:");
+                        child.id = id + "-ip-text";
+                        textarea = document.createElement("input");
+                        textarea.setAttribute("value", document.getElementById(id + "-ip").value);
+                        textarea.className = "custom-address-input ip";
+                        textarea.id = id + "-ip";
+                        cell.appendChild(textarea);
+                    }
+                    if (document.getElementById(id + "-port") === null) {
+                        child = append_text_element(cell, "custom-address-text", "Port:");
+                        child.id = id + "-port-text";
+                        textarea = document.createElement("input");
+                        textarea.className = "custom-address-input port";
+                        textarea.setAttribute("value", "8006");
+                        textarea.id = id + "-port"
+                        cell.appendChild(textarea);
+                    } else if (document.getElementById(id + "-port").value === "") {
+                        child = append_text_element(cell, "custom-address-text", "Port:");
+                        child.id = id + "-port-text";
+                        textarea = document.createElement("input");
+                        textarea.setAttribute("value", "8006");
+                        textarea.className = "custom-address-input port";
+                        textarea.id = id + "-port";
+                        cell.appendChild(textarea);
+                    } else {
+                        child = append_text_element(cell, "custom-address-text", "Port:");
+                        child.id = id + "-port-text";
+                        textarea = document.createElement("input");
+                        textarea.setAttribute("value", document.getElementById(id + "-port").value);
+                        textarea.className = "custom-address-input port";
+                        textarea.id = id + "-port";
+                        cell.appendChild(textarea);
+                    }
+                    button = document.createElement("button");
+                    button.innerText = "Open page";
+                    button.setAttribute("action", "access_page");
+                    button.setAttribute("id", id);
+                    cell.appendChild(button);
+                } else if (response[id]["status"] === "running") {
                     ip = document.createElement("p");
                     ip.innerText = "No IP address. Please Wait"
                     cell.appendChild(ip);
@@ -110,7 +191,7 @@ const interval = setInterval(async function () {
                 vm_table.appendChild(row);
                 row = document.createElement("tr");
 
-                
+
                 cell = document.createElement("td");
                 box = document.createElement("div");
                 box.className = "power-options";
@@ -180,11 +261,13 @@ const interval = setInterval(async function () {
 
                 vms_container_temp.appendChild(vm_table);
             })
-            vms_container.innerHTML = vms_container_temp.innerHTML;
+            if (!paused) {
+                vms_container.innerHTML = vms_container_temp.innerHTML;
+            }
         })
         .catch(err => console.error(err));
 
-}, 10000);
+}, 3000);
 
 async function send_power_value(vmid, value, node) {
     await fetch("/web/set_vm_power_state", {
@@ -286,6 +369,13 @@ document.getElementById('vms_container').addEventListener('click', function (eve
             send_tag_data(vmId, prompt("Enter the MIDAS of the user:"), node, "add");
         } else if (action === "create_vm") {
             create_vm(prompt("Enter the password for the VM:"));
+        } else if (action === "access_page") {
+            var id = event.target.getAttribute("id");
+            var protocol = document.getElementById(id + "-protocol").value;
+            var ip = document.getElementById(id + "-ip").value;
+            var port = document.getElementById(id + "-port").value;
+            //console.log("/?protocol=" + protocol + "&ip=" + ip + "&port=" + port);
+            window.open("/?protocol=" + protocol + "&ip=" + ip + "&port=" + port, "Lab", "width=1500,height=900");
         }
     } else if (event.target.tagName === 'P') {
         const username = event.target.getAttribute('username');
@@ -296,5 +386,24 @@ document.getElementById('vms_container').addEventListener('click', function (eve
             return;
         }
         send_tag_data(vmId, username, node, "remove");
+    } else if (event.target.tagName === 'INPUT') {
+        var inputs = document.getElementsByTagName("input");
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener("blur", function (event) {
+                if (event.target.tagName === 'INPUT') {
+                    paused = false;
+                }
+            });
+        }
+        paused = true;
     }
 });
+
+window.addEventListener("blur", function (event) {
+    paused = true;
+});
+
+window.addEventListener("focus", function (event) {
+    paused = false;
+});
+
