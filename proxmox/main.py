@@ -158,6 +158,10 @@ class Main:
             
             if data == {}:
                 return {"result": "fail"}
+            print("data[\"network-interfaces\"]")
+            print(data["network-interfaces"])
+            print("data[\"network-interfaces\"][0]")
+            print(data["network-interfaces"][0])
             ip = data["network-interfaces"][0]["address"].split("/")[0]
             print(f'recieved postinst from {ip}')
             recieve_postinst_ip(ip=ip)
