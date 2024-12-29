@@ -162,10 +162,18 @@ class Main:
             print(data["network-interfaces"])
             print("data[\"network-interfaces\"][0]")
             print(data["network-interfaces"][0])
-            ip = data["network-interfaces"][0]["address"].split("/")[0]
-            print(f'recieved postinst from {ip}')
-            recieve_postinst_ip(ip=ip)
+            try:
+                ip = data["network-interfaces"][0]["address"].split("/")[0]
+            except Exception as e:
+                print(e)
+                for i in range(0, len(data["network-interfaces"])):
+                    if "address" in data["network-interfaces"][i]:
+                        print(f'recieved postinst from {ip}')
+                        recieve_postinst_ip(ip=ip)
+
+            print("end of postinst route")
             return {}
+                    
 
         @self.app.route("/first-boot.sh", methods=["GET"])
         def first_boot_get():
