@@ -24,7 +24,7 @@ mkdir -p /etc/nginx/certs/
 
 cat lab.conf | sed "s/_domain_/$webapp_domain/g" | sed "s/_webapp_ip_/$webapp/g" > /etc/nginx/sites-available/$webapp_domain.conf
 ln -s /etc/nginx/sites-available/$webapp_domain.conf /etc/nginx/sites-enabled/
-echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$webapp_domain\n" | openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/certs/$webapp_domain.key.pem -out /etc/nginx/certs/$webapp_domain.com.cert.pem -sha256 -days 365 -nodes
+echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$webapp_domain\n" | openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/certs/$webapp_domain.key.pem -out /etc/nginx/certs/$webapp_domain.cert.pem -sha256 -days 365 -nodes
 
 
 cat db.conf | sed "s/_domain_/$db_domain/g" | sed "s/_webapp_ip_/$db_webapp/g" > /etc/nginx/sites-available/$db_domain.conf
@@ -38,3 +38,5 @@ echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$proxmox_
 
 echo "This goes into .env in /proxmox and DHCP option 251. Put the full URL to answer.toml (Proxmox domain) in DHCP option 250."
 openssl x509 -noout -fingerprint -sha256 -inform pem -in /etc/nginx/certs/$proxmox_domain.cert.pem
+
+sudo nginx -t && sudo service nginx restart

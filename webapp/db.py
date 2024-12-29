@@ -20,7 +20,7 @@ def check_password_against_db(username: str, password: str) -> bool:
 
 def does_user_exist_in_db(username: str) -> bool:
     return get(
-        url=f"{POSTGRES_WEBAPP_HOST}/does_user_exist_in_db{username}", verify=POSTGRES_WEBAPP_verify_ssl
+        url=f"{POSTGRES_WEBAPP_HOST}/does_user_exist_in_db/{username}", verify=POSTGRES_WEBAPP_verify_ssl
     ).json()["result"]
 
 
