@@ -329,8 +329,9 @@ def create_fw():
     r = get_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config")
     print("Reconnecting FW interface for ", end="")
     print(r["net1"])
-    r = put_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", data={"net1": r["net1"].replace("link_down=1", "link_down=0")})
-
+    r = put_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config", data={"net1": r["net1"].replace("link_down=1", "link_down=0")})
+    print(r)
+    
     if ip == None or ip == "":
         get_interface_ip(qentry.valid_node, qentry.valid_id)
     print(f"creating fw on {ip}")

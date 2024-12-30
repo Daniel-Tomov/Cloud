@@ -72,9 +72,9 @@ class Main:
         def create_vm_route(username: str, password: str):
             # choose a node
             nodes = []
+            print(status)
             for entry in status:
-                print(status)
-                if "node" in entry and entry["type"] == "node":
+                if "node" in entry and "type" in entry and entry["type"] == "node" and entry["node"] not in nodes:
                     nodes.append(entry["node"])
 
             node = choice(nodes)
@@ -167,6 +167,7 @@ class Main:
             print(data["network-interfaces"][0])
             try:
                 ip = data["network-interfaces"][0]["address"].split("/")[0]
+                recieve_postinst_ip(ip=ip)
             except Exception as e:
                 print(e)
                 for i in range(0, len(data["network-interfaces"])):
