@@ -154,9 +154,11 @@ class Main:
 
         @self.app.route("/postinst", methods=["POST"])
         def postinst():
+            print("got postinst")
             data = request.json
             
             if data == {}:
+                print("got empty data")
                 return {"result": "fail"}
             print("data[\"network-interfaces\"]")
             print(data["network-interfaces"])

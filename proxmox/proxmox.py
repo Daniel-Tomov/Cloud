@@ -273,7 +273,7 @@ def get_interface_ip(node: str, vmid: str) -> str:
         if interface["name"] == "vmbr0":
             for ip_type in range(0, len(interface["ip-addresses"])):
                 if interface["ip-addresses"][ip_type]["ip-address-type"] == "ipv4":
-                    return interface["ip-addresses"][0]["ip-address"]
+                    return interface["ip-addresses"][ip_type]["ip-address"]
 
 
 def does_have_personal_vm_created(username: str) -> bool:
@@ -326,7 +326,7 @@ def create_fw():
     if midas == "" or root_password == "":
         return {"status": "not expecting VM"}
     
-    r = get_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config")
+    r = get_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config")
     print("Reconnecting FW interface for ", end="")
     print(r["net1"])
     r = put_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", data={"net1": r["net1"].replace("link_down=1", "link_down=0")})
