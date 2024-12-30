@@ -73,6 +73,7 @@ class Main:
             # choose a node
             nodes = []
             for entry in status:
+                print(status)
                 if "node" in entry and entry["type"] == "node":
                     nodes.append(entry["node"])
 
