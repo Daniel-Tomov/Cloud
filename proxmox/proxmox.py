@@ -73,10 +73,10 @@ def async_vm_creation():
                 cores=getenv("PVE_CORES"),
                 memory=getenv("PVE_MEMORY"),
                 agent=1,
-                net0=f"virtio,bridge=vmbr0,tag={getenv("PVE_VLAN")}",
-                net1=f"virtio,bridge=vmbr0,tag={getenv("FW_VLAN")}",
-                net2=f"virtio,bridge=vmbr0,tag={getenv("INTERNAL_VLAN")}",
-                scsi0=f"local-lvm:{getenv("PVE_GUEST_STORAGE")},iothread=on",
+                net0=f"virtio,bridge=vmbr0,firewall=0,tag={getenv('PVE_VLAN')},link_down=0",
+                net1=f"virtio,bridge=vmbr0,firewall=0,link_down=1,tag={getenv('FW_VLAN')}",
+                net2=f"virtio,bridge=vmbr0,tag={getenv('INTERNAL_VLAN')},link_down=0",
+                scsi0=f"local-lvm:{getenv('PVE_GUEST_STORAGE')},iothread=on",
                 start=1,
                 ide2=f"local:iso/{getenv('proxmox_http_iso')},media=cdrom",
                 tags=midas,
@@ -184,9 +184,9 @@ def create_ticket():
     data = {"username": f"{USERNAME}", "password": f"{PASSWORD}"}
     result = post_endpoint(endpoint=endpoint, data=data)
     try:
-        headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
-        headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
-        ticket = result["ticket"]
+        headers["Cookie"] = f"PVEAuthCookie={result['ticket']}"
+        headers['CSRFPreventionToken'] = result['CSRFPreventionToken']
+        ticket = result['ticket']
     except TypeError:
         print("could not create ticket. Possible incorrect credentials")
         exit(0)
@@ -199,8 +199,8 @@ def refresh_ticket():
 
     result = post_endpoint(endpoint=endpoint, data=data)
     try:
-        headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
-        headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
+        headers['Cookie'] = f"PVEAuthCookie={result['ticket']}"
+        headers['CSRFPreventionToken'] = result["CSRFPreventionToken"]
         ticket = result["ticket"]
     except TypeError:
         print("could not create ticket. Possible incorrect credentials")
@@ -325,9 +325,16 @@ def create_fw():
     root_password = qentry.root_password
     if midas == "" or root_password == "":
         return {"status": "not expecting VM"}
+    
+    r = get_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config")
+    print("Reconnecting FW interface for ", end="")
+    print(r["net1"])
+    r = put_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", data={"net1": r["net1"].replace("link_down=1", "link_down=0")})
+
     if ip == None or ip == "":
         get_interface_ip(qentry.valid_node, qentry.valid_id)
     print(f"creating fw on {ip}")
+
 
     # Get ticket for the Guest Proxmox VM to create OPNsense Firewall VM
     student_headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
@@ -336,9 +343,8 @@ def create_fw():
     result = post_endpoint(
         endpoint=endpoint, data=data, url=ip, headers=student_headers, verifySSL=False
     )
-    student_headers["Cookie"] = f"PVEAuthCookie={result["ticket"]}"
+    student_headers["Cookie"] = f"PVEAuthCookie={result['ticket']}"
     student_headers["CSRFPreventionToken"] = result["CSRFPreventionToken"]
-
     r = create_vm(
         name="opnsense-firewall",
         node=midas,
@@ -346,11 +352,11 @@ def create_fw():
         cores=2,
         memory=getenv("FW_MEMORY"),
         agent=0,
-        net0="virtio,bridge=vmbr2",
-        net1="virtio,bridge=vmbr1",
+        net0="virtio,bridge=vmbr2,link_down=0",
+        net1="virtio,bridge=vmbr1,link_down=0",
         net2="",
-        scsi0=f"local-lvm:{getenv("FW_STORAGE")},iothread=on",
-        ide2=f"local:iso/{getenv("FW_IMAGE")},media=cdrom",
+        scsi0=f"local-lvm:{getenv('FW_STORAGE')},iothread=on",
+        ide2=f"local:iso/{getenv('FW_IMAGE')},media=cdrom",
         start=0,
         tags="",
         ip=ip,
@@ -365,11 +371,11 @@ def create_fw():
         cores=1,
         memory=getenv("ANTIX_MEMORY"),
         agent=0,
-        net0="virtio,bridge=vmbr2",
+        net0="virtio,bridge=vmbr2,link_down=0",
         net1="",
         net2="",
-        scsi0=f"local-lvm:{getenv("ANTIX_STORAGE")},iothread=on",
-        ide2=f"local:iso/{getenv("ANTIX_IMAGE")},media=cdrom",
+        scsi0=f"local-lvm:{getenv('ANTIX_STORAGE')},iothread=on",
+        ide2=f"local:iso/{getenv('ANTIX_IMAGE')},media=cdrom",
         start=0,
         tags="",
         ip=ip,
@@ -403,7 +409,14 @@ if __name__ == "__main__":
     # print(get_interface_ip("pve2", "4000"))
     # vm_creation_queue.put(QueueEntry("dtomo001", "password"))
     """"""
-    print(create_fw())
+    #print(create_fw())
+    r = get_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config")
+    print(r["net1"])
+    if "link_down=1" in r["net1"]:
+        r = put_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", data={"net1": r["net1"].replace("link_down=1", "link_down=0")})
+    else:
+        r = put_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", data={"net1": r["net1"].replace("link_down=0", "link_down=1")})
+    print(r)
 # print(get_interface_ip(node=node, vmid=vmid))
 else:
     Thread(target=async_status).start()
