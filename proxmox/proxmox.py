@@ -11,12 +11,17 @@ from queue import Queue
 load_dotenv()
 USERNAME = getenv("PVE_USER")
 PASSWORD = getenv("PVE_PASS")
+API_TOKEN = getenv("PVE_TOKEN")
 URL = getenv("PVE_URL")
 verify_ssl = getenv("verify_ssl_pve", "False") == "True"
 if not verify_ssl:
     disable_warnings(InsecureRequestWarning)
 
-headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
+if API_TOKEN == "":
+    headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
+else:
+    headers = {"Authorization" : f"PVEAPIToken={API_TOKEN}"}
+
 
 vm_creation_queue = Queue()
 ready_for_vm_creation = True
@@ -145,18 +150,16 @@ def recieve_postinst_ip(ip: str):
         qentry.vm_ip = ip
 
 
-def get_endpoint(endpoint: str, url=URL, verifySSL=verify_ssl) -> str:
-    return get(
+def get_endpoint(endpoint: str, url: str =URL, headers: dict=headers, verifySSL: bool=verify_ssl) -> str:
+    r = get(
         url=f"https://{url}:8006{endpoint}", verify=verifySSL, headers=headers
-    ).json()["data"]
+    )
+    return r.json()["data"]
 
 
 def post_endpoint(
     endpoint: str, data: dict, url=URL, headers: dict = headers, verifySSL=verify_ssl
 ) -> dict:
-    # print(f"https://{url}:8006{endpoint}")
-    # print(data)
-    # print(headers)
     r = post(
         url=f"https://{url}:8006{endpoint}",
         data=data,
@@ -170,12 +173,14 @@ def post_endpoint(
 def put_endpoint(
     endpoint: str, data: dict, headers: dict = headers, url=URL, verifySSL=verify_ssl
 ) -> dict:
-    return put(
+    r = put(
         url=f"https://{url}:8006{endpoint}",
         data=data,
         headers=headers,
         verify=verifySSL,
-    ).json()
+    )
+    #print(r)
+    return r.json()
 
 
 def create_ticket():
@@ -191,6 +196,8 @@ def create_ticket():
         print("could not create ticket. Possible incorrect credentials")
         exit(0)
 
+if API_TOKEN == "":
+    create_ticket()
 
 def refresh_ticket():
     global headers, ticket
@@ -207,8 +214,7 @@ def refresh_ticket():
         exit(0)
 
 
-create_ticket()
-if headers["Cookie"] == "PVEAuthCookie=":
+if API_TOKEN == "" and headers["Cookie"] == "PVEAuthCookie=":
     print("Could not get ticket! Exiting")
     exit(1)
 
@@ -218,7 +224,6 @@ def get_status() -> dict:
     return get_endpoint(endpoint=endpoint)
 
 
-status = get_status()
 
 
 def async_status():
@@ -227,10 +232,12 @@ def async_status():
     while True:
         sleep(10)
         status = get_status()
-        counter += 1
-        if counter > 700:  # 7020 seconds
-            counter = 0
-            refresh_ticket()
+        if API_TOKEN == "":
+            counter += 1
+            if counter > 700:  # 7020 seconds
+                counter = 0
+                refresh_ticket()
+        
 
 
 def get_user_vms(username: str) -> dict:
@@ -411,7 +418,10 @@ if __name__ == "__main__":
     # vm_creation_queue.put(QueueEntry("dtomo001", "password"))
     """"""
     #print(create_fw())
-    r = get_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config")
+    status = get_status()
+    print(status)
+    r = get_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", headers=headers)
+    #print(r)
     print(r["net1"])
     if "link_down=1" in r["net1"]:
         r = put_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", data={"net1": r["net1"].replace("link_down=1", "link_down=0")})
@@ -420,6 +430,7 @@ if __name__ == "__main__":
     print(r)
 # print(get_interface_ip(node=node, vmid=vmid))
 else:
+    status = get_status()
     Thread(target=async_status).start()
     Thread(target=async_vm_creation).start()
     """"""
