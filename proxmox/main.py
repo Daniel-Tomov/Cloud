@@ -23,6 +23,14 @@ from json import loads
 
 load_dotenv()
 
+# TODO
+# 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
+# - Give permission to user on the proxmox host
+# - Will need to integrate logins with outside source
+#   - Webapp
+#   - active directory
+# 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
+
 
 class Main:
     def __init__(self):

@@ -19,6 +19,21 @@ from db import update_session_in_db
 
 load_dotenv()
 
+# TODO
+# 1. Fix login page
+# - Password requirements
+# - Visuals
+# - Hide password
+# 2. Add button to create user VM when user does not have VM
+# 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
+# - Give permission to user on the proxmox host
+# - Will need to integrate logins with outside source
+#   - Webapp
+#   - active directory
+# 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
+# 5. Dockerize nginx?
+# 6. 
+#
 
 class Main:
     def __init__(self):

@@ -80,7 +80,7 @@ def async_vm_creation():
                 agent=1,
                 net0=f"virtio,bridge=vmbr0,firewall=0,tag={getenv('PVE_VLAN')},link_down=0",
                 net1=f"virtio,bridge=vmbr0,firewall=0,link_down=1,tag={getenv('FW_VLAN')}",
-                net2=f"virtio,bridge=vmbr0,tag={getenv('INTERNAL_VLAN')},link_down=0",
+                #net2=f"virtio,bridge=vmbr0,tag={getenv('INTERNAL_VLAN')},link_down=0",
                 scsi0=f"local-lvm:{getenv('PVE_GUEST_STORAGE')},iothread=on",
                 start=1,
                 ide2=f"local:iso/{getenv('proxmox_http_iso')},media=cdrom",
@@ -236,7 +236,7 @@ def async_status():
             counter += 1
             if counter > 700:  # 7020 seconds
                 counter = 0
-                refresh_ticket()
+                refresh_ticket() # tickets last two hours
         
 
 
@@ -252,14 +252,15 @@ def get_user_vms(username: str) -> dict:
                     )
                 else:
                     status[entry]["ip"] = ""
-            # status[entry].pop("name", None)
+            # lines that are commented is data which is not removed
+            # status[entry].pop("name", None) # hostname of the vm
             status[entry].pop("diskread", None)
             status[entry].pop("disk", None)
             status[entry].pop("maxcpu", None)
             status[entry].pop("maxdisk", None)
             status[entry].pop("type", None)
-            # status[entry].pop("node", None)
-            # status[entry].pop("tags", None)
+            # status[entry].pop("node", None) # used to identify which node a VM is on when submitting a request from the GUI
+            # status[entry].pop("tags", None) # used to identify access in the GUI
             status[entry].pop("template", None)
             status[entry].pop("diskwrite", None)
             # status[entry].pop("id", None) # includes the vm type, lxc/qemu. ex: qemu/1000
