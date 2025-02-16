@@ -150,7 +150,7 @@ def recieve_postinst_ip(ip: str):
         qentry.vm_ip = ip
 
 
-def get_endpoint(endpoint: str, url: str =URL, headers: dict=headers, verifySSL: bool=verify_ssl) -> str:
+def get_endpoint(endpoint:str, url:str=URL, headers:dict=headers, verifySSL:bool=verify_ssl) -> str:
     r = get(
         url=f"https://{url}:8006{endpoint}", verify=verifySSL, headers=headers
     )

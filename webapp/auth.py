@@ -21,6 +21,8 @@ from db import (
     add_user_to_db,
 )
 
+banner = open("banner.txt", "r").read()
+
 load_dotenv()
 session_length = int(getenv("session_length"))  # minutes
 
@@ -37,7 +39,7 @@ class Auth:
             if request.method == "GET":
                 if "id" not in session or not check_session():
                     return make_response(
-                        render_template("login.html", page="register", extra_content="")
+                        render_template("login.html", page="register", extra_content="", banner=banner)
                     )
                 return redirect(url_for("index"))
 
@@ -51,6 +53,7 @@ class Auth:
                         "login.html",
                         page="register",
                         extra_content="That username is taken",
+                        banner=banner
                     )
                 )
                 r.set_cookie("session", "")
@@ -67,7 +70,7 @@ class Auth:
             if request.method == "GET":
                 if "id" not in session or not check_session():
                     r = make_response(
-                        render_template("login.html", page="login", extra_content="")
+                        render_template("login.html", page="login", extra_content="", banner=banner)
                     )
                     r.set_cookie("session", "")
                     return r
@@ -82,7 +85,7 @@ class Auth:
             if username == "" or password == "":
                 return make_response(
                     render_template(
-                        "login.html", page="login", extra_content="Incorrect"
+                        "login.html", page="login", extra_content="Incorrect", banner=banner
                     )
                 )
             if not check_password_against_db(
@@ -119,10 +122,10 @@ def compare_sessions(time_old: datetime, time_new: datetime) -> bool:
 
 
 def check_session() -> bool:
-    from_db = get_session_from_db()
+    from_db = get_session_from_db(session["id"])
     if len(from_db) == 0:
-        return False # TODO: increase performance by returning from_db[0], which is the username
-    return compare_sessions(convert_time_str_dt(from_db[2]), current_time_dt())
+        return False 
+    return compare_sessions(from_db[2], current_time_dt())
 
 
 def create_session(username: str):
@@ -131,7 +134,7 @@ def create_session(username: str):
 
 def invalidate_session():
     if "id" in session:
-        remove_session_from_db()
+        remove_session_from_db(session["id"])
     session.pop("id", None)
     r = make_response(redirect(url_for("login")))
     r.set_cookie("session", "")

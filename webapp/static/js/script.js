@@ -15,15 +15,6 @@ const interval = setInterval(async function () {
             var vms_container = document.getElementById("vms_container");
             var cpu, mem, maxmem, netin, netout, status, uptime, tags, child, vm_table, row, cell, box, icon, button, textarea = "";
 
-            if (dict.length === 0) {
-                vms_container.innerHTML = "";
-                button = document.createElement("button");
-                button.innerText = "Create VM";
-                button.setAttribute("action", "create_vm");
-                vms_container.appendChild(button);
-                return;
-            }
-
             var vms_container_temp = document.createElement("div");
             dict.forEach(function (id) {
                 vm_table = document.createElement("table");
@@ -261,6 +252,11 @@ const interval = setInterval(async function () {
 
                 vms_container_temp.appendChild(vm_table);
             })
+            
+            button = document.createElement("button");
+            button.innerText = "Create VM";
+            button.setAttribute("action", "create_vm");
+            vms_container_temp.appendChild(button);
             if (!paused) {
                 vms_container.innerHTML = vms_container_temp.innerHTML;
             }
@@ -375,7 +371,7 @@ document.getElementById('vms_container').addEventListener('click', function (eve
             var ip = document.getElementById(id + "-ip").value;
             var port = document.getElementById(id + "-port").value;
             //console.log("/?protocol=" + protocol + "&ip=" + ip + "&port=" + port);
-            window.open("/?protocol=" + protocol + "&ip=" + ip + "&port=" + port, "Lab", "width=1500,height=900");
+            window.open("/web/open/" + protocol + "/" + ip + "/" + port, "Lab", "width=1500,height=900");
         }
     } else if (event.target.tagName === 'P') {
         const username = event.target.getAttribute('username');

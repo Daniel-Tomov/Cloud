@@ -34,7 +34,7 @@ class Proxmox:
                 return {"logout": True}
             try:
                 return get(
-                    url=f"{PROXMOX_WEBAPP_HOST}/get_vm_status/{get_session_from_db()[0]}",
+                    url=f"{PROXMOX_WEBAPP_HOST}/get_vm_status/{get_session_from_db(session['id'])[0]}",
                     verify=PROXMOX_WEBAPP_verify_ssl,
                 ).json()
             except Exception:

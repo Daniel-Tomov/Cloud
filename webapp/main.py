@@ -20,15 +20,10 @@ from db import update_session_in_db
 load_dotenv()
 
 # TODO
-# 1. Fix login page
-# - Password requirements
-# - Visuals
-# - Hide password
-# 2. Add button to create user VM when user does not have VM
 # 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
 # - Give permission to user on the proxmox host
 # - Will need to integrate logins with outside source
-#   - Webapp
+#   - webapp
 #   - active directory
 # 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
 # 5. Dockerize nginx?
@@ -84,14 +79,15 @@ class Main:
         # set multiple routes for index.html as user may forget the exact URL
         @self.app.route("/web/home", methods=["GET"])
         @self.app.route("/web/index", methods=["GET"])
-        @self.app.route("/web", methods=["GET"])
+        @self.app.route("/web/", methods=["GET"])
+        #@self.app.route("/web", methods=["GET"])
         def index():
             if "id" not in session:
                 return invalidate_session()
             if not check_session():
                 return invalidate_session()
 
-            update_session_in_db()
+            update_session_in_db(session["id"])
             
             return make_response(render_template("index.html"))
 
@@ -99,7 +95,29 @@ class Main:
         def not_found(error):
             resp = make_response("404", 404)
             return resp
-
-
+        @self.app.route("/web/uptime", methods=["GET"])
+        def uptime():
+            r = make_response(render_template("redirect.html", url=getenv("WEBAPP_URL") + '/status/datacenter'))
+            r.set_cookie("protocol", "http")
+            r.set_cookie("ip", "192.168.55.157")
+            r.set_cookie("port", "3001")
+            return r
+        
+        @self.app.route("/web/open/<string:protocol>/<string:ip>/<string:port>", methods=["GET"])
+        def open(protocol: str, ip: str, port: str):
+            r = make_response(render_template("redirectwebapp.html", url=getenv("WEBAPP_URL")))
+            r.set_cookie("protocol", protocol)
+            r.set_cookie("ip", ip)
+            r.set_cookie("port", port)
+            return r
+            
+        @self.app.route("/web/tickets", methods=["GET"])
+        def tickets():
+            r = make_response(render_template("redirect.html", url=getenv("WEBAPP_URL") + "?login=public"))
+            r.set_cookie("protocol", "https")
+            r.set_cookie("ip", "192.168.57.10")
+            r.set_cookie("port", "443")
+            return r
+        
 if __name__ == "__main__":
     Main()

@@ -2,17 +2,26 @@
 <html>
     <head>
         <title>Login</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}"/>
+        
     </head>
     <body>
         {% if extra_content != "" %}
         <p>{{ extra_content }}</p>
         {% endif %}
-        <form action="/web/{{ page }}" method="post">
-            <label for="username">Username:</label>
-            <textarea name="username" id="username"></textarea>
-            <label for="password">Password:</label>
-            <textarea name="password" id="password" type="password"></textarea>
-            <button type="submit">Submit</button>
-        </form>
+        <main>
+            <h1>Cyber Data Center</h1>
+            <pre>{{ banner }}</pre>
+            <form action="/web/{{ page }}" method="post">
+                <label for="username">Username:</label>
+                <input name="username" id="username" type="text" required></input>
+                <label for="password">Password:</label>
+                <input name="password" id="password" type="password" required></input>
+                <button type="submit">Submit</button>
+            </form>
+            <p>Other pages:</p>
+            <a href="/web/uptime">uptime</a>
+            <a href="/web/tickets">tickets</a>
+        </main>
     </body>
 </html>
