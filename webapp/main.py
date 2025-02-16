@@ -105,7 +105,7 @@ class Main:
         
         @self.app.route("/web/open/<string:protocol>/<string:ip>/<string:port>", methods=["GET"])
         def open(protocol: str, ip: str, port: str):
-            r = make_response(render_template("redirectwebapp.html", url=getenv("WEBAPP_URL")))
+            r = make_response(render_template("redirect.html", url=getenv("WEBAPP_URL")))
             r.set_cookie("protocol", protocol)
             r.set_cookie("ip", ip)
             r.set_cookie("port", port)
