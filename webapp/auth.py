@@ -93,7 +93,7 @@ class Auth:
             ):
                 r = make_response(
                     render_template(
-                        "login.html", page="login", extra_content="Incorrect"
+                        "login.html", page="login", extra_content="Incorrect", banner=banner
                     )
                 )
                 r.set_cookie("session", "")
