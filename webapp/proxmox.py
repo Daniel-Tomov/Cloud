@@ -165,7 +165,7 @@ class Proxmox:
             if data == {}:
                 return {"result": "fail"}
 
-            username = get_session_from_db()[0]
+            username = get_session_from_db(session["id"])[0]
             password = data["password"]
 
             does_have_personal_vm_created = get(
