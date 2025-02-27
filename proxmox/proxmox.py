@@ -196,7 +196,7 @@ def create_ticket():
         print("could not create ticket. Possible incorrect credentials")
         exit(0)
 
-if API_TOKEN == "":
+if API_TOKEN == "" or API_TOKEN == None:
     create_ticket()
 
 def refresh_ticket():
