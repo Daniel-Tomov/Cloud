@@ -60,7 +60,10 @@ def async_vm_creation():
             for entry in range(0, len(status)):
                 if "node" in status[entry]:
                     id = status[entry]["id"].split("/")[1]
-                    dictionary_of_ids[id] = "1"
+                    try:
+                        dictionary_of_ids[int(id)] = "1"
+                    except:
+                        pass
             for location in range(4000, 999999999):
                 try:
                     dictionary_of_ids[location]
