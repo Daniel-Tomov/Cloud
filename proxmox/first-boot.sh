@@ -24,11 +24,11 @@ iface vmbr1 inet manual
 
 auto vmbr2
 iface vmbr2 inet manual
-+	bridge-ports none
-+	bridge-stp off
-+	bridge-fd 0
-+	bridge-vlan-aware yes
-+	bridge-vids 2-4094
+	bridge-ports none
+	bridge-stp off
+	bridge-fd 0
+	bridge-vlan-aware yes
+	bridge-vids 2-4094
 #Internal Adapter. Put your VMs and containers here.
 EOF
 ifreload -a
