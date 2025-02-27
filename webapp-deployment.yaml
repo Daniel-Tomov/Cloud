@@ -1,0 +1,115 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - image: python:3.13.1-bookworm
+          name: webapp
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5555
+              protocol: TCP
+          args:
+            - /bin/bash
+            - -c
+            - "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/webapp/run.sh; chmod +x run.sh ; ./run.sh"
+          env:
+            - name: FLASK_SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: FLASK_SECRET_KEY
+                  name: env
+            - name: POSTGRES_WEBAPP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_WEBAPP_HOST
+                  name: env
+            - name: POSTGRES_WEBAPP_verify_ssl
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_WEBAPP_verify_ssl
+                  name: env
+            - name: PROXMOX_WEBAPP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: PROXMOX_WEBAPP_HOST
+                  name: env
+            - name: PROXMOX_WEBAPP_verify_ssl
+              valueFrom:
+                configMapKeyRef:
+                  key: PROXMOX_WEBAPP_verify_ssl
+                  name: env
+            - name: PYTHONWARNINGS
+              valueFrom:
+                configMapKeyRef:
+                  key: PYTHONWARNINGS
+                  name: env
+            - name: session_length
+              valueFrom:
+                configMapKeyRef:
+                  key: session_length
+                  name: env
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_USER
+                  name: env
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: env
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_DB
+                  name: env
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_HOST
+                  name: env
+            - name: tickets_protocol
+              valueFrom:
+                configMapKeyRef:
+                  key: tickets_protocol
+                  name: env
+            - name: tickets_ip
+              valueFrom:
+                configMapKeyRef:
+                  key: tickets_ip
+                  name: env
+            - name: tickets_port
+              valueFrom:
+                configMapKeyRef:
+                  key: tickets_port
+                  name: env
+            - name: uptime_protocol
+              valueFrom:
+                configMapKeyRef:
+                  key: uptime_protocol
+                  name: env
+            - name: uptime_ip
+              valueFrom:
+                configMapKeyRef:
+                  key: uptime_ip
+                  name: env
+            - name: uptime_port
+              valueFrom:
+                configMapKeyRef:
+                  key: uptime_protocol
+                  name: env
+      restartPolicy: Always

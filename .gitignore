@@ -153,3 +153,4 @@ cython_debug/
 
 
 .donotpush/
+*env-configmap.yaml
