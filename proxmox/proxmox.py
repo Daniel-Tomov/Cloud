@@ -17,7 +17,7 @@ verify_ssl = getenv("verify_ssl_pve", "False") == "True"
 if not verify_ssl:
     disable_warnings(InsecureRequestWarning)
 
-if API_TOKEN == "":
+if API_TOKEN == None or API_TOKEN == "":
     headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
 else:
     headers = {"Authorization" : f"PVEAPIToken={API_TOKEN}"}
