@@ -31,7 +31,7 @@ cursor = connection.cursor()
 
 def create_tables():
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS users (username VARCHAR(16), password VARCHAR(128), salt VARCHAR(32));"
+        "CREATE TABLE IF NOT EXISTS users (username VARCHAR(16), password VARCHAR(128), salt VARCHAR(32), admin boolean default false);"
     )
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP);"
