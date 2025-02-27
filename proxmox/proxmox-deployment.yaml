@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxmox
+  labels:
+    app: proxmox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxmox
+  template:
+    metadata:
+      labels:
+        app: proxmox
+    spec:
+      containers:
+        - image: python:3.13.1-bookworm
+          name: webapp-proxmox
+          args:
+            - /bin/bash
+            - -c
+            - wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/proxmox/run.sh ; sh run.sh
+          ports:
+            - containerPort: 5556
+              protocol: TCP
+          env:
+            - name: ANTIX_IMAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: ANTIX_IMAGE
+                  name: env
+            - name: ANTIX_MEMORY
+              valueFrom:
+                configMapKeyRef:
+                  key: ANTIX_MEMORY
+                  name: env
+            - name: ANTIX_STORAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: ANTIX_STORAGE
+                  name: env
+            - name: FW_IMAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: FW_IMAGE
+                  name: env
+            - name: FW_MEMORY
+              valueFrom:
+                configMapKeyRef:
+                  key: FW_MEMORY
+                  name: env
+            - name: FW_STORAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: FW_STORAGE
+                  name: env
+            - name: FW_VLAN
+              valueFrom:
+                configMapKeyRef:
+                  key: FW_VLAN
+                  name: env
+            - name: INTERNAL_VLAN
+              valueFrom:
+                configMapKeyRef:
+                  key: INTERNAL_VLAN
+                  name: env
+            - name: PVE_CORES
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_CORES
+                  name: env
+            - name: PVE_GUEST_STORAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_GUEST_STORAGE
+                  name: env
+            - name: PVE_MEMORY
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_MEMORY
+                  name: env
+            - name: PVE_PASS
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_PASS
+                  name: env
+            - name: PVE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_URL
+                  name: env
+            - name: PVE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_USER
+                  name: env
+            - name: PVE_VLAN
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_VLAN
+                  name: env
+            - name: create_fw_url
+              valueFrom:
+                configMapKeyRef:
+                  key: create_fw_url
+                  name: env
+            - name: first_boot_script_url
+              valueFrom:
+                configMapKeyRef:
+                  key: first_boot_script_url
+                  name: env
+            - name: first_boot_script_url_fingerprint
+              valueFrom:
+                configMapKeyRef:
+                  key: first_boot_script_url_fingerprint
+                  name: env
+            - name: iso_img_domain
+              valueFrom:
+                configMapKeyRef:
+                  key: iso_img_domain
+                  name: env
+            - name: lvm_max_root
+              valueFrom:
+                configMapKeyRef:
+                  key: lvm_max_root
+                  name: env
+            - name: post_installation_url
+              valueFrom:
+                configMapKeyRef:
+                  key: post_installation_url
+                  name: env
+            - name: post_installation_url_fingerprint
+              valueFrom:
+                configMapKeyRef:
+                  key: post_installation_url_fingerprint
+                  name: env
+            - name: proxmox_http_iso
+              valueFrom:
+                configMapKeyRef:
+                  key: proxmox_http_iso
+                  name: env
+            - name: verify_ssl_pve
+              valueFrom:
+                configMapKeyRef:
+                  key: verify_ssl_pve
+                  name: env
+      restartPolicy: Always
