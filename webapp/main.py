@@ -20,6 +20,7 @@ from db import update_session_in_db
 load_dotenv()
 
 # TODO
+# 1. create local cache for sessions because many webapps going to database may be slowing it down
 # 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
 # - Give permission to user on the proxmox host
 # - Will need to integrate logins with outside source

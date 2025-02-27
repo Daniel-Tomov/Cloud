@@ -64,7 +64,7 @@ class Proxmox:
             power_value = data["power_value"]
             if vmid is None or power_value is None or node is None:
                 return {"result": "fail"}
-            username = get_session_from_db()[0]
+            username = get_session_from_db(session["id"])[0]
 
             return {
                 "result": get(
@@ -96,7 +96,7 @@ class Proxmox:
             if data == {}:
                 return {"result": "fail"}
 
-            username = get_session_from_db()[0]
+            username = get_session_from_db(session["id"])[0]
             username_to_add = data["username"]
 
             if username_to_add == None:
@@ -133,7 +133,7 @@ class Proxmox:
 
             print(data)
 
-            username = get_session_from_db()[0]
+            username = get_session_from_db(session["id"])[0]
 
             username_to_remove = data["username"]
             vmid = data["vmid"]
