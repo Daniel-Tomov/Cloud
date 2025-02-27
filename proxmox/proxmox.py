@@ -289,7 +289,7 @@ def get_interface_ip(node: str, vmid: str) -> str:
 
 def does_have_personal_vm_created(username: str) -> bool:
     for entry in status:
-        if "node" in entry and entry["node"] == "node":
+        if "node" in entry and "name" in entry:
             if username in entry["name"]:
                 return True
 
