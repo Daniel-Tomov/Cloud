@@ -97,7 +97,7 @@ class Main:
             return resp
         @self.app.route("/web/uptime", methods=["GET"])
         def uptime():
-            r = make_response(render_template("redirect.html", url=getenv("WEBAPP_URL") + '/status/datacenter'))
+            r = make_response(render_template("redirect.html", url='/status/datacenter'))
             r.set_cookie("protocol", "http")
             r.set_cookie("ip", "192.168.55.157")
             r.set_cookie("port", "3001")
@@ -105,15 +105,16 @@ class Main:
         
         @self.app.route("/web/open/<string:protocol>/<string:ip>/<string:port>", methods=["GET"])
         def open(protocol: str, ip: str, port: str):
-            r = make_response(render_template("redirect.html", url=getenv("WEBAPP_URL")))
+            r = make_response(render_template("redirect.html", url="/"))
             r.set_cookie("protocol", protocol)
             r.set_cookie("ip", ip)
             r.set_cookie("port", port)
+            #print(f'{protocol} {ip} {port}')
             return r
             
         @self.app.route("/web/tickets", methods=["GET"])
         def tickets():
-            r = make_response(render_template("redirect.html", url=getenv("WEBAPP_URL") + "?login=public"))
+            r = make_response(render_template("redirect.html", url="/?login=public"))
             r.set_cookie("protocol", "https")
             r.set_cookie("ip", "192.168.57.10")
             r.set_cookie("port", "443")
