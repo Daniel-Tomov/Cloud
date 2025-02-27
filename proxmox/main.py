@@ -80,7 +80,7 @@ class Main:
         def create_vm_route(username: str, password: str):
             # choose a node
             nodes = []
-            print(status)
+            #print(status)
             for entry in status:
                 if "node" in entry and "type" in entry and entry["type"] == "node" and entry["node"] not in nodes:
                     nodes.append(entry["node"])
@@ -169,10 +169,10 @@ class Main:
             if data == {}:
                 print("got empty data")
                 return {"result": "fail"}
-            print("data[\"network-interfaces\"]")
-            print(data["network-interfaces"])
-            print("data[\"network-interfaces\"][0]")
-            print(data["network-interfaces"][0])
+            #print("data[\"network-interfaces\"]")
+            #print(data["network-interfaces"])
+            #print("data[\"network-interfaces\"][0]")
+            #print(data["network-interfaces"][0])
             try:
                 ip = data["network-interfaces"][0]["address"].split("/")[0]
                 recieve_postinst_ip(ip=ip)
