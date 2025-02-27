@@ -6,7 +6,7 @@ spec:
   type: NodePort
   ports:
   - name: http
-    port: 80
+    port: 32000
     protocol: TCP
     targetPort: 5555
     nodePort: 32000
