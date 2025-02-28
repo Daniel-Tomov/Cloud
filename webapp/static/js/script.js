@@ -263,7 +263,7 @@ const interval = setInterval(async function () {
         })
         .catch(err => console.error(err));
 
-}, 3000);
+}, 10000);
 
 async function send_power_value(vmid, value, node) {
     await fetch("/web/set_vm_power_state", {
