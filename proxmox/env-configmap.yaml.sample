@@ -15,15 +15,14 @@ data:
   PVE_URL: 
   PVE_USER: @pam
   PVE_VLAN: "3"
-  create_fw_url: https:/______/create_fw
-  first_boot_script_url: https://_______/first-boot.sh
-  first_boot_script_url_fingerprint: 
+  proxmox_webapp_url: https://______
+  proxmox_webapp_fingerprint:  
   iso_img_domain: https://_______
   lvm_max_root: "24"
-  post_installation_url: https://_______/postinst
   post_installation_url_fingerprint: 
   proxmox_http_iso: proxmox-ve_8.3-1-auto-from-http.iso
   verify_ssl_pve: "True"
+  PVE_INTERFACE: vmbr0
 kind: ConfigMap
 metadata:
   labels:

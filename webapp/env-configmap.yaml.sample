@@ -1,9 +1,7 @@
 apiVersion: v1
 data:
   FLASK_SECRET_KEY:
-  POSTGRES_WEBAPP_HOST:
-  POSTGRES_WEBAPP_verify_ssl:
-  PROXMOX_WEBAPP_HOST:
+  PROXMOX_WEBAPP_HOST: "ignore:Unverified HTTPS request"
   PROXMOX_WEBAPP_verify_ssl:
   PYTHONWARNINGS:
   session_length:

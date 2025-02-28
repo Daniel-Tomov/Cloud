@@ -81,8 +81,8 @@ def async_vm_creation():
                 cores=getenv("PVE_CORES"),
                 memory=getenv("PVE_MEMORY"),
                 agent=1,
-                net0=f"virtio,bridge=vmbr0,firewall=0,tag={getenv('PVE_VLAN')},link_down=0",
-                net1=f"virtio,bridge=vmbr0,firewall=0,link_down=1,tag={getenv('FW_VLAN')}",
+                net0=f"virtio,bridge={getenv('PVE_INTERFACE')},firewall=0,tag={getenv('PVE_VLAN')},link_down=0",
+                net1=f"virtio,bridge={getenv('PVE_INTERFACE')},firewall=0,link_down=1,tag={getenv('FW_VLAN')}",
                 scsi0=f"local-lvm:{getenv('PVE_GUEST_STORAGE')},iothread=on",
                 start=1,
                 ide2=f"local:iso/{getenv('proxmox_http_iso')},media=cdrom",
@@ -306,15 +306,15 @@ def send_answer_toml():
         answer_file.replace("{{ midas }}", midas)
         .replace("{{ password }}", root_password)
         .replace("{{ lvm_max_root }}", getenv("lvm_max_root"))
-        .replace("{{ post_installation_url }}", getenv("post_installation_url"))
+        .replace("{{ post_installation_url }}", getenv("proxmox_webapp_url") + '/postinst')
         .replace(
             "{{ post_installation_url_fingerprint }}",
-            getenv("post_installation_url_fingerprint"),
+            getenv("proxmox_webapp_fingerprint"),
         )
-        .replace("{{ first_boot_script_url }}", getenv("first_boot_script_url"))
+        .replace("{{ first_boot_script_url }}", getenv("proxmox_webapp_url") + '/first-boot.sh')
         .replace(
             "{{ first_boot_script_url_fingerprint }}",
-            getenv("first_boot_script_url_fingerprint"),
+            getenv("proxmox_webapp_fingerprint"),
         )
     )
 
@@ -323,7 +323,7 @@ def send_first_boot_get():
     return (
         first_boot_file.replace("{{ iso_img_domain }}", getenv("iso_img_domain"))
         .replace("{{ FW_IMAGE }}", getenv("FW_IMAGE"))
-        .replace("{{ create_fw_url }}", getenv("create_fw_url"))
+        .replace("{{ create_fw_url }}", getenv("proxmox_webapp_url") + "/create_fw")
         .replace("{{ ANTIX_IMAGE }}", getenv("ANTIX_IMAGE"))
     )
 

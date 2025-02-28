@@ -100,20 +100,15 @@ spec:
                 configMapKeyRef:
                   key: PVE_VLAN
                   name: env
-            - name: create_fw_url
+            - name: proxmox_webapp_url
               valueFrom:
                 configMapKeyRef:
-                  key: create_fw_url
+                  key: proxmox_webapp_url
                   name: env
-            - name: first_boot_script_url
+            - name: proxmox_webapp_fingerprint
               valueFrom:
                 configMapKeyRef:
-                  key: first_boot_script_url
-                  name: env
-            - name: first_boot_script_url_fingerprint
-              valueFrom:
-                configMapKeyRef:
-                  key: first_boot_script_url_fingerprint
+                  key: proxmox_webapp_fingerprint
                   name: env
             - name: iso_img_domain
               valueFrom:
@@ -125,16 +120,6 @@ spec:
                 configMapKeyRef:
                   key: lvm_max_root
                   name: env
-            - name: post_installation_url
-              valueFrom:
-                configMapKeyRef:
-                  key: post_installation_url
-                  name: env
-            - name: post_installation_url_fingerprint
-              valueFrom:
-                configMapKeyRef:
-                  key: post_installation_url_fingerprint
-                  name: env
             - name: proxmox_http_iso
               valueFrom:
                 configMapKeyRef:
@@ -144,5 +129,10 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: verify_ssl_pve
+                  name: env
+            - name: PVE_INTERFACE
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_INTERFACE
                   name: env
       restartPolicy: Always

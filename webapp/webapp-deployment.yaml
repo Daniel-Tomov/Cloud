@@ -32,16 +32,6 @@ spec:
                 configMapKeyRef:
                   key: FLASK_SECRET_KEY
                   name: env
-            - name: POSTGRES_WEBAPP_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_WEBAPP_HOST
-                  name: env
-            - name: POSTGRES_WEBAPP_verify_ssl
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_WEBAPP_verify_ssl
-                  name: env
             - name: PROXMOX_WEBAPP_HOST
               valueFrom:
                 configMapKeyRef:
