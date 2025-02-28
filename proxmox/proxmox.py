@@ -83,7 +83,6 @@ def async_vm_creation():
                 agent=1,
                 net0=f"virtio,bridge=vmbr0,firewall=0,tag={getenv('PVE_VLAN')},link_down=0",
                 net1=f"virtio,bridge=vmbr0,firewall=0,link_down=1,tag={getenv('FW_VLAN')}",
-                #net2=f"virtio,bridge=vmbr0,tag={getenv('INTERNAL_VLAN')},link_down=0",
                 scsi0=f"local-lvm:{getenv('PVE_GUEST_STORAGE')},iothread=on",
                 start=1,
                 ide2=f"local:iso/{getenv('proxmox_http_iso')},media=cdrom",
@@ -235,7 +234,7 @@ def async_status():
     while True:
         sleep(10)
         status = get_status()
-        if API_TOKEN == "":
+        if API_TOKEN == "" or API_TOKEN == None:
             counter += 1
             if counter > 700:  # 7020 seconds
                 counter = 0

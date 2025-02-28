@@ -7,14 +7,13 @@ data:
   FW_MEMORY: "2048"
   FW_STORAGE: "24"
   FW_VLAN: "4"
-  INTERNAL_VLAN: "999"
   PVE_CORES: "4"
   PVE_GUEST_STORAGE: "96"
   PVE_MEMORY: "4096"
-  PVE_PASS: password
+  PVE_PASS: 
   PVE_TOKEN: 
-  PVE_URL: 192.168.10.11
-  PVE_USER: root@pam
+  PVE_URL: 
+  PVE_USER: @pam
   PVE_VLAN: "3"
   create_fw_url: https:/______/create_fw
   first_boot_script_url: https://_______/first-boot.sh
