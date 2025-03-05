@@ -89,7 +89,9 @@ def add_session_to_db(username: str) -> str:
 
 def get_session_from_db(id) -> list:
     if id in sessions_cache:
-        return [sessions_cache[id]["id"], sessions_cache[id]["username"], sessions_cache[id]["last_accessed"]]
+        return [sessions_cache[id]["username"], sessions_cache[id]["id"], sessions_cache[id]["last_accessed"]]
+    else:
+        print(f'Session {id} not found in cache, going to db')
     cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
     result = cursor.fetchall()
     if len(result) == 0:
