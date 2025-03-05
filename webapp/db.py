@@ -122,8 +122,9 @@ def session_prune():
     cursor.execute(f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';")
     connection.commit()
 
-    cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
+    cursor.execute(f"SELECT * FROM sessions;")
     result = cursor.fetchall()
+
     for sess in result:
         sessions_cache[sess[0]] = {"id": sess[0], "username": sess[1], "last_accessed": sess[2]}
 
