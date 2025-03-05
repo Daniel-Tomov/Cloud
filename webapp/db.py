@@ -89,15 +89,18 @@ def add_session_to_db(username: str) -> str:
 
 def get_session_from_db(id) -> list:
     if id in sessions_cache:
+        print(f'found {id} in cache')
         return [sessions_cache[id]["username"], sessions_cache[id]["id"], sessions_cache[id]["last_accessed"]]
     else:
         print(f'Session {id} not found in cache, going to db')
     cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
     result = cursor.fetchall()
+    print(result)
     if len(result) == 0:
         return []
+    result = result[0]
     sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2]}
-    return result[0]
+    return result
 
 
 def update_session_in_db(id: str):
@@ -121,19 +124,18 @@ create_tables()
 
 
 def session_prune():
-    for id in sessions_cache:
-        if sessions_cache[id]["last_accessed"] < current_time_dt():
-            del sessions_cache[id]
     expiration_time = current_time_dt() - timedelta(minutes=session_length)
     expiration_time = convert_time_dt_str(expiration_time)
     cursor.execute(f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';")
     connection.commit()
 
+    return
+
     cursor.execute(f"SELECT * FROM sessions;")
     result = cursor.fetchall()
 
     for sess in result:
-        sessions_cache[sess[0]] = {"id": sess[0], "username": sess[1], "last_accessed": sess[2]}
+        sessions_cache[sess[1]] = {"id": sess[1], "username": sess[0], "last_accessed": sess[2]}
 
 
 def async_session_prune():
@@ -141,7 +143,7 @@ def async_session_prune():
     while True:
         status = session_prune()
         sleep(
-            (session_length / 2) * 60
+            (session_length / 2)
         )  # remove expired sessions every session_length / 2 minutes
 
 
