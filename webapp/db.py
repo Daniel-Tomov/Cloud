@@ -17,6 +17,7 @@ POSTGRES_DB = getenv("POSTGRES_DB")
 POSTGRES_USER = getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
 POSTGRES_HOST = getenv("POSTGRES_HOST")
+POSTGRES_PORT = int(getenv("POSTGRES_PORT"))
 session_length = int(getenv("session_length"))  # minutes
 
 connection = psycopg2.connect(
@@ -24,7 +25,7 @@ connection = psycopg2.connect(
     user=POSTGRES_USER,
     password=POSTGRES_PASSWORD,
     host=POSTGRES_HOST,
-    port=5432,
+    port=POSTGRES_PORT,
 )
 cursor = connection.cursor()
 

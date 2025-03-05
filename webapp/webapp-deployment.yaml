@@ -72,6 +72,11 @@ spec:
                 configMapKeyRef:
                   key: POSTGRES_HOST
                   name: webapp-env
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_PORT
+                  name: webapp-env
             - name: tickets_protocol
               valueFrom:
                 configMapKeyRef:

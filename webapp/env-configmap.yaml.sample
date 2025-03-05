@@ -9,6 +9,7 @@ data:
   POSTGRES_PASSWORD:
   POSTGRES_DB:
   POSTGRES_HOST:
+  POSTGRES_PORT:
   tickets_protocol:
   tickets_ip:
   tickets_port:
