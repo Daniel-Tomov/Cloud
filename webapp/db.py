@@ -100,8 +100,10 @@ def get_session_from_db(id) -> list:
 
 
 def update_session_in_db(id: str):
-    if id in sessions_cache:
-        sessions_cache[id]["last_accessed"] = current_time_dt()
+    if id not in sessions_cache:
+        sessions_cache[id] = {}
+    
+    sessions_cache[id]["last_accessed"] = current_time_dt()
     cursor.execute(
         f"UPDATE sessions SET last_accessed = '{current_time_str()}' WHERE id = '{id}';"
     )
