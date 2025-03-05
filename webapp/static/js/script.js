@@ -8,7 +8,7 @@ const interval = setInterval(async function () {
         .then(response => {
             if ("logout" in response) {
                 clearInterval(interval);
-                window.location = "/login";
+                window.location = "/web/login";
                 return;
             }
             const dict = Object.keys(response);
