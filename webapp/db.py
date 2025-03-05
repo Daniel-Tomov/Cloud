@@ -65,6 +65,9 @@ def does_user_exist_in_db(username: str) -> bool:
 
 
 def add_user_to_db(username: str, password: str):
+    Thread(target=async_add_user_to_db, kwargs={"username": username, "password": password}).start()
+
+def async_add_user_to_db(username: str, password: str):
     username = sanitize_input(username)
     salt = urandom(16).hex()
     password = hash_512(password + salt)
@@ -80,15 +83,20 @@ def add_session_to_db(username: str) -> str:
     id = urandom(16).hex()
     sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt()}
 
+    Thread(target=async_add_session_to_db, kwargs={"username": username, "id": id}).start()
+    
+    return id
+
+def async_add_session_to_db(username: str, id: str):
     cursor.execute(
         f"INSERT INTO sessions (username, id, last_accessed) VALUES ('{username}', '{id}', '{current_time_str()}');"
     )
     connection.commit()
-    result = cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
-    return id
+    # cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
+    
 
 def get_session_from_db(id) -> list:
-    if id in sessions_cache and "username" in sessions_cache['id']:
+    if id in sessions_cache and "username" in sessions_cache[id]:
         print(f'found {id} in cache')
         return [sessions_cache[id]["username"], sessions_cache[id]["id"], sessions_cache[id]["last_accessed"]]
     else:
@@ -104,21 +112,27 @@ def get_session_from_db(id) -> list:
 
 
 def update_session_in_db(id: str):
-    if id not in sessions_cache:
-        sessions_cache[id] = {}
+    if id in sessions_cache and "last_accessed" in sessions_cache[id]:
+        sessions_cache[id]["last_accessed"] = current_time_dt()
     
-    sessions_cache[id]["last_accessed"] = current_time_dt()
+    Thread(target=async_update_session_in_db, kwargs={"id": id}).start()
+
+def async_update_session_in_db(id: str):
     cursor.execute(
         f"UPDATE sessions SET last_accessed = '{current_time_str()}' WHERE id = '{id}';"
     )
+    connection.commit()
 
 
 def remove_session_from_db(id):
     if id in sessions_cache:
         del sessions_cache[id]
+    Thread(target=async_remove_session_from_db, kwargs={"id": id}).start()
+    
+
+def async_remove_session_from_db(id: str):
     cursor.execute(f"DELETE FROM sessions WHERE id = '{id}';")
     connection.commit()
-
 
 create_tables()
 
@@ -148,7 +162,7 @@ def async_session_prune():
     while True:
         status = session_prune()
         sleep(
-            (session_length / 2)
+            (session_length / 2) * 60
         )  # remove expired sessions every session_length / 2 minutes
 
 
