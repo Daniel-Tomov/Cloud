@@ -8,7 +8,7 @@ cd /usr/src/
 git clone https://github.com/Daniel-Tomov/Cloud
 #unzip cloud.zip
 #cd Cloud-main
-cd cloud
+cd Cloud
 cd webapp
 
 pip3 install -r requirements.txt
