@@ -96,6 +96,7 @@ def get_session_from_db(id) -> list:
     result = cursor.fetchall()
     if len(result) == 0:
         return []
+    sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2]}
     return result[0]
 
 
