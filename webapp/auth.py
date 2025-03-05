@@ -104,7 +104,8 @@ class Auth:
 
         @self.app.route("/web/update_session", methods=["GET"])
         def update_session_route():
-            update_session_in_db()
+            update_session_in_db(session['id'])
+            return "done"
 
         @self.app.route("/web/logout")
         def logout():
