@@ -3,7 +3,7 @@ import hashlib
 from datetime import datetime
 
 load_dotenv()
-date_format = "%a, %d %b %Y %H:%M:%S %Z"
+date_format = "%d %b %Y %H:%M:%S"
 
 
 def hash_512(s: str) -> str:
