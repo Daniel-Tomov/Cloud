@@ -1,7 +1,7 @@
 import psycopg2
 from os import getenv, urandom
 from dotenv import load_dotenv
-from datetime import timedelta
+from datetime import timedelta, datetime
 from utils import (
     hash_512,
     sanitize_input,
@@ -29,6 +29,8 @@ connection = psycopg2.connect(
 )
 cursor = connection.cursor()
 
+# {"id": {"id": "", "username": "", "last_accessed": datetime}}
+sessions_cache = {}
 
 def create_tables():
     cursor.execute(
@@ -74,6 +76,9 @@ def add_user_to_db(username: str, password: str):
 
 def add_session_to_db(username: str) -> str:
     username = sanitize_input(username)
+    
+    sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt()}
+
     id = urandom(16).hex()
     cursor.execute(
         f"INSERT INTO sessions (username, id, last_accessed) VALUES ('{username}', '{id}', '{current_time_str()}');"
@@ -83,6 +88,8 @@ def add_session_to_db(username: str) -> str:
     return id
 
 def get_session_from_db(id) -> list:
+    if id in sessions_cache:
+        return [sessions_cache[id]["id"], sessions_cache[id]["username"], sessions_cache[id]["last_accessed"]]
     cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
     result = cursor.fetchall()
     if len(result) == 0:
@@ -91,12 +98,14 @@ def get_session_from_db(id) -> list:
 
 
 def update_session_in_db(id: str):
+    sessions_cache[id]["last_accessed"] = current_time_dt()
     cursor.execute(
         f"UPDATE sessions SET last_accessed = '{current_time_str()}' WHERE id = '{id}';"
     )
 
 
 def remove_session_from_db(id):
+    del sessions_cache[id]
     cursor.execute(f"DELETE FROM sessions WHERE id = '{id}';")
     connection.commit()
 
@@ -105,10 +114,18 @@ create_tables()
 
 
 def session_prune():
+    for id in sessions_cache:
+        if sessions_cache[id]["last_accessed"] < current_time_dt():
+            del sessions_cache[id]
     expiration_time = current_time_dt() - timedelta(minutes=session_length)
     expiration_time = convert_time_dt_str(expiration_time)
     cursor.execute(f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';")
     connection.commit()
+
+    cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
+    result = cursor.fetchall()
+    for sess in result:
+        sessions_cache[sess[0]] = {"id": sess[0], "username": sess[1], "last_accessed": sess[2]}
 
 
 def async_session_prune():
