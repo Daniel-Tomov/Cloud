@@ -88,7 +88,7 @@ def add_session_to_db(username: str) -> str:
     return id
 
 def get_session_from_db(id) -> list:
-    if id in sessions_cache:
+    if id in sessions_cache and "username" in sessions_cache['id']:
         print(f'found {id} in cache')
         return [sessions_cache[id]["username"], sessions_cache[id]["id"], sessions_cache[id]["last_accessed"]]
     else:
@@ -125,6 +125,11 @@ create_tables()
 
 def session_prune():
     expiration_time = current_time_dt() - timedelta(minutes=session_length)
+    for id in sessions_cache:
+        if "last_accessed" in sessions_cache[id]:
+            if sessions_cache[id]['last_accessed'] > expiration_time:
+                sessions_cache[id] = {}
+                
     expiration_time = convert_time_dt_str(expiration_time)
     cursor.execute(f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';")
     connection.commit()
