@@ -77,9 +77,9 @@ def add_user_to_db(username: str, password: str):
 def add_session_to_db(username: str) -> str:
     username = sanitize_input(username)
     
+    id = urandom(16).hex()
     sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt()}
 
-    id = urandom(16).hex()
     cursor.execute(
         f"INSERT INTO sessions (username, id, last_accessed) VALUES ('{username}', '{id}', '{current_time_str()}');"
     )
@@ -98,14 +98,16 @@ def get_session_from_db(id) -> list:
 
 
 def update_session_in_db(id: str):
-    sessions_cache[id]["last_accessed"] = current_time_dt()
+    if id in sessions_cache:
+        sessions_cache[id]["last_accessed"] = current_time_dt()
     cursor.execute(
         f"UPDATE sessions SET last_accessed = '{current_time_str()}' WHERE id = '{id}';"
     )
 
 
 def remove_session_from_db(id):
-    del sessions_cache[id]
+    if id in sessions_cache:
+        del sessions_cache[id]
     cursor.execute(f"DELETE FROM sessions WHERE id = '{id}';")
     connection.commit()
 
