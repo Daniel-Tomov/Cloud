@@ -9,13 +9,13 @@ data:
   POSTGRES_PASSWORD:
   POSTGRES_DB:
   POSTGRES_HOST:
-  POSTGRES_PORT:
+  POSTGRES_PORT: ""
   tickets_protocol:
   tickets_ip:
-  tickets_port:
+  tickets_port: ""
   uptime_protocol:
   uptime_ip:
-  uptime_port:
+  uptime_port: ""
 kind: ConfigMap
 metadata:
   labels:
