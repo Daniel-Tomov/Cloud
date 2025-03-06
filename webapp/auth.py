@@ -20,18 +20,31 @@ from db import (
     check_password_against_db,
     add_user_to_db,
 )
-
 banner = open("banner.txt", "r").read()
 
 load_dotenv()
 session_length = int(getenv("session_length"))  # minutes
+pve_net = getenv("PVE_NET")  # minutes
 
 
 class Auth:
-    def __init__(self, app: Flask):
+    def __init__(self, app: Flask, proxmox_data_cache: dict):
         self.app = app
+        self.proxmox_data_cache = proxmox_data_cache
 
         self.register_routes()
+        
+    def verify_user_can_access_ip(self, ip: str):
+        if pve_net not in ip:
+            return True
+        username = get_session_from_db(session["id"])[0]
+        
+        if username not in self.proxmox_data_cache:
+            return False
+        
+        if ip in self.proxmox_data_cache[username]:
+            return True
+        return False
 
     def register_routes(self):
         @self.app.route("/web/register", methods=["GET", "POST"])
@@ -113,8 +126,33 @@ class Auth:
 
         @self.app.route("/auth-proxy")
         def auth_proxy():
+            failed = make_response("<h1>Access denied!</h1>", 401)
+            failed.set_cookie("protocol", "")
+            failed.set_cookie("ip", "")
+            failed.set_cookie("port", "")
+            
             if "id" not in session or not check_session():
-                return make_response("<h1>Access denied!</h1>", 401)
+                return failed
+            
+            ip = request.cookies.get("ip")
+            port = request.cookies.get("port")
+            protocol = request.cookies.get("protocol")
+            
+            if ip == None or port == None or protocol == None:
+                return failed
+
+            try:
+                int(port)
+            except:
+                return failed
+
+            if int(port) == 8006:
+                if self.verify_user_can_access_ip(ip):
+                    return make_response("<h1>You aren't supposed to be here!</h1>", 200)
+                else:
+                    print(f'{session} tried to access ip {ip}, but does not have access')
+                    return failed
+                    
             return make_response("<h1>You aren't supposed to be here!</h1>", 200)
 
 

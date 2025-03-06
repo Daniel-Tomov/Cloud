@@ -60,14 +60,12 @@ class Main:
         self.app.config["TEMPLATES_AUTO_RELOAD"] = True
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
         self.app.config.update(
-            SESSION_COOKIE_SECURE=True,
-            SESSION_COOKIE_HTTPONLY=True,
-            SESSION_COOKIE_SAMESITE="Strict",
         )
         self.register_routes()
-        Auth(app=self.app)
+        self.proxmox_data_cache = {}
+        Auth(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
         #Firewall(app=self.app)
-        Proxmox(app=self.app)
+        Proxmox(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
         self.app.run(host="0.0.0.0", port=5555, debug=False, use_reloader=False)
 
     def start_app(self):

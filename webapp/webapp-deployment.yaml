@@ -42,6 +42,11 @@ spec:
                 configMapKeyRef:
                   key: PROXMOX_WEBAPP_verify_ssl
                   name: webapp-env
+            - name: PVE_NET
+              valueFrom:
+                configMapKeyRef:
+                  key: PVE_NET
+                  name: webapp-env
             - name: PYTHONWARNINGS
               valueFrom:
                 configMapKeyRef:

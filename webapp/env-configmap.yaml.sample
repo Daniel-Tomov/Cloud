@@ -3,6 +3,7 @@ data:
   FLASK_SECRET_KEY:
   PROXMOX_WEBAPP_HOST: "ignore:Unverified HTTPS request"
   PROXMOX_WEBAPP_verify_ssl:
+  PVE_NET: ""
   PYTHONWARNINGS:
   session_length:
   POSTGRES_USER:

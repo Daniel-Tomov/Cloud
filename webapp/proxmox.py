@@ -20,10 +20,10 @@ PROXMOX_WEBAPP_verify_ssl = getenv("PROXMOX_WEBAPP_verify_ssl", "False") == "Tru
 if not PROXMOX_WEBAPP_verify_ssl:
     disable_warnings(InsecureRequestWarning)
 
-
 class Proxmox:
-    def __init__(self, app: Flask):
+    def __init__(self, app: Flask, proxmox_data_cache: dict):
         self.app = app
+        self.proxmox_data_cache = proxmox_data_cache
 
         self.register_endpoints()
 
@@ -32,14 +32,22 @@ class Proxmox:
         def get_vm_status():
             if "id" not in session or not check_session():
                 return {"logout": True}
+            
+            username = get_session_from_db(session['id'])[0]
+
             try:
-                return get(
-                    url=f"{PROXMOX_WEBAPP_HOST}/get_vm_status/{get_session_from_db(session['id'])[0]}",
+                r = get(
+                    url=f"{PROXMOX_WEBAPP_HOST}/get_vm_status/{username}",
                     verify=PROXMOX_WEBAPP_verify_ssl,
                 ).json()
             except Exception:
                 return {"result": "proxmox communication server is down"}
 
+            self.proxmox_data_cache[username] = []
+            for vm in r:
+                if "ip" in r[vm] and r[vm]["ip"] != "":
+                    self.proxmox_data_cache[username].append(r[vm]["ip"])
+            return r
         @self.app.route("/web/set_vm_power_state", methods=["POST"])
         def set_vm_power_state():
             if "id" not in session or not check_session():
@@ -80,10 +88,10 @@ class Proxmox:
 
             if not check_session():
                 return {"logout": "invalid session"}
-
+            
             data = {}
             try:
-                data = loads(list(request.form)[0])
+                data = request.json
                 data["username"]
             except:
                 try:
@@ -181,6 +189,8 @@ class Proxmox:
                     verify=PROXMOX_WEBAPP_verify_ssl,
                 ).json()["result"]
             }
+def get_proxmox_data_cache():
+    return proxmox_data_cache
 
 
 if __name__ == "__main__":
