@@ -103,7 +103,7 @@ def get_session_from_db(id) -> list:
         print(f'Session {id} not found in cache, going to db')
     cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
     result = cursor.fetchall()
-    print(result)
+    #print(result)
     if len(result) == 0:
         return []
     result = result[0]
@@ -114,14 +114,16 @@ def get_session_from_db(id) -> list:
 def update_session_in_db(id: str):
     if id in sessions_cache and "last_accessed" in sessions_cache[id]:
         sessions_cache[id]["last_accessed"] = current_time_dt()
-    
+    #print("creating update session thread")
     Thread(target=async_update_session_in_db, kwargs={"id": id}).start()
+    #print("after update session thread")
 
 def async_update_session_in_db(id: str):
     cursor.execute(
         f"UPDATE sessions SET last_accessed = '{current_time_str()}' WHERE id = '{id}';"
     )
     connection.commit()
+    #print("updated session")
 
 
 def remove_session_from_db(id):
@@ -141,11 +143,13 @@ def session_prune():
     expiration_time = current_time_dt() - timedelta(minutes=session_length)
     for id in sessions_cache:
         if "last_accessed" in sessions_cache[id]:
-            if sessions_cache[id]['last_accessed'] > expiration_time:
+            if sessions_cache[id]['last_accessed'] < expiration_time:
                 sessions_cache[id] = {}
                 
     expiration_time = convert_time_dt_str(expiration_time)
-    cursor.execute(f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';")
+    query = f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';"
+    #print(query)
+    cursor.execute(query)
     connection.commit()
 
     return
