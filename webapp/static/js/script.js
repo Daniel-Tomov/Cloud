@@ -129,6 +129,10 @@ const interval = setInterval(async function () {
                     ip = document.createElement("p");
                     ip.innerText = "No IP address. Please Wait"
                     cell.appendChild(ip);
+                } else if (response[id]["status"] === "stopped") {
+                    ip = document.createElement("p");
+                    ip.innerText = "Machine is powered off."
+                    cell.appendChild(ip);
                 }
                 row.appendChild(cell);
 
