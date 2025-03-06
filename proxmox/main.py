@@ -108,7 +108,7 @@ class Main:
             vmid = f'{vm_type}/{vmid}'
             name, tags = does_user_own_vm(username=username, vmid=vmid)
             if name == "" or tags == "":
-                return {"result": "fail"}
+                return {"result": "you don't own this vm"}
 
             endpoint = f"/api2/json/nodes/{node}/{vmid}/status/{power_value}"
             data = {}

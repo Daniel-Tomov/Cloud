@@ -52,24 +52,12 @@ class Proxmox:
         def set_vm_power_state():
             if "id" not in session or not check_session():
                 return {"logout": True}
-            data = {}
-            try:
-                data = loads(list(request.form)[0])
-                data["node"]
-            except:
-                try:
-                    data = request.json
-                    data["node"]
-                except:
-                    return {"result": "fail"}
-                return {"result": "fail"}
-
-            if data == {}:
-                return {"result": "fail"}
+            data = request.json
 
             node = data["node"]
             vmid = data["vmid"]
             power_value = data["power_value"]
+
             if vmid is None or power_value is None or node is None:
                 return {"result": "fail"}
             username = get_session_from_db(session["id"])[0]
@@ -89,21 +77,8 @@ class Proxmox:
             if not check_session():
                 return {"logout": "invalid session"}
             
-            data = {}
-            try:
-                data = request.json
-                data["username"]
-            except:
-                try:
-                    data = request.json
-                    data["username"]
-                except:
-                    return {"result": "fail"}
-                return {"result": "fail"}
-
-            if data == {}:
-                return {"result": "fail"}
-
+            data = request.json
+            
             username = get_session_from_db(session["id"])[0]
             username_to_add = data["username"]
 
@@ -124,25 +99,10 @@ class Proxmox:
             if "id" not in session or not check_session():
                 return {"logout": True}
 
-            data = {}
-            try:
-                data = loads(list(request.form)[0])
-                data["username"]
-            except:
-                try:
-                    data = request.json
-                    data["username"]
-                except:
-                    return {"result": "fail"}
-                return {"result": "fail"}
-
-            if data == {}:
-                return {"result": "fail"}
-
-            print(data)
-
+            data = request.json
+            
             username = get_session_from_db(session["id"])[0]
-
+            
             username_to_remove = data["username"]
             vmid = data["vmid"]
             node = data["node"]
@@ -159,22 +119,8 @@ class Proxmox:
             if "id" not in session or not check_session():
                 return {"logout": True}
 
-            data = {}
-            try:
-                data = loads(list(request.form)[0])
-                data["password"]
-            except:
-                try:
-                    data = request.json
-                    data["password"]
-                except:
-                    return {"result": "fail"}
-                return {"result": "fail"}
-            if data == {}:
-                return {"result": "fail"}
-
             username = get_session_from_db(session["id"])[0]
-            password = data["password"]
+            password = request.json["password"]
 
             does_have_personal_vm_created = get(
                 url=f"{PROXMOX_WEBAPP_HOST}/does_have_personal_vm_created/{username}",
@@ -189,9 +135,6 @@ class Proxmox:
                     verify=PROXMOX_WEBAPP_verify_ssl,
                 ).json()["result"]
             }
-def get_proxmox_data_cache():
-    return proxmox_data_cache
-
 
 if __name__ == "__main__":
     """"""
