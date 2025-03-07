@@ -70,7 +70,8 @@ class Main:
         Auth(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
         #Firewall(app=self.app)
         Proxmox(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
-        server = WSGIServer(('', 5555), self.app, keyfile='key.pem', certfile="cert.pem") # production server
+        server = WSGIServer(('', 5555), self.app) # production server
+        #server = WSGIServer(('', 5555), self.app, keyfile='key.pem', certfile="cert.pem") # production server
         server.serve_forever()
         #self.app.run(host="0.0.0.0", port=5555, debug=False, use_reloader=False, ssl_context='adhoc') # development server
 
