@@ -4,3 +4,4 @@ flask-compress
 requests
 python-dotenv
 psycopg2
+pyopenssl

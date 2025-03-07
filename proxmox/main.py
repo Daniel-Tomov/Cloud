@@ -67,7 +67,7 @@ class Main:
         )
 
         self.register_endpoints()
-        self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False)
+        self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False, ssl_context='adhoc')
 
     def start_app(self):
         compress = Compress()
