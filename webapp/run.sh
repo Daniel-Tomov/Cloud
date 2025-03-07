@@ -11,7 +11,7 @@ git clone https://github.com/Daniel-Tomov/Cloud
 cd Cloud
 cd webapp
 
-echo -e "\n\n\n\n\n\n" | openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes
+echo -e "US\nVirginia\nVirginia Beach\nDaniel Tomov\nLab\nlab.com\ntest@lab.com\n\n\n" | openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes
 
 pip3 install -r requirements.txt
 python3 main.py
