@@ -1,23 +1,6 @@
-from dotenv import load_dotenv
-import hashlib
 from datetime import datetime
 
-load_dotenv()
 date_format = "%Y-%m-%d %H:%M:%S"
-
-
-def hash_512(s: str) -> str:
-    for _ in range(0, 2):
-        s = hashlib.sha512(s.encode("utf-8")).hexdigest()
-    return s
-
-
-def sanitize_input(s: str) -> str:
-    invalid = "`~!@#$%^&*()_-+=[{]}\\|;:'\",<.>/?"
-    for c in invalid:
-        s = s.replace(c, "")
-    return s
-
 
 ### TIME
 def current_time_str() -> str:

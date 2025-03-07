@@ -1,0 +1,57 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-prune
+  labels:
+    app: db-prune
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-prune
+  template:
+    metadata:
+      labels:
+        app: db-prune
+    spec:
+      containers:
+        - image: python:3.13.1-bookworm
+          name: db-prune
+          imagePullPolicy: Always
+          args:
+            - /bin/bash
+            - -c
+            - "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/postgres/run.sh; chmod +x run.sh ; ./run.sh"
+          env:
+            - name: session_length
+              valueFrom:
+                configMapKeyRef:
+                  key: session_length
+                  name: db-env
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_USER
+                  name: db-env
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: db-env
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_DB
+                  name: db-env
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_HOST
+                  name: db-env
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_PORT
+                  name: db-env
+      restartPolicy: Always

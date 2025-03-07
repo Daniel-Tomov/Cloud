@@ -174,12 +174,6 @@ def session_prune():
         if "last_accessed" in sessions_cache[id]:
             if sessions_cache[id]['last_accessed'] < expiration_time:
                 sessions_cache[id] = {}
-                
-    expiration_time = convert_time_dt_str(expiration_time)
-    query = f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';"
-    #print(query)
-    cursor.execute(query)
-    connection.commit()
 
 
 def async_session_prune():

@@ -1,5 +1,3 @@
-flask
-flask-compress
-requests
+psycopg2-binary
 python-dotenv
 psycopg2
