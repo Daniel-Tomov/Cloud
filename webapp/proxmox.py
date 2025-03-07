@@ -67,6 +67,9 @@ class Proxmox:
                     return {"result": fail}
                 if "node" not in request.json:
                     return {"result": fail}
+            except Exception:
+                return {"result": fail}
+                
 
             node = data["node"]
             vmid = data["vmid"]
@@ -102,6 +105,8 @@ class Proxmox:
                     return {"result": fail}
                 if "node" not in request.json:
                     return {"result": fail}
+            except Exception:
+                return {"result": fail}
             
             data = request.json
             
@@ -136,6 +141,8 @@ class Proxmox:
                     return {"result": fail}
                 if "node" not in request.json:
                     return {"result": fail}
+            except Exception:
+                return {"result": fail}
             data = request.json
             
             
@@ -165,6 +172,8 @@ class Proxmox:
                     return {"result": fail}
                 if "password" not in request.json:
                     return {"result": fail}
+            except Exception:
+                return {"result": fail}
             password = request.json["password"]
 
             does_have_personal_vm_created = get(
