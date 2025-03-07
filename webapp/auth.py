@@ -19,6 +19,7 @@ from db import (
     does_user_exist_in_db,
     check_password_against_db,
     add_user_to_db,
+    check_ip
 )
 banner = open("banner.txt", "r").read()
 
@@ -40,11 +41,15 @@ class Auth:
         username = get_session_from_db(session["id"])[0]
         
         if username not in self.proxmox_data_cache:
-            return False
+            # need to check db
+            print(f"user {username} not in vm ip cache, going to db")
+            return check_ip(username, ip)
         
         if ip in self.proxmox_data_cache[username]:
-            return True
-        return False
+            return True # found ip in cache at username
+        
+        print(f"ip not in cache for {username}")
+        return check_ip(username, ip)
 
     def register_routes(self):
         @self.app.route("/web/register", methods=["GET", "POST"])
@@ -146,12 +151,11 @@ class Auth:
             except:
                 return failed
 
-            if int(port) == 8006:
-                if self.verify_user_can_access_ip(ip):
-                    return make_response("<h1>You aren't supposed to be here!</h1>", 200)
-                else:
-                    print(f'{session} tried to access ip {ip}, but does not have access')
-                    return failed
+            if self.verify_user_can_access_ip(ip):
+                return make_response("<h1>You aren't supposed to be here!</h1>", 200)
+            else:
+                print(f'{session} tried to access ip {ip}, but does not have access')
+                return failed
                     
             return make_response("<h1>You aren't supposed to be here!</h1>", 200)
 

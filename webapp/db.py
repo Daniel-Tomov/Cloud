@@ -34,11 +34,15 @@ sessions_cache = {}
 
 def create_tables():
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS users (username VARCHAR(16), password VARCHAR(128), salt VARCHAR(32), admin boolean default false);"
+        "CREATE TABLE IF NOT EXISTS users (username VARCHAR(16) UNIQUE, password VARCHAR(128), salt VARCHAR(32), admin boolean default false);"
     )
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP);"
     )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS vm_ips (username VARCHAR(16) UNIQUE, ips VARCHAR(65535));"
+    )
+    
     connection.commit()
 
 
@@ -95,12 +99,12 @@ def async_add_session_to_db(username: str, id: str):
     # cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
     
 
-def get_session_from_db(id) -> list:
+def get_session_from_db(id: str) -> list:
     if id in sessions_cache and "username" in sessions_cache[id]:
-        print(f'found {id} in cache')
+        #print(f'found {id} in cache')
         return [sessions_cache[id]["username"], sessions_cache[id]["id"], sessions_cache[id]["last_accessed"]]
-    else:
-        print(f'Session {id} not found in cache, going to db')
+    #else:
+        #print(f'Session {id} not found in cache, going to db')
     cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
     result = cursor.fetchall()
     #print(result)
@@ -126,7 +130,7 @@ def async_update_session_in_db(id: str):
     #print("updated session")
 
 
-def remove_session_from_db(id):
+def remove_session_from_db(id: str):
     if id in sessions_cache:
         del sessions_cache[id]
     Thread(target=async_remove_session_from_db, kwargs={"id": id}).start()
@@ -134,6 +138,31 @@ def remove_session_from_db(id):
 
 def async_remove_session_from_db(id: str):
     cursor.execute(f"DELETE FROM sessions WHERE id = '{id}';")
+    connection.commit()
+
+def check_ip(username: str, ip: str) -> bool:
+    cursor.execute(f"SELECT * FROM vm_ips WHERE username = '{username}';")
+    result = cursor.fetchall()
+    #print(result)
+    if len(result) == 0:
+        return False
+    print(f"found {result} result in db for vm ip cache for user {username}")
+    result = result[0]
+    return ip in result[1]
+
+
+def set_vm_ips(ips: str, username: str):
+    Thread(target=async_set_vm_ips, kwargs={"ips": ips, "username": username}).start()
+    
+
+def async_set_vm_ips(ips: str, username: str):
+    cursor.execute(f"""
+        INSERT INTO vm_ips (username, ips) 
+        VALUES ('{username}', '{ips}') 
+        ON CONFLICT (username) 
+        DO UPDATE SET ips = EXCLUDED.ips;
+    """)
+
     connection.commit()
 
 create_tables()

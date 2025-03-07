@@ -8,7 +8,7 @@ from flask import (
 )
 from json import loads
 from auth import check_session
-from db import get_session_from_db
+from db import get_session_from_db, set_vm_ips
 from queue import Queue
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
@@ -43,10 +43,13 @@ class Proxmox:
             except Exception:
                 return {"result": "proxmox communication server is down"}
 
+            ips = ""
             self.proxmox_data_cache[username] = []
             for vm in r:
                 if "ip" in r[vm] and r[vm]["ip"] != "":
                     self.proxmox_data_cache[username].append(r[vm]["ip"])
+                    ips += r[vm]["ip"] + ";"
+            set_vm_ips(ips, username)
             return r
         @self.app.route("/web/set_vm_power_state", methods=["POST"])
         def set_vm_power_state():
