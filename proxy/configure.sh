@@ -11,11 +11,11 @@ organizational_unit=""
 
 
 webapp_domain=""
-webapp=""
+webapp=":32000"
 #db_domain=""
 #db_webapp=""
 proxmox_domain=""
-proxmox_webapp=""
+proxmox_webapp=":32001"
 opnsense_iso_name="OPNsense-24.7-vga-amd64.img"
 
 
