@@ -60,6 +60,9 @@ class Main:
         self.app.config["TEMPLATES_AUTO_RELOAD"] = True
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
         self.app.config.update(
+            SESSION_COOKIE_SECURE=True,
+            SESSION_COOKIE_HTTPONLY=True,
+            SESSION_COOKIE_SAMESITE="Strict",
         )
         self.register_routes()
         self.proxmox_data_cache = {}
