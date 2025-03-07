@@ -56,6 +56,17 @@ class Proxmox:
             if "id" not in session or not check_session():
                 return {"logout": True}
             data = request.json
+            try:
+                if request.json == None:
+                    return {"result": fail}
+                if request.json == {}:
+                    return {"result": fail}
+                if "power_value" not in request.json:
+                    return {"result": fail}
+                if "vmid" not in request.json:
+                    return {"result": fail}
+                if "node" not in request.json:
+                    return {"result": fail}
 
             node = data["node"]
             vmid = data["vmid"]
@@ -80,6 +91,18 @@ class Proxmox:
             if not check_session():
                 return {"logout": "invalid session"}
             
+            try:
+                if request.json == None:
+                    return {"result": fail}
+                if request.json == {}:
+                    return {"result": fail}
+                if "username" not in request.json:
+                    return {"result": fail}
+                if "vmid" not in request.json:
+                    return {"result": fail}
+                if "node" not in request.json:
+                    return {"result": fail}
+            
             data = request.json
             
             username = get_session_from_db(session["id"])[0]
@@ -102,7 +125,19 @@ class Proxmox:
             if "id" not in session or not check_session():
                 return {"logout": True}
 
+            try:
+                if request.json == None:
+                    return {"result": fail}
+                if request.json == {}:
+                    return {"result": fail}
+                if "username" not in request.json:
+                    return {"result": fail}
+                if "vmid" not in request.json:
+                    return {"result": fail}
+                if "node" not in request.json:
+                    return {"result": fail}
             data = request.json
+            
             
             username = get_session_from_db(session["id"])[0]
             
@@ -123,6 +158,13 @@ class Proxmox:
                 return {"logout": True}
 
             username = get_session_from_db(session["id"])[0]
+            try:
+                if request.json == None:
+                    return {"result": fail}
+                if request.json == {}:
+                    return {"result": fail}
+                if "password" not in request.json:
+                    return {"result": fail}
             password = request.json["password"]
 
             does_have_personal_vm_created = get(
