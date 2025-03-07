@@ -20,6 +20,7 @@ from proxmox import (
     create_fw,
 )
 from json import loads
+from gevent.pywsgi import WSGIServer
 
 load_dotenv()
 
@@ -67,7 +68,9 @@ class Main:
         )
 
         self.register_endpoints()
-        self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False, ssl_context='adhoc')
+        server = WSGIServer(('', 5556), self.app, keyfile='key.pem', certfile="cert.pem") # production server
+        server.serve_forever()
+        #self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False, ssl_context='adhoc') # development server
 
     def start_app(self):
         compress = Compress()

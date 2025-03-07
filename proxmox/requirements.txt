@@ -3,3 +3,4 @@ flask-compress
 requests
 python-dotenv
 pyopenssl
+gevent

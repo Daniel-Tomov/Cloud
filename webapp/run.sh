@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt install git curl -y
+apt install git curl openssl -y
 
 mkdir /usr/src/ -p
 cd /usr/src/
@@ -10,6 +10,8 @@ git clone https://github.com/Daniel-Tomov/Cloud
 #cd Cloud-main
 cd Cloud
 cd webapp
+
+echo -e "\n\n\n\n\n\n" | openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes
 
 pip3 install -r requirements.txt
 python3 main.py

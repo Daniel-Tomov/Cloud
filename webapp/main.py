@@ -16,6 +16,7 @@ import utils
 from proxmox import Proxmox
 from auth import Auth, check_session, invalidate_session
 from db import update_session_in_db
+from gevent.pywsgi import WSGIServer
 
 load_dotenv()
 
@@ -69,7 +70,9 @@ class Main:
         Auth(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
         #Firewall(app=self.app)
         Proxmox(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
-        self.app.run(host="0.0.0.0", port=5555, debug=False, use_reloader=False, ssl_context='adhoc')
+        server = WSGIServer(('', 5555), self.app, keyfile='key.pem', certfile="cert.pem") # production server
+        server.serve_forever()
+        #self.app.run(host="0.0.0.0", port=5555, debug=False, use_reloader=False, ssl_context='adhoc') # development server
 
     def start_app(self):
         compress = Compress()
