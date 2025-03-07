@@ -40,16 +40,24 @@ class Auth:
             return True
         username = get_session_from_db(session["id"])[0]
         
-        if username not in self.proxmox_data_cache:
+        if ip not in self.proxmox_data_cache:
             # need to check db
-            print(f"user {username} not in vm ip cache, going to db")
-            return check_ip(username, ip)
+            print(f"ip {ip} not in vm ip cache, going to db")
+            if check_ip(username, ip):
+                self.proxmox_data_cache[ip] = ['dtomo001']
+                return True
+            self.proxmox_data_cache[ip] = []
+            return False
         
-        if ip in self.proxmox_data_cache[username]:
+        if username in self.proxmox_data_cache[ip]:
             return True # found ip in cache at username
         
-        print(f"ip not in cache for {username}")
-        return check_ip(username, ip)
+        #print(f"{username} not in cache for {ip}")
+        
+        if check_ip(username, ip):
+            self.proxmox_data_cache[ip].append('dtomo001')
+            return True
+        return False
 
     def register_routes(self):
         @self.app.route("/web/register", methods=["GET", "POST"])

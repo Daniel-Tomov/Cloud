@@ -40,7 +40,7 @@ def create_tables():
         "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP);"
     )
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS vm_ips (username VARCHAR(16) UNIQUE, ips VARCHAR(65535));"
+        "CREATE TABLE IF NOT EXISTS vm_ips (ip VARCHAR(16) UNIQUE, usernames VARCHAR(65535));"
     )
     
     connection.commit()
@@ -141,26 +141,26 @@ def async_remove_session_from_db(id: str):
     connection.commit()
 
 def check_ip(username: str, ip: str) -> bool:
-    cursor.execute(f"SELECT * FROM vm_ips WHERE username = '{username}';")
+    cursor.execute(f"SELECT * FROM vm_ips WHERE ip = '{ip}';")
     result = cursor.fetchall()
     #print(result)
     if len(result) == 0:
         return False
-    print(f"found {result} result in db for vm ip cache for user {username}")
+    #print(f"found {result} result in db for vm ip cache for ip {ip}")
     result = result[0]
-    return ip in result[1]
+    return username in result[1]
 
 
-def set_vm_ips(ips: str, username: str):
-    Thread(target=async_set_vm_ips, kwargs={"ips": ips, "username": username}).start()
+def set_vm_ip_map(ip: str, usernames: str):
+    Thread(target=async_set_vm_ip_map, kwargs={"ip": ip, "usernames": usernames}).start()
     
 
-def async_set_vm_ips(ips: str, username: str):
+def async_set_vm_ip_map(ip: str, usernames: str):
     cursor.execute(f"""
-        INSERT INTO vm_ips (username, ips) 
-        VALUES ('{username}', '{ips}') 
-        ON CONFLICT (username) 
-        DO UPDATE SET ips = EXCLUDED.ips;
+        INSERT INTO vm_ips (ip, usernames) 
+        VALUES ('{ip}', '{usernames}') 
+        ON CONFLICT (ip) 
+        DO UPDATE SET usernames = EXCLUDED.usernames;
     """)
 
     connection.commit()
@@ -180,14 +180,6 @@ def session_prune():
     #print(query)
     cursor.execute(query)
     connection.commit()
-
-    return
-
-    cursor.execute(f"SELECT * FROM sessions;")
-    result = cursor.fetchall()
-
-    for sess in result:
-        sessions_cache[sess[1]] = {"id": sess[1], "username": sess[0], "last_accessed": sess[2]}
 
 
 def async_session_prune():
