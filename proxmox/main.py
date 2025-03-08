@@ -68,8 +68,6 @@ class Main:
         )
 
         self.register_endpoints()
-        server = WSGIServer(('', 5556), self.app, keyfile='key.pem', certfile="cert.pem") # production server
-        server.serve_forever()
         #self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False, ssl_context='adhoc') # development server
 
     def start_app(self):
@@ -209,6 +207,4 @@ class Main:
         def create_fw_route():
             return {"result": create_fw()}
 
-
-if __name__ == "__main__":
-    Main()
+http = Main().app

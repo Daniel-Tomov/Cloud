@@ -2,5 +2,4 @@ flask
 flask-compress
 requests
 python-dotenv
-pyopenssl
-gevent
+gunicorn
