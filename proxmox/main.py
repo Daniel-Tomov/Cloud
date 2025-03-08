@@ -20,7 +20,6 @@ from proxmox import (
     create_fw,
 )
 from json import loads
-from gevent.pywsgi import WSGIServer
 
 load_dotenv()
 
