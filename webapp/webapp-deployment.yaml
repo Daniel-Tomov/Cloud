@@ -14,6 +14,7 @@ spec:
       labels:
         app: webapp
     spec:
+      restartPolicy: Always
       containers:
         - image: python:3.13.1-bookworm
           name: webapp
@@ -111,4 +112,18 @@ spec:
                 configMapKeyRef:
                   key: uptime_protocol
                   name: webapp-env
-      restartPolicy: Always
+            - name: kasm_protocol
+              valueFrom:
+                configMapKeyRef:
+                  key: kasm_protocol
+                  name: webapp-env
+            - name: kasm_ip
+              valueFrom:
+                configMapKeyRef:
+                  key: kasm_ip
+                  name: webapp-env
+            - name: kasm_port
+              valueFrom:
+                configMapKeyRef:
+                  key: kasm_protocol
+                  name: webapp-env

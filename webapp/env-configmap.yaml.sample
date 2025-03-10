@@ -17,6 +17,9 @@ data:
   uptime_protocol:
   uptime_ip:
   uptime_port: ""
+  kasm_protocol:
+  kasm_ip:
+  kasm_port: ""
 kind: ConfigMap
 metadata:
   labels:

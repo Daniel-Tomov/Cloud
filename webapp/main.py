@@ -98,14 +98,6 @@ class Main:
         def not_found(error):
             resp = make_response("404", 404)
             return resp
-        @self.app.route("/web/uptime", methods=["GET"])
-        def uptime():
-            r = make_response(render_template("redirect.html", url='/status/datacenter'))
-            r.set_cookie("protocol", "http")
-            r.set_cookie("ip", "192.168.55.157")
-            r.set_cookie("port", "3001")
-            return r
-        
         @self.app.route("/web/open/<string:protocol>/<string:ip>/<string:port>", methods=["GET"])
         def open(protocol: str, ip: str, port: str):
             r = make_response(render_template("redirect.html", url="/"))
@@ -114,13 +106,29 @@ class Main:
             r.set_cookie("port", port)
             #print(f'{protocol} {ip} {port}')
             return r
-            
+        
+        @self.app.route("/web/uptime", methods=["GET"])
+        def uptime():
+            r = make_response(render_template("redirect.html", url='/status/datacenter'))
+            r.set_cookie("protocol", getenv("uptime_protocol"))
+            r.set_cookie("ip", getenv("uptime_ip"))
+            r.set_cookie("port", getenv("uptime_port"))
+            return r
+
+        @self.app.route("/web/kasm", methods=["GET"])
+        def uptime():
+            r = make_response(render_template("redirect.html", url='/'))
+            r.set_cookie("protocol", getenv("kasm_protocol"))
+            r.set_cookie("ip", getenv("kasm_ip"))
+            r.set_cookie("port",  getenv("kasm_port"))
+            return r
+        
         @self.app.route("/web/tickets", methods=["GET"])
         def tickets():
             r = make_response(render_template("redirect.html", url="/?login=public"))
-            r.set_cookie("protocol", "https")
-            r.set_cookie("ip", "192.168.57.10")
-            r.set_cookie("port", "443")
+            r.set_cookie("protocol", getenv("tickets_protocol"))
+            r.set_cookie("ip", getenv("tickets_ip"))
+            r.set_cookie("port", getenv("tickets_port"))
             return r
         
 http = Main().app
