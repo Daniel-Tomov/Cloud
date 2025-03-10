@@ -15,4 +15,4 @@ echo -e "\n\n\n\n\n\n" | openssl req -x509 -newkey rsa:4096 -keyout /usr/src/Clo
 
 pip3 install -r requirements.txt
 #python3 main.py
-gunicorn --certfile=cert.pem --keyfile=key.pem --bind 0.0.0.0:5556 -w 4 main:http
+gunicorn --certfile=cert.pem --keyfile=key.pem --bind 0.0.0.0:5556 -w 1 main:http
