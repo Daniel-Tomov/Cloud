@@ -125,5 +125,5 @@ spec:
             - name: kasm_port
               valueFrom:
                 configMapKeyRef:
-                  key: kasm_protocol
+                  key: kasm_port
                   name: webapp-env
