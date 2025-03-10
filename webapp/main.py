@@ -116,7 +116,7 @@ class Main:
             return r
 
         @self.app.route("/web/kasm", methods=["GET"])
-        def uptime():
+        def kasm():
             r = make_response(render_template("redirect.html", url='/'))
             r.set_cookie("protocol", getenv("kasm_protocol"))
             r.set_cookie("ip", getenv("kasm_ip"))
