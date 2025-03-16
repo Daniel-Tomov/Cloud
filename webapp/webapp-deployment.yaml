@@ -82,48 +82,8 @@ spec:
                 configMapKeyRef:
                   key: POSTGRES_PORT
                   name: webapp-env
-            - name: tickets_protocol
+            - name: SERVICES
               valueFrom:
                 configMapKeyRef:
-                  key: tickets_protocol
-                  name: webapp-env
-            - name: tickets_ip
-              valueFrom:
-                configMapKeyRef:
-                  key: tickets_ip
-                  name: webapp-env
-            - name: tickets_port
-              valueFrom:
-                configMapKeyRef:
-                  key: tickets_port
-                  name: webapp-env
-            - name: uptime_protocol
-              valueFrom:
-                configMapKeyRef:
-                  key: uptime_protocol
-                  name: webapp-env
-            - name: uptime_ip
-              valueFrom:
-                configMapKeyRef:
-                  key: uptime_ip
-                  name: webapp-env
-            - name: uptime_port
-              valueFrom:
-                configMapKeyRef:
-                  key: uptime_protocol
-                  name: webapp-env
-            - name: kasm_protocol
-              valueFrom:
-                configMapKeyRef:
-                  key: kasm_protocol
-                  name: webapp-env
-            - name: kasm_ip
-              valueFrom:
-                configMapKeyRef:
-                  key: kasm_ip
-                  name: webapp-env
-            - name: kasm_port
-              valueFrom:
-                configMapKeyRef:
-                  key: kasm_port
+                  key: SERVICES
                   name: webapp-env

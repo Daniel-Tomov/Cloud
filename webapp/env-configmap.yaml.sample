@@ -11,14 +11,18 @@ data:
   POSTGRES_DB:
   POSTGRES_HOST:
   POSTGRES_PORT: ""
-  SERVICES:
-   - id: "kasm"
-     name: "Kasm Workspaces"
-     enabled: true
-     protocol: https
-     ip: 192.168.10.179
-     port: "443"
-     url: "/"
+  SERVICES: |
+    [
+      {
+        "id": "tickets",
+        "name": "Tickets",
+        "enabled": false,
+        "protocol": "https",
+        "ip": "192.168.57.10",
+        "port": "443",
+        "url": "/?login=public"
+      }
+    ]
 kind: ConfigMap
 metadata:
   labels:
