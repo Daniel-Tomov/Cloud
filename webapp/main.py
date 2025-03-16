@@ -16,11 +16,11 @@ import utils
 from proxmox import Proxmox
 from auth import Auth, check_session, invalidate_session
 from db import update_session_in_db
+from json import loads
 
 load_dotenv()
 
 # TODO
-# 1. create local cache for sessions because many webapps going to database may be slowing it down
 # 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
 # - Give permission to user on the proxmox host
 # - Will need to integrate logins with outside source
@@ -30,6 +30,9 @@ load_dotenv()
 # 5. Dockerize nginx?
 # 6. 
 #
+
+SERVICES = loads(getenv("SERVICES"))
+
 
 class Main:
     def __init__(self):
@@ -92,7 +95,7 @@ class Main:
 
             update_session_in_db(session["id"])
             
-            return make_response(render_template("index.html"))
+            return make_response(render_template("index.html", services=SERVICES))
 
         @self.app.errorhandler(404)
         def not_found(error):
@@ -107,28 +110,16 @@ class Main:
             #print(f'{protocol} {ip} {port}')
             return r
         
-        @self.app.route("/web/uptime", methods=["GET"])
-        def uptime():
-            r = make_response(render_template("redirect.html", url='/status/datacenter'))
-            r.set_cookie("protocol", getenv("uptime_protocol"))
-            r.set_cookie("ip", getenv("uptime_ip"))
-            r.set_cookie("port", getenv("uptime_port"))
-            return r
-
-        @self.app.route("/web/kasm", methods=["GET"])
-        def kasm():
-            r = make_response(render_template("redirect.html", url='/'))
-            r.set_cookie("protocol", getenv("kasm_protocol"))
-            r.set_cookie("ip", getenv("kasm_ip"))
-            r.set_cookie("port",  getenv("kasm_port"))
-            return r
-        
-        @self.app.route("/web/tickets", methods=["GET"])
-        def tickets():
-            r = make_response(render_template("redirect.html", url="/?login=public"))
-            r.set_cookie("protocol", getenv("tickets_protocol"))
-            r.set_cookie("ip", getenv("tickets_ip"))
-            r.set_cookie("port", getenv("tickets_port"))
-            return r
+        @self.app.route("/web/open/<string:requesed_service>", methods=["GET"])
+        def open_service(requesed_service):
+            for service in SERVICES:
+                if service['id'] == requesed_service:
+                    r = make_response(render_template("redirect.html", url=service['url']))
+                    r.set_cookie("protocol", service['protocol'])
+                    r.set_cookie("ip", service['ip'])
+                    r.set_cookie("port", service['port'])
+                    return r
+                
+            return url_for('index')
         
 http = Main().app
