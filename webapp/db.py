@@ -48,14 +48,15 @@ def create_tables():
 
 def check_password_against_db(username: str, password: str) -> bool:
     username = sanitize_input(username)
-    cursor.execute(f"SELECT salt FROM users WHERE username = '{username}';")
+    cursor.execute("SELECT salt FROM users WHERE username = %s", (username,))
     salt = cursor.fetchall()
     if len(salt) == 0:  # username not in database
         return False
     salt = salt[0][0]
     password = hash_512(password + salt)
     cursor.execute(
-        f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}';"
+        "SELECT * FROM users WHERE username = %s AND password = %s",
+        (username, password)
     )
     result = cursor.fetchall()
     return len(result) == 1
@@ -63,7 +64,7 @@ def check_password_against_db(username: str, password: str) -> bool:
 
 def does_user_exist_in_db(username: str) -> bool:
     username = sanitize_input(username)
-    cursor.execute(f"SELECT username FROM users WHERE username = '{username}';")
+    cursor.execute("SELECT username FROM users WHERE username = %s", (username,))
     result = cursor.fetchall()
     return len(result) == 1  # returns true if the user exists
 
@@ -76,7 +77,8 @@ def async_add_user_to_db(username: str, password: str):
     salt = urandom(16).hex()
     password = hash_512(password + salt)
     cursor.execute(
-        f"INSERT INTO users (username, password, salt) VALUES ('{username}', '{password}', '{salt}');"
+        f"INSERT INTO users (username, password, salt) VALUES (%s, %s, %s)",
+        (username, password, salt)
     )
     connection.commit()
 
@@ -93,7 +95,8 @@ def add_session_to_db(username: str) -> str:
 
 def async_add_session_to_db(username: str, id: str):
     cursor.execute(
-        f"INSERT INTO sessions (username, id, last_accessed) VALUES ('{username}', '{id}', '{current_time_str()}');"
+        f"INSERT INTO sessions (username, id, last_accessed) VALUES (%s, %s, %s)",
+        (username, id, current_time_str())
     )
     connection.commit()
     # cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
@@ -105,7 +108,7 @@ def get_session_from_db(id: str) -> list:
         return [sessions_cache[id]["username"], sessions_cache[id]["id"], sessions_cache[id]["last_accessed"]]
     #else:
         #print(f'Session {id} not found in cache, going to db')
-    cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
+    cursor.execute(f"SELECT * FROM sessions WHERE id = %s", (id,))
     result = cursor.fetchall()
     #print(result)
     if len(result) == 0:
@@ -124,7 +127,7 @@ def update_session_in_db(id: str):
 
 def async_update_session_in_db(id: str):
     cursor.execute(
-        f"UPDATE sessions SET last_accessed = '{current_time_str()}' WHERE id = '{id}';"
+        f"UPDATE sessions SET last_accessed = %s WHERE id = %s", (current_time_str(), id)
     )
     connection.commit()
     #print("updated session")
@@ -137,11 +140,11 @@ def remove_session_from_db(id: str):
     
 
 def async_remove_session_from_db(id: str):
-    cursor.execute(f"DELETE FROM sessions WHERE id = '{id}';")
+    cursor.execute(f"DELETE FROM sessions WHERE id = %s", (id,))
     connection.commit()
 
 def check_ip(username: str, ip: str) -> bool:
-    cursor.execute(f"SELECT * FROM vm_ips WHERE ip = '{ip}';")
+    cursor.execute(f"SELECT * FROM vm_ips WHERE ip = %s", (ip,))
     result = cursor.fetchall()
     #print(result)
     if len(result) == 0:
@@ -158,10 +161,10 @@ def set_vm_ip_map(ip: str, usernames: str):
 def async_set_vm_ip_map(ip: str, usernames: str):
     cursor.execute(f"""
         INSERT INTO vm_ips (ip, usernames) 
-        VALUES ('{ip}', '{usernames}') 
+        VALUES (%s, %s) 
         ON CONFLICT (ip) 
-        DO UPDATE SET usernames = EXCLUDED.usernames;
-    """)
+        DO UPDATE SET usernames = EXCLUDED.usernames
+    """, (ip, usernames))
 
     connection.commit()
 

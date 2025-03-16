@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import hashlib
 from datetime import datetime
+import string
 
 load_dotenv()
 date_format = "%d %b %Y %H:%M:%S"
@@ -12,11 +13,13 @@ def hash_512(s: str) -> str:
     return s
 
 
-def sanitize_input(s: str) -> str:
-    invalid = "`~!@#$%^&*()_-+=[{]}\\|;:'\",<.>/?"
-    for c in invalid:
-        s = s.replace(c, "")
-    return s
+def sanitize_input(s: str, allowed_characters="") -> str:
+    valid = string.ascii_uppercase + string.ascii_lowercase + "0123456789"
+    new_s = ""
+    for c in s:
+        if c in valid or c in allowed_characters:
+            new_s += c
+    return new_s
 
 
 ### TIME
