@@ -9,9 +9,11 @@ from flask import (
 from json import loads
 from auth import check_session
 from db import get_session_from_db, set_vm_ip_map
+from utils import sanitize_input
 from queue import Queue
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
+from urllib.parse import quote_plus as urlencode
 
 
 load_dotenv()
@@ -43,7 +45,7 @@ class Proxmox:
             except Exception:
                 return {"result": "proxmox communication server is down"}
 
-            for vm in r:
+            for vm in r: # update the VM IP cache
                 if "ip" in r[vm] and r[vm]["ip"] != "":
                     self.proxmox_data_cache[r[vm]["ip"]] = r[vm]["tags"].split(";")
                     set_vm_ip_map(r[vm]["ip"], r[vm]["tags"])
@@ -55,27 +57,26 @@ class Proxmox:
             data = request.json
             try:
                 if request.json == None:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if request.json == {}:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "power_value" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "vmid" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "node" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
             except Exception:
-                return {"result": fail}
+                return {"result": "fail"}
                 
 
-            node = data["node"]
-            vmid = data["vmid"]
-            power_value = data["power_value"]
+            node = sanitize_input(data["node"])
+            vmid = sanitize_input(data["vmid"], "/")
+            power_value = sanitize_input(data["power_value"])
 
             if vmid is None or power_value is None or node is None:
                 return {"result": "fail"}
             username = get_session_from_db(session["id"])[0]
-
             return {
                 "result": get(
                     url=f"{PROXMOX_WEBAPP_HOST}/set_vm_power_state/{username}/{node}/{vmid}/{power_value}",
@@ -93,27 +94,27 @@ class Proxmox:
             
             try:
                 if request.json == None:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if request.json == {}:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "username" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "vmid" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "node" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
             except Exception:
-                return {"result": fail}
+                return {"result": "fail"}
             
             data = request.json
             
             username = get_session_from_db(session["id"])[0]
-            username_to_add = data["username"]
+            username_to_add = sanitize_input(data["username"])
 
             if username_to_add == None:
                 return {"result": "fail"}
-            vmid = data["vmid"]
-            node = data["node"]
+            vmid = sanitize_input(data["vmid"])
+            node = sanitize_input(data["node"])
 
             return {
                 "result": get(
@@ -129,25 +130,25 @@ class Proxmox:
 
             try:
                 if request.json == None:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if request.json == {}:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "username" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "vmid" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "node" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
             except Exception:
-                return {"result": fail}
+                return {"result": "fail"}
             data = request.json
             
             
             username = get_session_from_db(session["id"])[0]
             
-            username_to_remove = data["username"]
-            vmid = data["vmid"]
-            node = data["node"]
+            username_to_remove = sanitize_input(data["username"])
+            vmid = sanitize_input(data["vmid"])
+            node = sanitize_input(data["node"])
 
             return {
                 "result": get(
@@ -164,14 +165,13 @@ class Proxmox:
             username = get_session_from_db(session["id"])[0]
             try:
                 if request.json == None:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if request.json == {}:
-                    return {"result": fail}
+                    return {"result": "fail"}
                 if "password" not in request.json:
-                    return {"result": fail}
+                    return {"result": "fail"}
             except Exception:
-                return {"result": fail}
-            password = request.json["password"]
+                return {"result": "fail"}
 
             does_have_personal_vm_created = get(
                 url=f"{PROXMOX_WEBAPP_HOST}/does_have_personal_vm_created/{username}",
@@ -180,6 +180,8 @@ class Proxmox:
             if does_have_personal_vm_created:
                 return {"result": "VM is already created"}
 
+            password = urlencode(request.json["password"])
+            
             return {
                 "result": get(
                     url=f"{PROXMOX_WEBAPP_HOST}/create_vm/{username}/{password}",
