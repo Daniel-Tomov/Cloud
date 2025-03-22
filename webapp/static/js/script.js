@@ -42,7 +42,7 @@ const interval = setInterval(async function () {
                 row.appendChild(cell);
 
                 cell = document.createElement("td");
-                if (response[id]["ip"] !== "") {
+                if (response[id]["ip"] !== "" && response[id]["ip"] !== null) {
                     if (document.getElementById(id + "-protocol") === null) {
                         child = append_text_element(cell, "custom-address-text", "Protocol:");
                         child.id = id + "-protocol-text";
