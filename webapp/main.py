@@ -103,7 +103,7 @@ class Main:
             return resp
         @self.app.route("/web/open/<string:protocol>/<string:ip>/<string:port>", methods=["GET"])
         def open(protocol: str, ip: str, port: str):
-            r = make_response(render_template("redirect.html", url="/"))
+            r = redirect("/") # make_response(render_template("redirect.html", url="/"))
             r.set_cookie("protocol", protocol)
             r.set_cookie("ip", ip)
             r.set_cookie("port", port)
@@ -114,12 +114,12 @@ class Main:
         def open_service(requesed_service):
             for service in SERVICES:
                 if service['id'] == requesed_service:
-                    r = make_response(render_template("redirect.html", url=service['url']))
+                    r = redirect(service['url']) # make_response(render_template("redirect.html", url=service['url']))
                     r.set_cookie("protocol", service['protocol'])
                     r.set_cookie("ip", service['ip'])
                     r.set_cookie("port", service['port'])
                     return r
                 
-            return url_for('index')
+            return redirect(url_for('index'))
         
 http = Main().app
