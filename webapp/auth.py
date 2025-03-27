@@ -21,11 +21,14 @@ from db import (
     add_user_to_db,
     check_ip
 )
+from json import loads
 banner = open("banner.txt", "r").read()
 
 load_dotenv()
 session_length = int(getenv("session_length"))  # minutes
-pve_net = getenv("PVE_NET")  # minutes
+pve_net = getenv("PVE_NET") 
+
+SERVICES = loads(getenv("SERVICES"))
 
 
 class Auth:
@@ -58,15 +61,17 @@ class Auth:
             self.proxmox_data_cache[ip].append('dtomo001')
             return True
         return False
-
+    
+    def return_login_page(self, page="login", extra_content=""):
+        return make_response(
+            render_template("login.html", page=page, extra_content=extra_content, banner=banner, services=SERVICES)
+        )
     def register_routes(self):
         @self.app.route("/web/register", methods=["GET", "POST"])
         def register():
             if request.method == "GET":
                 if "id" not in session or not check_session():
-                    return make_response(
-                        render_template("login.html", page="register", extra_content="", banner=banner)
-                    )
+                    return self.return_login_page(page="register")
                 return redirect(url_for("index"))
 
             if "username" not in request.form and "password" not in request.form:
@@ -74,14 +79,7 @@ class Auth:
 
             username = request.form["username"]
             if does_user_exist_in_db(username=username):
-                r = make_response(
-                    render_template(
-                        "login.html",
-                        page="register",
-                        extra_content="That username is taken",
-                        banner=banner
-                    )
-                )
+                r = self.return_login_page(page="register", extra_content="That username is taken")
                 r.set_cookie("session", "")
                 return r
 
@@ -95,9 +93,7 @@ class Auth:
         def login():
             if request.method == "GET":
                 if "id" not in session or not check_session():
-                    r = make_response(
-                        render_template("login.html", page="login", extra_content="", banner=banner)
-                    )
+                    r = self.return_login_page(page="login")
                     r.set_cookie("session", "")
                     return r
                 return redirect(url_for("index"))
@@ -109,19 +105,11 @@ class Auth:
             password = request.form["password"]
 
             if username == "" or password == "":
-                return make_response(
-                    render_template(
-                        "login.html", page="login", extra_content="Incorrect", banner=banner
-                    )
-                )
+                return self.return_login_page(page="register", extra_content="Incorrect username or password")
             if not check_password_against_db(
                 username=username, password=hash_512(password)
             ):
-                r = make_response(
-                    render_template(
-                        "login.html", page="login", extra_content="Incorrect", banner=banner
-                    )
-                )
+                r = self.return_login_page(page="register", extra_content="Incorrect username or password")
                 r.set_cookie("session", "")
                 return r
             create_session(username=username)
@@ -144,10 +132,29 @@ class Auth:
             failed.set_cookie("ip", "")
             failed.set_cookie("port", "")
             
-            if "id" not in session or not check_session():
+            if "protocol" not in request.cookies or "ip" not in request.cookies or "port" not in request.cookies:
                 return failed
             
             ip = request.cookies.get("ip")
+            #print(request.headers)
+            for service in SERVICES:
+                if ip == service['ip'] and service['enabled'] and service['login_enabled']:
+                    if service['allowed_referers'] == []: 
+                        return make_response("<h1>You aren't supposed to be here!</h1>", 200)
+                    else:
+                        if "Referer" in request.headers:
+                            print(request.headers["Referer"])
+                        referer_found = False
+                        for referer in service['allowed_referers']:
+                            if ip == service['ip'] and service['enabled'] and service['login_enabled'] and "Referer" in request.headers and request.headers["Referer"].endswith(referer):                
+                                return make_response("<h1>You aren't supposed to be here!</h1>", 200)
+                        if not referer_found:
+                            return failed
+            
+            if "id" not in session or not check_session():
+                return failed
+            
+           
             port = request.cookies.get("port")
             protocol = request.cookies.get("protocol")
             

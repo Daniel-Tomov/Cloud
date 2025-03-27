@@ -17,10 +17,12 @@ data:
         "id": "tickets",
         "name": "Tickets",
         "enabled": false,
+        "login_enabled": false,
         "protocol": "https",
-        "ip": "192.168.57.10",
+        "ip": "192.168.1.1",
         "port": "443",
-        "url": "/?login=public"
+        "url": "/?login=public",
+        "allowed_referers":[]
       }
     ]
 kind: ConfigMap

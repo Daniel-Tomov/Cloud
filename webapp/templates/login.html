@@ -6,12 +6,12 @@
         
     </head>
     <body>
-        {% if extra_content != "" %}
-        <p>{{ extra_content }}</p>
-        {% endif %}
         <main>
             <h1>Cyber Data Center</h1>
             <pre>{{ banner }}</pre>
+            {% if extra_content != "" %}
+            <p>{{ extra_content }}</p>
+            {% endif %}
             <form action="/web/{{ page }}" method="post">
                 <label for="username">Username:</label>
                 <input name="username" id="username" type="text" required></input>
@@ -20,8 +20,11 @@
                 <button type="submit">Submit</button>
             </form>
             <p>Other pages:</p>
-            <a href="/web/uptime">uptime</a>
-            <a href="/web/tickets">tickets</a>
+            {% for service in services %}
+                {% if service['login_enabled'] %}
+            <a href="/web/open/{{ service['id'] }}">{{ service['name'] }}</a>
+                {% endif %}
+            {% endfor %}
         </main>
     </body>
 </html>
