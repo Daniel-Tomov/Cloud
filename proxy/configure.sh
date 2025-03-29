@@ -16,7 +16,6 @@ webapp=":32000"
 #db_webapp=""
 proxmox_domain=""
 proxmox_webapp=":32001"
-opnsense_iso_name="OPNsense-24.7-vga-amd64.img"
 
 
 mkdir -p /etc/nginx/certs/
@@ -32,7 +31,7 @@ echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$webapp_d
 #echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$db_domain\n" | openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/certs/$db_domain.key.pem -out /etc/nginx/certs/$db_domain.cert.pem -sha256 -days 365 -nodes
 
 
-cat proxmox.conf | sed "s/_domain_/$proxmox_domain/g" | sed "s/_webapp_ip_/$proxmox_webapp/g" | sed "s/_opnsense_iso_name_/$opnsense_iso_name/g" > /etc/nginx/sites-available/$proxmox_domain.conf
+cat proxmox.conf | sed "s/_domain_/$proxmox_domain/g" | sed "s/_webapp_ip_/$proxmox_webapp/g" > /etc/nginx/sites-available/$proxmox_domain.conf
 ln -s /etc/nginx/sites-available/$proxmox_domain.conf /etc/nginx/sites-enabled/
 echo -e "$country\n$state\n$city\n$organization\n$organizational_unit\n$proxmox_domain\n" | openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/certs/$proxmox_domain.key.pem -out /etc/nginx/certs/$proxmox_domain.cert.pem -sha256 -days 365 -nodes
 
