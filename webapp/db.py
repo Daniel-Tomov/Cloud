@@ -26,6 +26,7 @@ connection = psycopg2.connect(
     password=POSTGRES_PASSWORD,
     host=POSTGRES_HOST,
     port=POSTGRES_PORT,
+    sslmode='require'
 )
 cursor = connection.cursor()
 
