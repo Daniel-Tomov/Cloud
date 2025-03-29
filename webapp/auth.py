@@ -105,11 +105,11 @@ class Auth:
             password = request.form["password"]
 
             if username == "" or password == "":
-                return self.return_login_page(page="register", extra_content="Incorrect username or password")
+                return self.return_login_page(page="login", extra_content="Incorrect username or password")
             if not check_password_against_db(
                 username=username, password=hash_512(password)
             ):
-                r = self.return_login_page(page="register", extra_content="Incorrect username or password")
+                r = self.return_login_page(page="login", extra_content="Incorrect username or password")
                 r.set_cookie("session", "")
                 return r
             create_session(username=username)
