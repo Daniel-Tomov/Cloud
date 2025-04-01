@@ -18,7 +18,7 @@ class Arguments:
             name = next(iter(authentication_method.keys()))
             authentication_method = authentication_method[name]
             if authentication_method['type'] == 'postgres' and authentication_method['enabled']:
-                self.auth_methods.append(AuthDB(authentication_method, args=self))
+                self.auth_methods.append(AuthDB(authentication_method))
             if authentication_method['type'] == 'ldap' and authentication_method['enabled']:
                 #print(authentication_method)
                 self.auth_methods.append(LDAPHandler(ldap_config=authentication_method))

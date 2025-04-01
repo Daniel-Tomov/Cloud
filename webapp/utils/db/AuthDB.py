@@ -11,13 +11,14 @@ from utils.utils import (
 from threading import Thread
 
 class AuthDB:
-    def __init__(self, data: dict, args):
+    def __init__(self, data: dict):
         self.database=data['database']
         self.user=data['user']
         self.password=data['password']
         self.host=data['host']
         self.port=data['port']
         self.sslmode=data['sslmode']
+        self.type=data['type']
 
         self.create_tables()
 

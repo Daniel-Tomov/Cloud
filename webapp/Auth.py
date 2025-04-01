@@ -105,7 +105,7 @@ class Auth:
                 return self.return_login_page(page="login", extra_content="Incorrect username or password")
             for auth_method in self.auth_methods:
                 if auth_method.authenticate_user(username=username, password=password):
-                    print(f"authenticated {username} with {auth_method}")
+                    print(f"authenticated {username} with {auth_method.type}")
                     self.create_session(username=username)
                     return redirect(url_for("index"))
 
