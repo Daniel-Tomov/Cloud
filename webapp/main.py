@@ -9,29 +9,19 @@ from flask import (
     url_for,
 )
 from flask_compress import Compress
-from os import getenv, urandom
-from dotenv import load_dotenv
-import utils
-#from firewall import Firewall
-from proxmox import Proxmox
-from auth import Auth, check_session, invalidate_session
-from db import update_session_in_db
-from json import loads
+from utils.Arguments import Arguments
 
-load_dotenv()
 
 # TODO
 # 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
 # - Give permission to user on the proxmox host
 # - Will need to integrate logins with outside source
-#   - webapp
+#   - webapp - probably not
 #   - active directory
 # 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
 # 5. Dockerize nginx?
-# 6. 
-#
-
-SERVICES = loads(getenv("SERVICES"))
+# 6. Look into using ldap on student vms to authenticate
+#   - question is, can the credentials be found once the student is given full root access to the vm?
 
 
 class Main:
@@ -47,31 +37,28 @@ class Main:
         # also has various security settings to ensure hackers can not use XSS attacks to get a user's session cookie
         self.app = self.start_app()
         # app = Flask(__name__)
+
+        arguments = Arguments(app=self.app)
+        self.system_config = arguments.system_config
+        
         self.app.jinja_env.trim_blocks = True
         self.app.jinja_env.lstrip_blocks = True
-        self.app.config["SECRET_KEY"] = (
-            getenv("FLASK_SECRET_KEY")
-            if getenv("FLASK_SECRET_KEY") != None or getenv("FLASK_SECRET_KEY") != ""
-            else urandom(16).hex()
-        )
-        self.app.secret_key = (
-            getenv("FLASK_SECRET_KEY")
-            if getenv("FLASK_SECRET_KEY") != None or getenv("FLASK_SECRET_KEY") != ""
-            else urandom(16).hex()
-        )
+        self.app.config["SECRET_KEY"] = self.system_config['FLASK_SECRET_KEY']
+        self.app.secret_key = self.system_config['FLASK_SECRET_KEY']
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
         self.app.config["TEMPLATES_AUTO_RELOAD"] = True
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+        self.app.config["SESSION_PERMANENT"] = False
+        self.app.config["SESSION_TYPE"] = "filesystem"
+        self.app.config["SESSION_COOKIE_NAME"] = "session"
         self.app.config.update(
             SESSION_COOKIE_SECURE=True,
             SESSION_COOKIE_HTTPONLY=True,
             SESSION_COOKIE_SAMESITE="Strict",
         )
         self.register_routes()
-        self.proxmox_data_cache = {}
-        Auth(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
-        #Firewall(app=self.app)
-        Proxmox(app=self.app, proxmox_data_cache=self.proxmox_data_cache)
+        self.cache_db = arguments.cache_db
+        self.auth = arguments.auth
         
         #self.app.run(host="0.0.0.0", port=5555, debug=False, use_reloader=False) # development server
 
@@ -89,18 +76,19 @@ class Main:
         #@self.app.route("/web", methods=["GET"])
         def index():
             if "id" not in session:
-                return invalidate_session()
-            if not check_session():
-                return invalidate_session()
+                return self.auth.invalidate_session()
+            if not self.auth.check_session():
+                return self.auth.invalidate_session()
 
-            update_session_in_db(session["id"])
+            self.cache_db.update_session_in_db(session["id"])
             
-            return make_response(render_template("index.html", services=SERVICES))
+            return make_response(render_template("index.html", services=self.system_config['services'], vm_provision_options=self.system_config['vm-provision-options']))
 
         @self.app.errorhandler(404)
         def not_found(error):
             resp = make_response("404", 404)
             return resp
+        
         @self.app.route("/web/open/<string:protocol>/<string:ip>/<string:port>", methods=["GET"])
         def open(protocol: str, ip: str, port: str):
             r = redirect("/") # make_response(render_template("redirect.html", url="/"))
@@ -112,7 +100,7 @@ class Main:
         
         @self.app.route("/web/open/<string:requesed_service>", methods=["GET"])
         def open_service(requesed_service):
-            for service in SERVICES:
+            for service in self.system_config['services']:
                 if service['id'] == requesed_service:
                     r = redirect(service['url']) # make_response(render_template("redirect.html", url=service['url']))
                     r.set_cookie("protocol", service['protocol'])

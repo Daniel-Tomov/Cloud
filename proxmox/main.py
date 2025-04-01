@@ -1,7 +1,6 @@
 from flask import Flask, request
 from flask_compress import Compress
 from os import getenv, urandom
-from dotenv import load_dotenv
 from random import choice
 from proxmox import (
     create_vm,
@@ -16,21 +15,9 @@ from proxmox import (
     QueueEntry,
     vm_creation_queue,
     does_have_personal_vm_created,
-    send_first_boot_get,
-    create_fw,
+    send_first_boot_get
 )
-from json import loads
-
-load_dotenv()
-
-# TODO
-# 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
-# - Give permission to user on the proxmox host
-# - Will need to integrate logins with outside source
-#   - Webapp
-#   - active directory
-# 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
-
+from utils import system_config
 
 class Main:
     def __init__(self):
@@ -47,16 +34,8 @@ class Main:
         # app = Flask(__name__)
         self.app.jinja_env.trim_blocks = True
         self.app.jinja_env.lstrip_blocks = True
-        self.app.config["SECRET_KEY"] = (
-            getenv("FLASK_SECRET_KEY")
-            if getenv("FLASK_SECRET_KEY") != None or getenv("FLASK_SECRET_KEY") != ""
-            else urandom(16).hex()
-        )
-        self.app.secret_key = (
-            getenv("FLASK_SECRET_KEY")
-            if getenv("FLASK_SECRET_KEY") != None or getenv("FLASK_SECRET_KEY") != ""
-            else urandom(16).hex()
-        )
+        self.app.config["SECRET_KEY"] = system_config['FLASK_SECRET_KEY']
+        self.app.secret_key = system_config['FLASK_SECRET_KEY']
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
         self.app.config["TEMPLATES_AUTO_RELOAD"] = True
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -76,21 +55,17 @@ class Main:
         return app
 
     def register_endpoints(self):
-        @self.app.route("/create_vm/<string:username>/<string:password>")
-        def create_vm_route(username: str, password: str):
+        @self.app.route("/create_vm/<string:vm_type>/<string:username>/<string:password>")
+        def create_vm_route(vm_type:str, username: str, password: str):
             # choose a node
             nodes = []
             #print(status)
             for entry in status:
-                if "node" in entry and "type" in entry and entry["type"] == "node" and entry["node"] not in nodes:
+                if "node" in entry and "type" in entry and entry["type"] == "node" and entry["node"] not in nodes and system_config['proxmox_nodes']['prod_nodes_contain'] in entry["node"]:
                     nodes.append(entry["node"])
 
             node = choice(nodes)
-            vm_creation_queue.put(
-                QueueEntry(
-                    midas=username, root_password=password, vm_ip="", valid_node=node
-                )
-            )
+            vm_creation_queue.put(QueueEntry(midas=username, root_password=password, vm_ip="", valid_node=node, vm_type=vm_type))
 
             return {"result": "success"}
 
@@ -111,6 +86,7 @@ class Main:
                 return {"result": "you don't own this vm"}
 
             endpoint = f"/api2/json/nodes/{node}/{vmid}/status/{power_value}"
+            print(endpoint)
             data = {}
             post_endpoint(endpoint=endpoint, data=data)
             return {"result": "success"}
@@ -129,12 +105,13 @@ class Main:
             if name == "":
                 return {"result": "You don't own this VM"}
 
-            if username_to_add in tags:
+            if username_to_add in tags.split(";"):
                 return {"result": "name already added"}
             endpoint = f"/api2/extjs/nodes/{node}/{vmid}/config"
 
             tags = tags + ";" + username_to_add
             data = {"tags": tags}
+            #print(f'adding {username_to_add}')
 
             return {"result": put_endpoint(endpoint=endpoint, data=data)}
 
@@ -152,39 +129,20 @@ class Main:
             if name == "":
                 return {"result": "You don't own this VM"}
 
-            if username_to_remove in name:
+            if username_to_remove == username:
                 return {"result": "cannot remove your own name"}
+            
+            if username_to_remove not in tags.split(";"):
+                return {"result": "username is not in tags"}
+
 
             endpoint = f"/api2/extjs/nodes/{node}/{vmid}/config"
 
-            tags = tags.replace(username_to_remove, "").replace(";;", ";")
+            tags = tags.split(";")
+            tags.remove(username_to_remove)
+            tags = ";".join(tags)
             data = {"tags": tags}
             return {"result": put_endpoint(endpoint=endpoint, data=data)}
-
-        @self.app.route("/postinst", methods=["POST"])
-        def postinst():
-            print("got postinst")
-            data = request.json
-            
-            if data == {}:
-                print("got empty data")
-                return {"result": "fail"}
-            #print("data[\"network-interfaces\"]")
-            #print(data["network-interfaces"])
-            #print("data[\"network-interfaces\"][0]")
-            #print(data["network-interfaces"][0])
-            try:
-                ip = data["network-interfaces"][0]["address"].split("/")[0]
-                recieve_postinst_ip(ip=ip)
-            except Exception as e:
-                print(e)
-                for i in range(0, len(data["network-interfaces"])):
-                    if "address" in data["network-interfaces"][i]:
-                        print(f'recieved postinst from {ip}')
-                        recieve_postinst_ip(ip=ip)
-
-            print("end of postinst route")
-            return {}
                     
 
         @self.app.route("/first-boot.sh", methods=["GET"])
@@ -193,17 +151,18 @@ class Main:
 
         @self.app.route("/answer.toml", methods=["POST"])
         def answer_toml():
-            recieve_postinst_ip(ip=request.headers["X-Forwarded-For"])
             return send_answer_toml()
+        
+        @self.app.route("/postinst", methods=["POST"])
+        def postinst():
+            print("got postinst")
+            recieve_postinst_ip()
+            return {}
 
         @self.app.route(
-            "/does_have_personal_vm_created/<string:username>", methods=["GET"]
+            "/does_have_personal_vm_created/<string:vm_type>/<string:username>", methods=["GET"]
         )
-        def does_have_personal_vm_created_route(username: str):
-            return {"result": does_have_personal_vm_created(username=username)}
-
-        @self.app.route("/create_fw", methods=["GET"])
-        def create_fw_route():
-            return {"result": create_fw()}
+        def does_have_personal_vm_created_route(vm_type:str, username: str):
+            return {"result": does_have_personal_vm_created(vm_type=vm_type, username=username)}
 
 http = Main().app

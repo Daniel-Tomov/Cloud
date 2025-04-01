@@ -8,45 +8,36 @@ from flask import (
     redirect,
 )
 from datetime import datetime, timedelta
-from os import urandom, getenv
-from dotenv import load_dotenv
-from utils import current_time_str, current_time_dt, convert_time_str_dt, hash_512
-from db import (
-    add_session_to_db,
-    get_session_from_db,
-    remove_session_from_db,
-    update_session_in_db,
-    does_user_exist_in_db,
-    check_password_against_db,
-    add_user_to_db,
-    check_ip
-)
-from json import loads
-banner = open("banner.txt", "r").read()
-
-load_dotenv()
-session_length = int(getenv("session_length"))  # minutes
-pve_net = getenv("PVE_NET") 
-
-SERVICES = loads(getenv("SERVICES"))
+from utils.utils import current_time_dt
+banner = open("static/text/banner.txt", "r").read()
+from utils.db.AuthDB import AuthDB
 
 
 class Auth:
-    def __init__(self, app: Flask, proxmox_data_cache: dict):
-        self.app = app
-        self.proxmox_data_cache = proxmox_data_cache
+    def __init__(self, args):
+        self.app = args.app
+        self.proxmox_data_cache = args.proxmox_data_cache
+        self.system_config = args.system_config
+        self.cache_db = args.cache_db
+
+        self.auth_methods=args.auth_methods
+
+        self.session_length = int(self.system_config['session_length'])  # minutes
+        self.pve_net = self.system_config['proxmox_webapp']['pve_net']
+
+        self.SERVICES = self.system_config['services']
 
         self.register_routes()
         
     def verify_user_can_access_ip(self, ip: str):
-        if pve_net not in ip:
+        if self.pve_net not in ip:
             return True
-        username = get_session_from_db(session["id"])[0]
+        username = self.cache_db.get_session_from_db(session["id"])[0]
         
         if ip not in self.proxmox_data_cache:
             # need to check db
             print(f"ip {ip} not in vm ip cache, going to db")
-            if check_ip(username, ip):
+            if self.cache_db.check_ip(username, ip):
                 self.proxmox_data_cache[ip] = ['dtomo001']
                 return True
             self.proxmox_data_cache[ip] = []
@@ -57,73 +48,79 @@ class Auth:
         
         #print(f"{username} not in cache for {ip}")
         
-        if check_ip(username, ip):
+        if self.cache_db.check_ip(username, ip):
             self.proxmox_data_cache[ip].append('dtomo001')
             return True
         return False
     
     def return_login_page(self, page="login", extra_content=""):
         return make_response(
-            render_template("login.html", page=page, extra_content=extra_content, banner=banner, services=SERVICES)
+            render_template("login.html", page=page, extra_content=extra_content, banner=banner, services=self.SERVICES)
         )
+    
     def register_routes(self):
         @self.app.route("/web/register", methods=["GET", "POST"])
         def register():
             if request.method == "GET":
-                if "id" not in session or not check_session():
+                if "id" not in session or not self.check_session():
                     return self.return_login_page(page="register")
                 return redirect(url_for("index"))
 
             if "username" not in request.form and "password" not in request.form:
-                return invalidate_session()
+                return self.invalidate_session()
 
             username = request.form["username"]
-            if does_user_exist_in_db(username=username):
-                r = self.return_login_page(page="register", extra_content="That username is taken")
-                r.set_cookie("session", "")
-                return r
+            for auth_method in self.auth_methods:
+                if not isinstance(auth_method, AuthDB):
+                    continue
+                if auth_method.does_user_exist_in_db(username=username):
+                    r = self.return_login_page(page="register", extra_content="That username is taken")
+                    r.set_cookie("session", "")
+                    return r
 
-            password = request.form["password"]
+                password = request.form["password"]
 
-            add_user_to_db(username=username, password=hash_512(password))
-            #create_session(username=username)
+                auth_method.add_user_to_db(username=username, password=password)
+                #create_session(username=username)
+                return redirect(url_for("login"))
+        
             return redirect(url_for("login"))
 
         @self.app.route("/web/login", methods=["GET", "POST"])
         def login():
             if request.method == "GET":
-                if "id" not in session or not check_session():
+                if "id" not in session or not self.check_session():
                     r = self.return_login_page(page="login")
                     r.set_cookie("session", "")
                     return r
                 return redirect(url_for("index"))
 
             if "username" not in request.form and "password" not in request.form:
-                return invalidate_session()
+                return self.invalidate_session()
 
             username = request.form["username"]
             password = request.form["password"]
 
             if username == "" or password == "":
                 return self.return_login_page(page="login", extra_content="Incorrect username or password")
-            if not check_password_against_db(
-                username=username, password=hash_512(password)
-            ):
-                r = self.return_login_page(page="login", extra_content="Incorrect username or password")
-                r.set_cookie("session", "")
-                return r
-            create_session(username=username)
+            for auth_method in self.auth_methods:
+                if auth_method.authenticate_user(username=username, password=password):
+                    print(f"authenticated {username} with {auth_method}")
+                    self.create_session(username=username)
+                    return redirect(url_for("index"))
 
-            return redirect(url_for("index"))
+            r = self.return_login_page(page="login", extra_content="Incorrect username or password")
+            r.set_cookie("session", "")
+            return r
 
         @self.app.route("/web/update_session", methods=["GET"])
         def update_session_route():
-            update_session_in_db(session['id'])
+            self.cache_db.update_session_in_db(session['id'])
             return "done"
 
         @self.app.route("/web/logout")
         def logout():
-            return invalidate_session()
+            return self.invalidate_session()
 
         @self.app.route("/auth-proxy")
         def auth_proxy():
@@ -137,7 +134,7 @@ class Auth:
             
             ip = request.cookies.get("ip")
             #print(request.headers)
-            for service in SERVICES:
+            for service in self.SERVICES:
                 if ip == service['ip'] and service['enabled'] and service['login_enabled']:
                     if service['allowed_referers'] == []: 
                         return make_response("<h1>You aren't supposed to be here!</h1>", 200)
@@ -151,7 +148,7 @@ class Auth:
                         if not referer_found:
                             return failed
             
-            if "id" not in session or not check_session():
+            if "id" not in session or not self.check_session():
                 return failed
             
            
@@ -175,25 +172,25 @@ class Auth:
             return make_response("<h1>You aren't supposed to be here!</h1>", 200)
 
 
-def compare_sessions(time_old: datetime, time_new: datetime) -> bool:
-    return time_new - time_old < timedelta(minutes=session_length)
+    def compare_sessions(self, time_old: datetime, time_new: datetime) -> bool:
+        return time_new - time_old < timedelta(minutes=self.session_length)
 
 
-def check_session() -> bool:
-    from_db = get_session_from_db(session["id"])
-    if len(from_db) == 0:
-        return False 
-    return compare_sessions(from_db[2], current_time_dt())
+    def check_session(self) -> bool:
+        from_db = self.cache_db.get_session_from_db(session["id"])
+        if len(from_db) == 0:
+            return False 
+        return self.compare_sessions(from_db[2], current_time_dt())
 
 
-def create_session(username: str):
-    session["id"] = add_session_to_db(username=username)
+    def create_session(self, username: str):
+        session["id"] = self.cache_db.add_session_to_db(username=username)
 
 
-def invalidate_session():
-    if "id" in session:
-        remove_session_from_db(session["id"])
-    session.pop("id", None)
-    r = make_response(redirect(url_for("login")))
-    r.set_cookie("session", "")
-    return r
+    def invalidate_session(self):
+        if "id" in session:
+            self.cache_db.remove_session_from_db(session["id"])
+        session.pop("id", None)
+        r = make_response(redirect(url_for("login")))
+        r.set_cookie("session", "")
+        return r

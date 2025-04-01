@@ -1,10 +1,13 @@
-from dotenv import load_dotenv
 import hashlib
 from datetime import datetime
+from yaml import safe_load
+import string
 
-load_dotenv()
 date_format = "%Y-%m-%d %H:%M:%S"
 
+
+with open('../../vm-options.yaml', 'r') as config:
+    system_config = safe_load(config)
 
 def hash_512(s: str) -> str:
     for _ in range(0, 2):
@@ -12,11 +15,13 @@ def hash_512(s: str) -> str:
     return s
 
 
-def sanitize_input(s: str) -> str:
-    invalid = "`~!@#$%^&*()_-+=[{]}\\|;:'\",<.>/?"
-    for c in invalid:
-        s = s.replace(c, "")
-    return s
+def sanitize_input(s: str, allowed_characters="") -> str:
+    valid = string.ascii_uppercase + string.ascii_lowercase + "0123456789"
+    new_s = ""
+    for c in s:
+        if c in valid or c in allowed_characters:
+            new_s += c
+    return new_s
 
 
 ### TIME

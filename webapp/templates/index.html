@@ -9,6 +9,20 @@
         <div id="vms_container">
             <p>VM data is loading...</p>
         </div>
+
+        <div id="provision">
+        {% for option in vm_provision_options %}
+            {% if vm_provision_options[option]['enabled'] %}
+                <div class="provision-option">
+                    <h3>{{ vm_provision_options[option]['name'] }}</h3>
+                    <p>{{ vm_provision_options[option]['description'] | safe }}</p>
+                    <label for="{{ option }}-password">{{ vm_provision_options[option]['input_label'] }}</label>
+                    <input type="text" id="{{ option }}-password" name="{{ option }}-password">
+                    <button onclick="create_vm('{{ option }}')">Create VM</button>
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
         
         <p>Other pages:</p>
         {% for service in services %}

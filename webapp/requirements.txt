@@ -2,6 +2,7 @@ psycopg2-binary
 flask
 flask-compress
 requests
-python-dotenv
 psycopg2
 gunicorn
+pyyaml
+python-ldap

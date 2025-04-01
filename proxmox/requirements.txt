@@ -1,5 +1,5 @@
 flask
 flask-compress
 requests
-python-dotenv
+pyyaml
 gunicorn

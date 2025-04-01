@@ -23,35 +23,14 @@ spec:
             - /bin/bash
             - -c
             - "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/postgres/run.sh; chmod +x run.sh ; ./run.sh"
-          env:
-            - name: session_length
-              valueFrom:
-                configMapKeyRef:
-                  key: session_length
-                  name: db-env
-            - name: POSTGRES_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_USER
-                  name: db-env
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_PASSWORD
-                  name: db-env
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_DB
-                  name: db-env
-            - name: POSTGRES_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_HOST
-                  name: db-env
-            - name: POSTGRES_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_PORT
-                  name: db-env
+          
+          volumeMounts:
+            - name: vm-options-volume
+              mountPath: /usr/src/Cloud
+              subPath: vm-options.yaml
+      volumes:
+        - name: vm-options-volume
+          configMap:
+            name: env
+
       restartPolicy: Always

@@ -5,5 +5,6 @@ services:
     command: /bin/bash -c "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/webapp/run.sh; chmod +x run.sh ; ./run.sh"
     ports:
      - 5555:5555
-    env_file: .env
+    volumes:
+     - ../vm-options.yaml:/usr/src/vm-options.yaml
 

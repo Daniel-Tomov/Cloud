@@ -1,0 +1,158 @@
+FLASK_SECRET_KEY: ""
+PYTHONWARNINGS: "ignore:Unverified HTTPS request"
+session_length: 60
+proxmox_nodes:
+  authentication_type: "token" # token or credentials
+  token: "" # can leave blank if not using
+  username: "" # can leave these blank if not using
+  password: ""
+  verify_ssl: False
+  nodes:
+    - 10.10.10.2
+    - 10.10.10.3
+    - 10.10.10.4
+  prod_nodes_contain: "prod" # ensures VMs are not put on development nodes
+  user_group: "student"  
+proxmox_webapp: # this is the proxmox webapp
+  host: "https://ip or domain:5556"
+  verifyssl: False
+  pve_net: "10.10.11."
+cache_database:
+  user: "postgres"
+  password: ""
+  database: "webapp"
+  host: ""
+  port: 5432
+  sslmode: "require"
+authentication: # priority is in order, top to
+  - postgres:
+      type: "postgres"
+      enabled: true
+      user: "postgres"
+      password: ""
+      database: "webapp"
+      host: ""
+      port: 5432
+      sslmode: "require"
+  - LDAP:
+      type: "ldap"
+      enabled: true
+      name: LDAP
+      servers:
+        - 10.10.10.10
+        - 10.10.10.11
+      port: 389
+      domain: lab.example.com
+      bind-user: CN=proxmox_environment_user,OU=User,DC=lab,DC=example,DC=com
+      user-filter: (memberOf=CN=VM_Users,OU=Groups,DC=lab,DC=example,DC=org)
+      base-dn: OU=LAB,OU=User,DC=lab,DC=example,DC=com
+      bind-password: ""
+services: 
+  - "id": "uptimekuma"
+    "name": "Uptime Kuma"
+    "enabled": true
+    "login_enabled": true
+    "protocol": "http"
+    "ip": "192.168.1.1"
+    "port": "3001"
+    "url": "/status/status"
+    "allowed_referers":
+      - "/web/home"
+      - "/web/"
+      - "/status/datacenter"
+vm-provision-options:
+  proxmox:
+    enabled: True
+    option: proxmox
+    name: Proxmox Virtual Environment
+    input_label: "Password: "
+    description: "A Proxmox Virtual Environment Machine with the following: <br>6 cores, 16 gb of ram, 96 gb of storage <br>Running one OPNSense firewall VM and one AntiX (lightweight Linux distro) VM."
+    cores: 6
+    cpu: "host"
+    memory: 8192
+    networks:
+      - "bridge=vmbr1,tag=15,virtio,firewall=0,link_down=0"
+      - "bridge=vmbr1,tag=14,virtio,firewall=0,link_down=1"
+    user_vlan: "13"
+    provision_vlan: "15" # Proxmox vm provisioning is done on a separate network from the main Proxmox VM network one
+    iso: "proxmox-ve_8.0-2.iso"
+    iso_location: "local" # iso location on Proxmox Server
+    storage: 96
+    storage_location: "local-lvm" # location on Proxmox Server
+    bios: "seabios"
+    sockets: 1
+    start: 1
+    numa: 1
+    scsihw: "virtio-scsi-single"
+    balloon: 8192
+    proxmox_webapp_url: "http://domain or ip"
+    proxmox_webapp_fingerprint: "" # obtained from configure.sh in nginx folder
+    pool: ""
+    needs_postinst: False # waits for request to /postinst before creating other vms
+    images:
+      OPNsense:
+        image_url: https://ip_address or domain/OPNsense-25.1-dvd-amd64.iso
+        image_url_verifyssl: False
+        cores: 2
+        cpu: "host"
+        memory: 2048
+        networks:
+          - "bridge=vmbr1,virtio"
+          - "bridge=vmbr2,virtio"
+        iso: "OPNsense-25.1-dvd-amd64.iso"
+        iso_location: "local"
+        storage: 24
+        storage_location: "local-lvm"
+        start: 0
+        bios: "seabios"
+        sockets: 1
+        numa: 0
+        scsihw: "virtio-scsi-single"
+        balloon: 2048
+      antix:
+        image_url: https://ip address or domain/antix.iso
+        image_url_verifyssl: False
+        cores: 2
+        cpu: "host"
+        memory: 2048
+        networks:
+          - "bridge=vmbr2,virtio"
+        iso: ""
+        iso_location: "local"
+        storage: 8
+        storage_location: "local-lvm"
+        start: 0
+        bios: "seabios"
+        sockets: 1
+        numa: 0
+        scsihw: "virtio-scsi-single"
+        balloon: 2048
+  ubuntu:
+    enabled: true
+    option: ubuntu
+    name: Ubuntu
+    input_label: "Password: "
+    description: "One Ubuntu with the following: <br>4 cores, 4 gb of ram, 32 gb of storage <br>Running Ubuntu 22.04.3 LTS."
+    cores: 4
+    cpu: "host"
+    memory: 4096
+    start: 0
+    iso: "ubuntu-22.04.3-desktop-amd64.iso"
+    iso_location: "local" # iso location on Proxmox Server
+    storage: 32
+    storage_location: "local-lvm" # location on Proxmox Server
+    bios: "seabios"
+    sockets: 1
+    numa: 1
+    scsihw: "virtio-scsi-single"
+    networks:
+      - "bridge=vmbr1,tag=14,virtio,firewall=0"
+    balloon: 4096
+    pool: ""
+    needs_postinst: False
+  request:
+    enabled: true
+    option: request
+    name: Request a VM
+    input_label: "Please describe your request: "
+    description: "Request a custom virtual machine, we will contact you when your request is processed."

@@ -257,17 +257,13 @@ const interval = setInterval(async function () {
                 vms_container_temp.appendChild(vm_table);
             })
             
-            button = document.createElement("button");
-            button.innerText = "Create VM";
-            button.setAttribute("action", "create_vm");
-            vms_container_temp.appendChild(button);
             if (!paused) {
                 vms_container.innerHTML = vms_container_temp.innerHTML;
             }
         })
         .catch(err => console.error(err));
 
-}, 10000);
+}, 3000);
 
 async function send_power_value(vmid, value, node) {
     await fetch("/web/set_vm_power_state", {
@@ -289,13 +285,16 @@ async function send_power_value(vmid, value, node) {
     });
 }
 
-async function create_vm(password) {
+async function create_vm(id) {
+    var password = document.getElementById(id+"-password").value;
+
     await fetch("/web/create_vm", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
+            "id": id,
             "password": password,
         })
     }).then(response => {
@@ -368,7 +367,7 @@ document.getElementById('vms_container').addEventListener('click', function (eve
         } else if (action === "add_tag") {
             send_tag_data(vmId, prompt("Enter the MIDAS of the user:"), node, "add");
         } else if (action === "create_vm") {
-            create_vm(prompt("Enter the password for the VM:"));
+            create_vm();
         } else if (action === "access_page") {
             var id = event.target.getAttribute("id");
             var protocol = document.getElementById(id + "-protocol").value;

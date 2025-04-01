@@ -1,5 +1,4 @@
 import psycopg2
-from dotenv import load_dotenv
 from datetime import timedelta, datetime
 from utils import (
     current_time_str,
@@ -8,43 +7,53 @@ from utils import (
 )
 from threading import Thread
 from time import sleep
-from os import getenv
+from yaml import safe_load
 
-load_dotenv()
-POSTGRES_DB = getenv("POSTGRES_DB")
-POSTGRES_USER = getenv("POSTGRES_USER")
-POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
-POSTGRES_HOST = getenv("POSTGRES_HOST")
-POSTGRES_PORT = int(getenv("POSTGRES_PORT"))
-session_length = int(getenv("session_length"))  # minutes
+class Prune:
+    def __init__(self, system_config):
+        self.data = system_config['cache_database']
+        self.database=self.data['database']
+        self.user=self.data['user']
+        self.password=self.data['password']
+        self.host=self.data['host']
+        self.port=self.data['port']
+        self.sslmode=self.data['sslmode']
+        # {"id": {"id": "", "username": "", "last_accessed": datetime}}
+        self.sessions_cache = {}
 
-connection = psycopg2.connect(
-    database=POSTGRES_DB,
-    user=POSTGRES_USER,
-    password=POSTGRES_PASSWORD,
-    host=POSTGRES_HOST,
-    port=POSTGRES_PORT,
-)
-cursor = connection.cursor()
+        self.session_length = int(system_config['session_length'])  # minutes
+
+        self.create_tables()
+
+        Thread(target=self.async_session_prune).start()
+    def connect(self):
+        connection = psycopg2.connect(
+            database=self.database,
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            sslmode=self.sslmode
+        )
+        return connection, connection.cursor()
+    
+    def session_prune(self):
+        connection, cursor = self.connect()
+        expiration_time = current_time_dt() - timedelta(minutes=self.session_length)                
+        expiration_time = convert_time_dt_str(expiration_time)
+        query = f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';"
+        print(query)
+        cursor.execute(query)
+        connection.commit()
 
 
-
-def session_prune():
-    expiration_time = current_time_dt() - timedelta(minutes=session_length)                
-    expiration_time = convert_time_dt_str(expiration_time)
-    query = f"DELETE FROM sessions WHERE last_accessed < '{expiration_time}';"
-    print(query)
-    cursor.execute(query)
-    connection.commit()
-
-
-def async_session_prune():
-    global status
-    while True:
-        status = session_prune()
-        sleep(
-            (session_length / 2) * 60
-        )  # remove expired sessions every session_length / 2 minutes
+    def async_session_prune(self):
+        global status
+        while True:
+            status = self.session_prune()
+            sleep(
+                (self.session_length / 2) * 60
+            )  # remove expired sessions every session_length / 2 minutes
 
 if __name__ == "__main__":
     # cursor.execute("DROP TABLE sessions;")
@@ -53,7 +62,10 @@ if __name__ == "__main__":
     # r = cursor.fetchall()
     # print(r)
     # async_session_prune()
-    Thread(target=async_session_prune).start()
+
+    with open('../../vm-options.yaml', 'r') as config:
+        system_config = safe_load(config)
+    Prune(system_config=system_config)
     """"""
 else:
     """"""

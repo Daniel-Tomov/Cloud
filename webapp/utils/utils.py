@@ -1,9 +1,7 @@
-from dotenv import load_dotenv
 import hashlib
 from datetime import datetime
 import string
 
-load_dotenv()
 date_format = "%d %b %Y %H:%M:%S"
 
 

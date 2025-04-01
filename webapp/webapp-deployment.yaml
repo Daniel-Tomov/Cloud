@@ -5,7 +5,7 @@ metadata:
   labels:
     app: webapp
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: webapp
@@ -25,65 +25,12 @@ spec:
           args:
             - /bin/bash
             - -c
-            - "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/webapp/run.sh; chmod +x run.sh ; ./run.sh"
-          env:
-            - name: FLASK_SECRET_KEY
-              valueFrom:
-                configMapKeyRef:
-                  key: FLASK_SECRET_KEY
-                  name: webapp-env
-            - name: PROXMOX_WEBAPP_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: PROXMOX_WEBAPP_HOST
-                  name: webapp-env
-            - name: PROXMOX_WEBAPP_verify_ssl
-              valueFrom:
-                configMapKeyRef:
-                  key: PROXMOX_WEBAPP_verify_ssl
-                  name: webapp-env
-            - name: PVE_NET
-              valueFrom:
-                configMapKeyRef:
-                  key: PVE_NET
-                  name: webapp-env
-            - name: PYTHONWARNINGS
-              valueFrom:
-                configMapKeyRef:
-                  key: PYTHONWARNINGS
-                  name: webapp-env
-            - name: session_length
-              valueFrom:
-                configMapKeyRef:
-                  key: session_length
-                  name: webapp-env
-            - name: POSTGRES_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_USER
-                  name: webapp-env
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_PASSWORD
-                  name: webapp-env
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_DB
-                  name: webapp-env
-            - name: POSTGRES_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_HOST
-                  name: webapp-env
-            - name: POSTGRES_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: POSTGRES_PORT
-                  name: webapp-env
-            - name: SERVICES
-              valueFrom:
-                configMapKeyRef:
-                  key: SERVICES
-                  name: webapp-env
+            - "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/webapp/run.sh ; chmod +x run.sh ; ./run.sh"
+          volumeMounts:
+            - name: vm-options-volume
+              mountPath: /usr/src/Cloud
+              subPath: vm-options.yaml
+      volumes:
+        - name: vm-options-volume
+          configMap:
+            name: env
