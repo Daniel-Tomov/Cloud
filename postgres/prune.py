@@ -23,7 +23,6 @@ class Prune:
 
         self.session_length = int(system_config['session_length'])  # minutes
 
-        self.create_tables()
 
         Thread(target=self.async_session_prune).start()
     def connect(self):
