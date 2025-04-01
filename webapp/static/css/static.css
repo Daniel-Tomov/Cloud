@@ -92,3 +92,15 @@ td:has(> progress) {
     width:3rem;
     float:left;
 }
+
+#provision-table {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+.shown {
+    display: block;
+}
