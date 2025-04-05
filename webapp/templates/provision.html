@@ -1,0 +1,30 @@
+<div id="provision">
+    <h1>Select a VM to provision:</h1>
+    <select name="options" id="provision-options">
+    {% for option in vm_provision_options %}
+        {% if vm_provision_options[option]['enabled'] %}
+            <option value="{{ option }}">{{ vm_provision_options[option]['name'] }}</option>
+        {% endif %}
+    {% endfor %}
+    </select>
+
+    <div class="provision-option shown" id="{{ vm_provision_options.keys() | list | first }}">
+        <h3>{{ (vm_provision_options.values() | list | first)['name'] }}</h3>
+        <p>{{ (vm_provision_options.values() | list | first)['description'] | safe }}</p>
+        <label for="{{ vm_provision_options.keys() | list | first }}-password">{{ (vm_provision_options.values() | list | first)['input_label'] }}</label>
+        <input class="full-width" type="text" id="{{ vm_provision_options.keys() | list | first }}-password" name="{{ vm_provision_options.keys() | list | first }}-password">
+        <button onclick="create_vm('{{ vm_provision_options.keys() | list | first }}')">Create VM</button>
+    </div>
+
+    {% for option in (vm_provision_options.keys()|list)[1:] %}
+        {% if vm_provision_options[option]['enabled'] %}
+        <div class="provision-option hidden" id="{{ option }}">
+            <h3>{{ vm_provision_options[option]['name'] }}</h3>
+            <p>{{ vm_provision_options[option]['description'] | safe }}</p>
+            <label for="{{ option }}-password">{{ vm_provision_options[option]['input_label'] }}</label>
+            <input class="full-width" type="text" id="{{ option }}-password" name="{{ option }}-password">
+            <button onclick="create_vm('{{ option }}')">Create VM</button>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>

@@ -131,7 +131,7 @@ async function get_vm_status() {
                 cell.appendChild(button);
             } else if (response[id]["status"] === "running") {
                 ip = document.createElement("p");
-                ip.innerText = "No IP address. Please Wait"
+                ip.innerText = "No IP address."
                 cell.appendChild(ip);
             } else if (response[id]["status"] === "stopped") {
                 ip = document.createElement("p");
@@ -301,6 +301,13 @@ async function create_vm(id) {
             "password": password,
         })
     }).then(response => {
+        // Await the json response
+        response.json().then(data => {
+            console.log(data); // Log the response data
+            alert(JSON.stringify(data)); // Alert the response data as a string
+        });
+
+        // Check if the response is OK
         if (!response.ok) {
             console.error('Request failed:', response.status, response.statusText);
         }
@@ -308,6 +315,7 @@ async function create_vm(id) {
         console.error('Network error:', err);
     });
 }
+
 
 async function send_tag_data(vmid, username, node, add_or_remove) {
     if (add_or_remove === "add" || add_or_remove === "remove") {

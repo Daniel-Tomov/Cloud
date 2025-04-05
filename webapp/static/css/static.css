@@ -93,8 +93,13 @@ td:has(> progress) {
     float:left;
 }
 
-#provision-table {
-    width: 100%;
+#provision {
+    width: 96%;
+    margin: 0 auto;
+}
+
+.provision-option {
+    margin: 0 0 0 50px;
 }
 
 .hidden {
@@ -103,4 +108,8 @@ td:has(> progress) {
 
 .shown {
     display: block;
+}
+
+.full-width {
+    width: 100%;
 }

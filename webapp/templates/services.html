@@ -1,0 +1,6 @@
+<h1>Other pages:</h1>
+{% for service in services %}
+    {% if service['enabled'] %}
+        <a href="/web/open/{{ service['id'] }}">{{ service['name'] }}</a>
+    {% endif %}
+{% endfor %}
