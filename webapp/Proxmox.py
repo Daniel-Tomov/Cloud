@@ -178,9 +178,16 @@ class Proxmox:
             if request.json['id'] not in self.system_config['vm-provision-options']:
                 return {"result": "fail"}
             
-
             vm_type = request.json['id']
             password = urlencode(request.json["password"])
+            
+            if vm_type == ""  or password == "":
+                return {"result": "fail"}
+            
+
+            
+            if len(password) > 500:
+                return {"result": "longer than 500 characters"}
 
 
             if vm_type == "request":
