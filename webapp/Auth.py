@@ -38,7 +38,7 @@ class Auth:
             # need to check db
             print(f"ip {ip} not in vm ip cache, going to db")
             if self.cache_db.check_ip(username, ip):
-                self.proxmox_data_cache[ip] = ['dtomo001']
+                self.proxmox_data_cache[ip] = [username]
                 return True
             self.proxmox_data_cache[ip] = []
             return False
@@ -49,7 +49,7 @@ class Auth:
         #print(f"{username} not in cache for {ip}")
         
         if self.cache_db.check_ip(username, ip):
-            self.proxmox_data_cache[ip].append('dtomo001')
+            self.proxmox_data_cache[ip].append(username)
             return True
         return False
     
@@ -139,8 +139,8 @@ class Auth:
                     if service['allowed_referers'] == []: 
                         return make_response("<h1>You aren't supposed to be here!</h1>", 200)
                     else:
-                        if "Referer" in request.headers:
-                            print(request.headers["Referer"])
+                        #if "Referer" in request.headers:
+                            #(request.headers["Referer"])
                         referer_found = False
                         for referer in service['allowed_referers']:
                             if ip == service['ip'] and service['enabled'] and service['login_enabled'] and "Referer" in request.headers and request.headers["Referer"].endswith(referer):                
