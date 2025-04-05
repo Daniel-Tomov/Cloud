@@ -324,7 +324,7 @@ def does_user_own_vm(
     vmid: str, username: str
 ) -> str:  # returns the vm name if the user owns it, otherwise ""
     for entry in range(0, len(status)):
-        if vmid == status[entry]["id"] and username in status[entry]["name"]:
+        if vmid == status[entry]["id"] and username == status[entry]["name"].rsplit("-", 1):
             return status[entry]["name"], status[entry]["tags"]
     return "", ""
 
