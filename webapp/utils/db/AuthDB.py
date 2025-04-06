@@ -39,6 +39,7 @@ class AuthDB:
             "CREATE TABLE IF NOT EXISTS users (username VARCHAR(16) UNIQUE, password VARCHAR(128), salt VARCHAR(32), admin boolean default false);"
         )
         connection.commit()
+        connection.close()
 
     def authenticate_user(self, username: str, password: str) -> bool:
         connection, cursor = self.connect()
@@ -54,14 +55,16 @@ class AuthDB:
             (username, password)
         )
         result = cursor.fetchall()
+        connection.close()
         return len(result) == 1
 
 
     def does_user_exist_in_db(self, username: str) -> bool:
         username = sanitize_input(username)
-        cursor = self.connect()
+        connection, cursor = self.connect()
         cursor.execute("SELECT username FROM users WHERE username = %s", (username,))
         result = cursor.fetchall()
+        connection.close()
         return len(result) == 1  # returns true if the user exists
 
 
@@ -78,6 +81,7 @@ class AuthDB:
             (username, password, salt)
         )
         connection.commit()
+        connection.close()
 
 
 
