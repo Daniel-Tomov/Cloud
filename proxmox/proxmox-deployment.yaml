@@ -27,8 +27,8 @@ spec:
             - "wget https://raw.githubusercontent.com/Daniel-Tomov/Cloud/refs/heads/main/proxmox/run.sh ; chmod +x run.sh ; ./run.sh"
           volumeMounts:
             - name: vm-options-volume
-              mountPath: /usr/src/Cloud
-              subPath: vm-options.yaml
+              mountPath: /usr/src/vm-options.yaml
+              subPath: VM_OPTIONS
       volumes:
         - name: vm-options-volume
           configMap:
