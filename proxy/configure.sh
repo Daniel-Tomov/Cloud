@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo apt update
-sudo apt install nginx
+sudo apt install nginx nginx-full
 
 # Certificate stuff
 country=""
