@@ -156,3 +156,4 @@ cython_debug/
 *env-configmap.yaml
 *.pem
 vm-options.yaml
+postgres/high_availability/configs

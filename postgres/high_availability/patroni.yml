@@ -1,0 +1,58 @@
+scope: postgresql-cluster
+namespace: /service/
+name: postgresql-01  # node1
+
+etcd3:
+  hosts: node1:2379,node2:2379,node3:2379  # etcd cluster nodes
+  protocol: https
+  cacert: /etc/etcd/ssl/ca.crt
+  cert: /etc/etcd/ssl/etcd-nodename.crt  # node1's etcd certificate
+  key: /etc/etcd/ssl/etcd-nodename.key  # node1's etcd key
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: ip:8008  # IP for node1's REST API
+  certfile: /var/lib/postgresql/ssl/server.pem
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576  # Failover parameters
+    postgresql:
+        parameters:
+            ssl: 'on'  # Enable SSL
+            ssl_cert_file: /var/lib/postgresql/ssl/server.crt  # PostgreSQL server certificate
+            ssl_key_file: /var/lib/postgresql/ssl/server.key  # PostgreSQL server key
+        pg_hba:  # Access rules
+        - hostssl replication replicator 127.0.0.1/32 md5
+        - hostssl replication replicator node1/32 md5
+        - hostssl replication replicator node2/32 md5
+        - hostssl replication replicator node3/32 md5
+        - hostssl all all 127.0.0.1/32 md5
+        - hostssl all all 0.0.0.0/0 md5
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: ip:5432  # IP for node1's PostgreSQL
+  data_dir: /var/lib/postgresql/data
+  bin_dir: /usr/lib/postgresql/17/bin  # Binary directory for PostgreSQL 17
+  authentication:
+    superuser:
+      username: postgres
+      password: changeme  # Superuser password - be sure to change
+    replication:
+      username: replicator
+      password: changeme  # Replication password - be sure to change
+  parameters:
+    max_connections: 100
+    shared_buffers: 256MB
+
+tags:
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
