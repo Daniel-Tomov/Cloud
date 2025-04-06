@@ -14,7 +14,7 @@ cd webapp
 echo -e "US\nVirginia\nVirginia Beach\nDaniel Tomov\nLab\nlab.com\ntest@lab.com\n\n\n" | openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes
 
 apt update
-apt install libldap2-dev libsasl2-dev
+apt install libldap2-dev libsasl2-dev -y
 
 pip3 install -r requirements.txt
 #python3 main.py
