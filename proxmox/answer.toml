@@ -16,11 +16,11 @@ disk_list = ["sda"]
 lvm.maxroot = {{ lvm_max_root }}
 
 [post-installation-webhook]
-url = "{{ proxmox_webapp_url }}"
+url = "{{ proxmox_webapp_url }}/postinst"
 cert_fingerprint = "{{ proxmox_webapp_fingerprint }}"
 
 [first-boot]
 source = "from-url"
 ordering = "fully-up"
-url = "{{ proxmox_webapp_url }}"
+url = "{{ proxmox_webapp_url }}/first-boot.sh"
 cert-fingerprint = "{{ proxmox_webapp_fingerprint }}"

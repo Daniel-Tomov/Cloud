@@ -112,11 +112,11 @@ def recieve_postinst_ip():
     r = get_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config")
     
     data={
-        "net0": r["net0"].replace(system_config['vm-provision-options']['proxmox']['provision_vlan'], system_config['vm-provision-options']['proxmox']['user_vlan']),
+        "net0": r["net0"].replace(str(system_config['vm-provision-options']['proxmox']['provision_vlan']), str(system_config['vm-provision-options']['proxmox']['user_vlan'])),
         "net1": r["net1"].replace("link_down=1", "link_down=0")
         }
     data['agent'] = 1
-    print(f"Reconnecting FW interface for {qentry.valid_id}", end="")
+    print(f"Reconnecting Promxox management interface for {qentry.valid_id}", end="")
     print(data)
     r = put_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config", data=data )
     print(r)
@@ -277,8 +277,8 @@ def send_answer_toml():
     return (
         answer_file.replace("{{ midas }}", midas)
         .replace("{{ password }}", root_password)
-        .replace("{{ lvm_max_root }}", str(data['storage']))
-        .replace("{{ proxmox_webapp_url }}", data['proxmox_webapp_url'] + '/first-boot.sh')
+        .replace("{{ lvm_max_root }}", str(data['lvm_max_root']))
+        .replace("{{ proxmox_webapp_url }}", data['proxmox_webapp_url'])
         .replace(
             "{{ proxmox_webapp_fingerprint }}", data['proxmox_webapp_fingerprint'],
         )
@@ -291,7 +291,7 @@ def send_first_boot_get():
     for image in system_config['vm-provision-options']['proxmox']['images']:
         data = system_config['vm-provision-options']['proxmox']['images'][image]
         vm_string += f'wget {data['image_url']} '
-        if data['image_url_verifyssl']:
+        if not data['image_url_verifyssl']:
             vm_string += "--no-check-certificate"
         vm_string += "\n"
 

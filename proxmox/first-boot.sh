@@ -7,9 +7,19 @@ apt update
 apt install curl net-tools -y # basic tools
 
 # Add additional interfaces
-cat <<EOF >> /etc/network/interfaces
+cat <<EOF > /etc/network/interfaces
+auto lo
+iface lo inet loopback
 
+iface ens18 inet manual
 
+auto vmbr0
+iface vmbr0 inet dhcp
+        bridge-ports ens18
+        bridge-stp off
+        bridge-fd 0
+
+iface ens19 inet manual
 auto vmbr1
 iface vmbr1 inet manual
         bridge-ports ens19
@@ -19,18 +29,27 @@ iface vmbr1 inet manual
 
 auto vmbr2
 iface vmbr2 inet manual
-	bridge-ports none
-	bridge-stp off
-	bridge-fd 0
-	bridge-vlan-aware yes
-	bridge-vids 2-4094
+        bridge-ports none
+        bridge-stp off
+        bridge-fd 0
+        bridge-vlan-aware yes
+        bridge-vids 2-4094
 #Internal Adapter. Put your VMs and containers here.
-EOF
-ifreload -a
 
-# Download recommended firewall
+source /etc/network/interfaces.d/*
+EOF
+
+ifreload -a
+dhclient -r vmbr0
+dhclient vmbr0
+dhclient -r vmbr0
+dhclient vmbr0
+dhclient -r vmbr0
+dhclient vmbr0
+
 mkdir -p /var/lib/vz/template/iso
 cd /var/lib/vz/template/iso
+
 #{{replace_with_vms}}
 
 apt-get install qemu-guest-agent -y
