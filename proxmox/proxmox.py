@@ -277,7 +277,7 @@ def send_answer_toml():
     return (
         answer_file.replace("{{ midas }}", midas)
         .replace("{{ password }}", root_password)
-        .replace("{{ lvm_max_root }}", data['storage'])
+        .replace("{{ lvm_max_root }}", str(data['storage']))
         .replace("{{ proxmox_webapp_url }}", data['proxmox_webapp_url'] + '/first-boot.sh')
         .replace(
             "{{ proxmox_webapp_fingerprint }}", data['proxmox_webapp_fingerprint'],
@@ -293,7 +293,7 @@ def send_first_boot_get():
         vm_string += f'wget {data['image_url']} '
         if data['image_url_verifyssl']:
             vm_string += "--no-check-certificate"
-        vm_string += "\n\n"
+        vm_string += "\n"
 
         vm_string += f'qm create {vm_id} '
         vm_string += f'--cdrom {data['iso_location']}:iso/{data['iso']} '

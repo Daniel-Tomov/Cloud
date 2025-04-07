@@ -86,7 +86,7 @@ class Main:
                 return {"result": "you don't own this vm"}
 
             endpoint = f"/api2/json/nodes/{node}/{vmid}/status/{power_value}"
-            print(endpoint)
+            #print(endpoint)
             data = {}
             post_endpoint(endpoint=endpoint, data=data)
             return {"result": "success"}
@@ -149,8 +149,11 @@ class Main:
         def first_boot_get():
             return send_first_boot_get()
 
-        @self.app.route("/answer.toml", methods=["POST"])
+        @self.app.route("/answer.toml", methods=["GET", "POST"])
         def answer_toml():
+            if request.method == "GET":
+                print("Got GET on /postinst")
+                return ""
             return send_answer_toml()
         
         @self.app.route("/postinst", methods=["POST"])
