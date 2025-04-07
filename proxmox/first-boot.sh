@@ -59,3 +59,7 @@ apt-get install qemu-guest-agent -y
 systemctl start qemu-guest-agent
 systemctl enable qemu-guest-agent
 
+# change ip in /ets/hosts
+old_ip=$(cat /etc/hosts | head -n 2 | tail -n 1 | awk '{print $1}')
+new_ip=$(ip a | grep "vmbr0: " -A 2 | tail -n 1 | awk '{print $2}' | awk -F "/" '{print $1}')
+cat /etc/hosts | sed "s/$old_ip/$new_ip/g" > /etc/hosts
