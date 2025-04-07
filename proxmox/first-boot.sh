@@ -1,12 +1,6 @@
 #!/bin/bash
-echo "#" $(cat /etc/apt/sources.list.d/pve-enterprise.list ) > /etc/apt/sources.list.d/pve-enterprise.list # disable enterprise repository
-echo "#" $(cat /etc/apt/sources.list.d/ceph.list ) > /etc/apt/sources.list.d/ceph.list # disable ceph repository
-echo "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-community.list # enable community repository
 
-apt update
-apt install curl net-tools -y # basic tools
-
-# Add additional interfaces
+# Change network config before using internet resources
 cat <<EOF > /etc/network/interfaces
 auto lo
 iface lo inet loopback
@@ -47,6 +41,15 @@ dhclient vmbr0
 dhclient -r vmbr0
 dhclient vmbr0
 
+sleep 5
+
+echo "#" $(cat /etc/apt/sources.list.d/pve-enterprise.list ) > /etc/apt/sources.list.d/pve-enterprise.list # disable enterprise repository
+echo "#" $(cat /etc/apt/sources.list.d/ceph.list ) > /etc/apt/sources.list.d/ceph.list # disable ceph repository
+echo "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > /etc/apt/sources.list.d/pve-community.list # enable community repository
+
+apt update
+apt install curl net-tools -y # basic tools
+
 mkdir -p /var/lib/vz/template/iso
 cd /var/lib/vz/template/iso
 
@@ -55,3 +58,4 @@ cd /var/lib/vz/template/iso
 apt-get install qemu-guest-agent -y
 systemctl start qemu-guest-agent
 systemctl enable qemu-guest-agent
+
