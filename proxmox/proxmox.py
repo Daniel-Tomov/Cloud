@@ -84,7 +84,7 @@ def async_vm_creation():
             vm_data['vmid'] = valid_id
             vm_data['cores'] = data['cores']
             vm_data['memory'] = data['memory']
-            vm_data['agent'] = 1
+            vm_data['agent'] = data['agent']
 
             for i in range(0, len(data['networks'])):
                 vm_data['net' + str(i)] = data['networks'][i]
@@ -115,6 +115,7 @@ def recieve_postinst_ip():
         "net0": r["net0"].replace(system_config['vm-provision-options']['proxmox']['provision_vlan'], system_config['vm-provision-options']['proxmox']['user_vlan']),
         "net1": r["net1"].replace("link_down=1", "link_down=0")
         }
+    data['agent'] = 1
     print(f"Reconnecting FW interface for {qentry.valid_id}", end="")
     print(data)
     r = put_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config", data=data )
