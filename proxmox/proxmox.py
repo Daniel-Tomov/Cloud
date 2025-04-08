@@ -97,6 +97,7 @@ def async_vm_creation():
             create_vm(data=vm_data, node=valid_node, verifySSL=verify_ssl)  # Proxmox VM creation
             if data['needs_postinst'] == False:
                 ready_for_vm_creation = True
+                print("created vm, no need to wait for automatic vm creation, ready for vm creation again")
         sleep(10)
 
 
@@ -109,6 +110,7 @@ def create_vm(data: dict, node: str, verifySSL: bool = verify_ssl) -> dict:
 
 
 def recieve_postinst_ip():
+    global quentry
     r = get_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config")
     
     data={
@@ -272,7 +274,7 @@ def send_answer_toml():
 
     if midas == "" or root_password == "" or not ready_for_vm_creation:
         return {"status": "not expecting VM"}
-    data = system_config['vm-provision-options']['proxmox']
+    data = system_config['vm-provision-options'][qentry.vm_type]
     ready_for_vm_creation = True
     return (
         answer_file.replace("{{ midas }}", midas)

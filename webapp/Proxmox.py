@@ -181,7 +181,7 @@ class Proxmox:
             vm_type = request.json['id']
             password = urlencode(request.json["password"])
             
-            if vm_type == ""  or password == "":
+            if vm_type == ""  or password == "" or vm_type not in self.system_config['vm-provision-options']:
                 return {"result": "fail"}
             
 
