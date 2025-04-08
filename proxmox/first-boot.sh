@@ -60,6 +60,26 @@ systemctl start qemu-guest-agent
 systemctl enable qemu-guest-agent
 
 # change ip in /ets/hosts
-old_ip=$(cat /etc/hosts | head -n 2 | tail -n 1 | awk '{print $1}')
-new_ip=$(ip a | grep "vmbr0: " -A 2 | tail -n 1 | awk '{print $2}' | awk -F "/" '{print $1}')
-cat /etc/hosts | sed "s/$old_ip/$new_ip/g" > /etc/hosts
+cp /etc/hosts /etc/hosts.backup
+
+echo "old_ip=\$(cat /etc/hosts.backup | head -n 2 | tail -n 1 | awk '{print \$1}')" >> /etc/create_hosts_file.sh
+echo "new_ip=\$(ip a | grep 'vmbr0: ' -A 2 | tail -n 1 | awk '{print \$2}' | awk -F '/' '{print \$1}')" >> /etc/create_hosts_file.sh
+echo 'cat /etc/hosts.backup | sed "s/$old_ip/$new_ip/g" > /etc/hosts' >> /etc/create_hosts_file.sh
+
+cat <<EOF > /etc/systemd/system/hosts_file.service
+[Unit]
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+WorkingDirectory=/etc
+ExecStart=/etc/create_hosts_file.sh
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable hosts_file
+systemctl start hosts_file
