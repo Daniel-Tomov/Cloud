@@ -159,7 +159,7 @@ class CacheDB:
 
     def add_request_to_db(self, username: str, description: str) -> str:
         username = sanitize_input(username)
-        description = sanitize_input(description, ",.")
+        description = sanitize_input(description, ",. ")
         Thread(target=self.async_add_request_to_db, kwargs={"username": username, "description": description}).start()
         
 
