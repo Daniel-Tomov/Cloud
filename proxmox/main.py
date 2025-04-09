@@ -57,6 +57,9 @@ class Main:
     def register_endpoints(self):
         @self.app.route("/create_vm/<string:vm_type>/<string:username>/<string:password>")
         def create_vm_route(vm_type:str, username: str, password: str):
+            has_vm = does_have_personal_vm_created(vm_type=vm_type, username=username)
+            if has_vm:
+                return {"result": "VM is already created"}
             # choose a node
             nodes = []
             #print(status)
@@ -160,12 +163,6 @@ class Main:
         def postinst():
             print("got postinst")
             recieve_postinst_ip()
-            return {}
-
-        @self.app.route(
-            "/does_have_personal_vm_created/<string:vm_type>/<string:username>", methods=["GET"]
-        )
-        def does_have_personal_vm_created_route(vm_type:str, username: str):
-            return {"result": does_have_personal_vm_created(vm_type=vm_type, username=username)}
+            return {}            
 
 http = Main().app

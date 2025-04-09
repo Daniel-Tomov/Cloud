@@ -195,16 +195,7 @@ class Proxmox:
                 print(password)
                 self.cache_db.add_request_to_db(username, password)
                 return {"result": "You will be contacted when your VM is created or if we have further questions."}
-
-            does_have_personal_vm_created = get(
-                url=f"{self.PROXMOX_WEBAPP_HOST}/does_have_personal_vm_created/{vm_type}/{username}",
-                verify=self.PROXMOX_WEBAPP_verify_ssl,
-            ).json()["result"]
-            if does_have_personal_vm_created:
-                return {"result": "VM is already created"}
-
-
-            
+           
             return {
                 "result": get(
                     url=f"{self.PROXMOX_WEBAPP_HOST}/create_vm/{vm_type}/{username}/{password}",
