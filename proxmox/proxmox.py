@@ -110,7 +110,7 @@ def create_vm(data: dict, node: str, verifySSL: bool = verify_ssl) -> dict:
 
 
 def recieve_postinst_ip():
-    global quentry
+    global qentry
     r = get_endpoint(endpoint=f"/api2/json/nodes/{qentry.valid_node}/qemu/{qentry.valid_id}/config")
     
     data={
