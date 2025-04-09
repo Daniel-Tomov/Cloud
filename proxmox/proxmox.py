@@ -44,13 +44,16 @@ def get_api_node():
        Will repeat until one responds. Randomized in an attempt at
        lazy load balancing.
        Returns List, 0 is ip, 1 is type.'''
-    
-    for _ in range(0, len(system_config['proxmox_nodes']['nodes'])):
-        selected_node = choice(system_config['proxmox_nodes']['nodes'])
-        response = get(url=f'https://{selected_node}:8006/api2/json/version', headers=headers, verify=False)
+       
+    nodes = system_config['proxmox_nodes']['nodes']
+    while len(nodes) != 0:
+        selected_node = choice(nodes)
+        response = get(url=f'https://{selected_node}:8006/api2/json/version', headers=headers, verify=system_config['proxmox_nodes']['verify_ssl'])
         if response.status_code == 200:
             #API node send's a response, use it
             return selected_node
+        nodes.remove(selected_node)
+    return ""
 
 def async_vm_creation():
     global vm_creation_queue, ready_for_vm_creation, status, qentry
