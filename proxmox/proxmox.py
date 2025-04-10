@@ -48,11 +48,14 @@ def get_api_node():
     nodes = system_config['proxmox_nodes']['nodes']
     while len(nodes) != 0:
         selected_node = choice(nodes)
-        response = get(url=f'https://{selected_node}:8006/api2/json/version', headers=headers, verify=system_config['proxmox_nodes']['verify_ssl'])
-        if response.status_code == 200:
-            #API node send's a response, use it
-            return selected_node
-        nodes.remove(selected_node)
+        try:
+            response = get(url=f'https://{selected_node}:8006/api2/json/version', headers=headers, verify=system_config['proxmox_nodes']['verify_ssl'])
+            if response.status_code == 200:
+                #API node send's a response, use it
+                return selected_node
+            nodes.remove(selected_node)
+        except:
+            pass
     return ""
 
 def async_vm_creation():
@@ -128,8 +131,11 @@ def recieve_postinst_ip():
 
 
 def get_endpoint(endpoint:str, verifySSL:bool=verify_ssl) -> str:
+    ip = get_api_node()
+    if ip == "":
+        return {"result": "cannot connect to Proxmox"}
     r = get(
-        url=f"https://{get_api_node()}:8006{endpoint}", verify=verifySSL, headers=headers
+        url=f"https://{ip}:8006{endpoint}", verify=verifySSL, headers=headers
     )
     return r.json()["data"]
 
@@ -137,8 +143,11 @@ def get_endpoint(endpoint:str, verifySSL:bool=verify_ssl) -> str:
 def post_endpoint(
     endpoint: str, data: dict, verifySSL=verify_ssl
 ) -> dict:
+    ip = get_api_node()
+    if ip == "":
+        return {"result": "cannot connect to Proxmox"}
     r = post(
-        url=f"https://{get_api_node()}:8006{endpoint}",
+        url=f"https://{ip}:8006{endpoint}",
         data=data,
         headers=headers,
         verify=verifySSL,
@@ -150,8 +159,11 @@ def post_endpoint(
 def put_endpoint(
     endpoint: str, data: dict, verifySSL=verify_ssl
 ) -> dict:
+    ip = get_api_node()
+    if ip == "":
+        return {"result": "cannot connect to Proxmox"}
     r = put(
-        url=f"https://{get_api_node()}:8006{endpoint}",
+        url=f"https://{ip}:8006{endpoint}",
         data=data,
         headers=headers,
         verify=verifySSL,
