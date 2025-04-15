@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.2.4" pages="4">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.12" pages="4">
   <diagram name="Logical Diagram" id="aRNU1eJvYMI7Fc-nETrC">
     <mxGraphModel dx="1428" dy="751" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -144,7 +144,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="lqvuGcShH6J1iAidf5sm-1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#000000);movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" vertex="1" parent="1">
+        <mxCell id="lqvuGcShH6J1iAidf5sm-1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#000000);movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" parent="1" vertex="1">
           <mxGeometry x="850" y="1100" width="850" height="1100" as="geometry" />
         </mxCell>
         <mxCell id="SvuAwo0GEwAzuzBwC7UC-43" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Attack Network&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
@@ -165,7 +165,7 @@
         <mxCell id="SvuAwo0GEwAzuzBwC7UC-25" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;OPNsense CARP Network for HA" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="1075" y="1198" width="260" height="67.5" as="geometry" />
         </mxCell>
-        <mxCell id="SvuAwo0GEwAzuzBwC7UC-1" value="CCI A Network" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="SvuAwo0GEwAzuzBwC7UC-1" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1145" y="1106" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="SvuAwo0GEwAzuzBwC7UC-2" value="FW 1" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -194,9 +194,6 @@
             <mxPoint x="1215" y="1214" as="sourcePoint" />
             <mxPoint x="1201" y="1160" as="targetPoint" />
           </mxGeometry>
-        </mxCell>
-        <mxCell id="SvuAwo0GEwAzuzBwC7UC-10" value="10.60.76.0" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-          <mxGeometry x="1085" y="1164" width="80" height="30" as="geometry" />
         </mxCell>
         <mxCell id="SvuAwo0GEwAzuzBwC7UC-11" value="&lt;div&gt;k3s Workers (3)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="896.5" y="1540.5" width="90" height="50" as="geometry" />
@@ -337,11 +334,11 @@
     </mxGraphModel>
   </diagram>
   <diagram id="ebMZPzXxzsEKLdbsPxSw" name="Flow Diagram">
-    <mxGraphModel dx="-20" dy="-216" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="-272" dy="-349" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="uIRtAt16yQvD061caxpC-1" value="" style="rounded=0;whiteSpace=wrap;html=1;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" vertex="1" parent="1">
+        <mxCell id="uIRtAt16yQvD061caxpC-1" value="" style="rounded=0;whiteSpace=wrap;html=1;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" parent="1" vertex="1">
           <mxGeometry x="1700" y="1100" width="850" height="1100" as="geometry" />
         </mxCell>
         <mxCell id="e3pI2F_-hTHm9ZNKBEeo-4" value="&lt;div&gt;Services&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
