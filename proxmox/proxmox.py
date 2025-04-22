@@ -68,6 +68,7 @@ def async_vm_creation():
             root_password = qentry.root_password
             valid_node = qentry.valid_node
             used_ids = []
+            valid_id = 4000
             
             for entry in range(0, len(status)):
                 if "node" in status[entry]:
@@ -76,9 +77,10 @@ def async_vm_creation():
                         used_ids.append(int(id))
                     except:
                         pass
-            used_ids.sort(reverse=True)
-            valid_id = used_ids[0] + 1
-            
+            used_ids.sort()
+            for i in range(4000, 999999999):
+                if i not in valid_ids:
+                    valid_id = i
             qentry.valid_id = valid_id
             print(
                 f"creating {qentry.vm_type} for {midas} password: {root_password}, on {valid_node} with id {valid_id}"
@@ -91,6 +93,7 @@ def async_vm_creation():
             vm_data['cores'] = data['cores']
             vm_data['memory'] = data['memory']
             vm_data['agent'] = data['agent']
+            vm_data['cpu'] = data['cpu']
 
             for i in range(0, len(data['networks'])):
                 vm_data['net' + str(i)] = data['networks'][i]

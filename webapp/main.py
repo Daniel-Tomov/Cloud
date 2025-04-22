@@ -19,10 +19,9 @@ from utils.Arguments import Arguments
 #   - webapp - probably not
 #   - active directory
 # 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
-# 5. Dockerize nginx?
 # 6. Look into using ldap on student vms to authenticate
 #   - question is, can the credentials be found once the student is given full root access to the vm?
-
+# 10. Look into custom error pages instead of redirecting to /web/home or /web/login
 
 class Main:
     def __init__(self):
