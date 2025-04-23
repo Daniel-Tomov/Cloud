@@ -23,15 +23,16 @@ class Auth:
         self.auth_methods=args.auth_methods
 
         self.session_length = int(self.system_config['session_length'])  # minutes
-        self.pve_net = self.system_config['proxmox_webapp']['pve_net']
+        self.pve_nets = self.system_config['proxmox_webapp']['pve_nets']
 
         self.SERVICES = self.system_config['services']
 
         self.register_routes()
         
     def verify_user_can_access_ip(self, ip: str):
-        if self.pve_net not in ip:
-            return True
+        for pve_net in self.pve_nets:
+            if pve_net in ip:
+                return True
         username = self.cache_db.get_session_from_db(session["id"])[0]
         
         if ip not in self.proxmox_data_cache:
@@ -152,10 +153,6 @@ class Auth:
             
             if "id" not in session or not self.check_session():
                 return failed
-            
-           
-            port = request.cookies.get("port")
-            protocol = request.cookies.get("protocol")
             
             if ip == None or port == None or protocol == None:
                 return failed

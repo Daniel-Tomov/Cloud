@@ -17,7 +17,10 @@ proxmox_nodes:
 proxmox_webapp: # this is the proxmox webapp
   host: "https://ip or domain:5556"
   verifyssl: False
-  pve_net: "10.10.11."
+  pve_nets:
+    - 10.10.11.
+    - 10.10.12.
+    - 10.10.13.
 cache_database:
   user: "postgres"
   password: ""
