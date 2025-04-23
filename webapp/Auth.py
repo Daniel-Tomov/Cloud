@@ -30,9 +30,13 @@ class Auth:
         self.register_routes()
         
     def verify_user_can_access_ip(self, ip: str):
+        ip_is_in_pve_net = False
         for pve_net in self.pve_nets:
             if pve_net in ip:
-                return True
+                ip_is_in_pve_net = True
+        if not ip_is_in_pve_net:
+            return True
+        
         username = self.cache_db.get_session_from_db(session["id"])[0]
         
         if ip not in self.proxmox_data_cache:
