@@ -10,6 +10,7 @@ from flask import (
 )
 from flask_compress import Compress
 from utils.Arguments import Arguments
+from random import choice
 
 
 # TODO
@@ -103,7 +104,7 @@ class Main:
                 if service['id'] == requesed_service:
                     r = redirect(service['url']) # make_response(render_template("redirect.html", url=service['url']))
                     r.set_cookie("protocol", service['protocol'])
-                    r.set_cookie("ip", service['ip'])
+                    r.set_cookie("ip", choice(service['ips']))
                     r.set_cookie("port", service['port'])
                     return r
                 

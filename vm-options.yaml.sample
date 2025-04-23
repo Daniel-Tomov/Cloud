@@ -48,15 +48,16 @@ authentication: # priority is in order, top to
       base-dn: OU=LAB,OU=User,DC=lab,DC=example,DC=com
       bind-password: ""
 services: 
-  - "id": "uptimekuma"
-    "name": "Uptime Kuma"
-    "enabled": true
-    "needs_login": false
-    "protocol": "http"
-    "ip": "192.168.1.1"
-    "port": "3001"
-    "url": "/status/status"
-    "allowed_referers":
+  - id: "uptimekuma"
+    name: "Uptime Kuma"
+    enabled: true
+    needs_login: false
+    protocol: "http"
+    ips:
+      - 192.168.1.1
+    port: "3001"
+    url: "/status/status"
+    allowed_referers:
       - "/web/home"
       - "/web/"
       - "/status/datacenter"
