@@ -21,7 +21,7 @@
             </form>
             <p>Other pages:</p>
             {% for service in services %}
-                {% if service['needs_login'] %}
+                {% if not service['needs_login'] %}
             <a href="/web/open/{{ service['id'] }}">{{ service['name'] }}</a>
                 {% endif %}
             {% endfor %}
