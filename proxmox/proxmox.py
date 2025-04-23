@@ -8,9 +8,7 @@ from utils import system_config
 from random import choice
 
 
-USERNAME = system_config['proxmox_nodes']['username']
-PASSWORD = system_config['proxmox_nodes']['password']
-API_TOKEN = system_config['proxmox_nodes']['token']
+
 verify_ssl = system_config['proxmox_nodes']['verify_ssl']
 if not verify_ssl:
     disable_warnings(InsecureRequestWarning)
@@ -177,6 +175,8 @@ def put_endpoint(
 
 def create_ticket():
     global headers, ticket
+    USERNAME = system_config['proxmox_nodes']['username']
+    PASSWORD = system_config['proxmox_nodes']['password']
     endpoint = "/api2/json/access/ticket"
     data = {"username": f"{USERNAME}", "password": f"{PASSWORD}"}
     result = post_endpoint(endpoint=endpoint, data=data)
@@ -191,6 +191,8 @@ def create_ticket():
 
 def refresh_ticket():
     global headers, ticket
+    USERNAME = system_config['proxmox_nodes']['username']
+    PASSWORD = system_config['proxmox_nodes']['password']
     endpoint = "/api2/json/access/ticket"
     data = {"username": f"{USERNAME}", "password": f"{ticket}"}
 
@@ -214,7 +216,7 @@ def async_status():
     while True:
         sleep(10)
         status = get_status()
-        if API_TOKEN == "" or API_TOKEN == None:
+        if system_config['proxmox_nodes'] == "credentials":
             counter += 1
             if counter > 700:  # 7020 seconds
                 counter = 0
@@ -352,13 +354,14 @@ def does_user_own_vm(
 
 
 
-if API_TOKEN == None or API_TOKEN == "":
+if system_config['proxmox_nodes'] == "credentials":
     headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
     create_ticket()
     if headers["Cookie"] == "PVEAuthCookie=":
         print("Could not get ticket! Exiting")
         exit(1)
 else:
+    API_TOKEN = system_config['proxmox_nodes']['token']
     headers = {"Authorization" : f"PVEAPIToken={API_TOKEN}"}
 
 if __name__ == "__main__":
