@@ -51,7 +51,7 @@ services:
   - "id": "uptimekuma"
     "name": "Uptime Kuma"
     "enabled": true
-    "login_enabled": true
+    "needs_login": false
     "protocol": "http"
     "ip": "192.168.1.1"
     "port": "3001"
@@ -66,39 +66,41 @@ vm-provision-options:
     option: proxmox
     name: Proxmox Virtual Environment
     input_label: "Password: "
-    description: "A Proxmox Virtual Environment Machine with the following: <br>6 cores, 16 gb of ram, 96 gb of storage <br>Running one OPNSense firewall VM and one AntiX (lightweight Linux distro) VM."
+    description: "A Proxmox Virtual Environment Machine with the following: <br>6 cores, 16 gb of ram, 128 gb of storage <br>Running one OPNSense firewall VM and one AntiX (lightweight Linux distro) VM."
     cores: 6
     cpu: "host"
-    memory: 8192
+    memory: 16384
     networks:
       - "bridge=vmbr1,tag=15,virtio,firewall=0,link_down=0"
       - "bridge=vmbr1,tag=14,virtio,firewall=0,link_down=1"
     user_vlan: "13"
-    provision_vlan: "15" # Proxmox vm provisioning is done on a separate network from the main Proxmox VM network one
-    iso: "proxmox-ve_8.0-2.iso"
-    iso_location: "local" # iso location on Proxmox Server
-    storage: 96
-    storage_location: "local-lvm" # location on Proxmox Server
+    provision_vlan: "15"
+    iso: "proxmox-ve_8.3-1-auto-from-http.iso"
+    iso_location: "local"
+    storage: 128
+    storage_location: "local-lvm"
+    lvm_max_root: 18
     bios: "seabios"
     sockets: 1
     start: 1
     numa: 1
+    agent: 1
     scsihw: "virtio-scsi-single"
-    balloon: 8192
-    proxmox_webapp_url: "http://domain or ip"
-    proxmox_webapp_fingerprint: "" # obtained from configure.sh in nginx folder
+    balloon: 1024
+    proxmox_webapp_url: "https://"
+    proxmox_webapp_fingerprint: ""
     pool: ""
-    needs_postinst: False # waits for request to /postinst before creating other vms
+    needs_postinst: False
     images:
       OPNsense:
-        image_url: https://ip_address or domain/OPNsense-25.1-dvd-amd64.iso
+        image_url: https:///OPNsense-25.1-dvd-amd64.iso
         image_url_verifyssl: False
         cores: 2
         cpu: "host"
-        memory: 2048
+        memory: 512
         networks:
-          - "bridge=vmbr1,virtio"
           - "bridge=vmbr2,virtio"
+          - "bridge=vmbr1,virtio"
         iso: "OPNsense-25.1-dvd-amd64.iso"
         iso_location: "local"
         storage: 24
@@ -108,16 +110,16 @@ vm-provision-options:
         sockets: 1
         numa: 0
         scsihw: "virtio-scsi-single"
-        balloon: 2048
+        balloon: 256
       antix:
-        image_url: https://ip address or domain/antix.iso
+        image_url: https:///antiX-23.1_x64-full.iso
         image_url_verifyssl: False
         cores: 2
         cpu: "host"
         memory: 2048
         networks:
           - "bridge=vmbr2,virtio"
-        iso: ""
+        iso: "antiX-23.1_x64-full.iso"
         iso_location: "local"
         storage: 8
         storage_location: "local-lvm"
@@ -126,13 +128,13 @@ vm-provision-options:
         sockets: 1
         numa: 0
         scsihw: "virtio-scsi-single"
-        balloon: 2048
+        balloon: 256
   ubuntu:
-    enabled: true
+    enabled: false
     option: ubuntu
     name: Ubuntu
     input_label: "Password: "
-    description: "One Ubuntu with the following: <br>4 cores, 4 gb of ram, 32 gb of storage <br>Running Ubuntu 22.04.3 LTS."
+    description: "One Ubuntu with the following: <br>4 cores, 4 gb of ram, 32 gb of storage <br>Running Ubuntu 24.04.2 LTS."
     cores: 4
     cpu: "host"
     memory: 4096
@@ -147,11 +149,12 @@ vm-provision-options:
     scsihw: "virtio-scsi-single"
     networks:
       - "bridge=vmbr1,tag=14,virtio,firewall=0"
-    balloon: 4096
+    balloon: 512
     pool: ""
     needs_postinst: False
+    agent: 0
   request:
-    enabled: true
+    enabled: false
     option: request
     name: Request a VM
     input_label: "Please describe your request: "

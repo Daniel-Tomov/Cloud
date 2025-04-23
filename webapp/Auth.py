@@ -135,7 +135,7 @@ class Auth:
             ip = request.cookies.get("ip")
             #print(request.headers)
             for service in self.SERVICES:
-                if ip == service['ip'] and service['enabled'] and service['login_enabled']:
+                if ip == service['ip'] and service['enabled'] and not service['needs_login']:
                     if service['allowed_referers'] == []: 
                         return make_response("<h1>You aren't supposed to be here!</h1>", 200)
                     else:
@@ -143,7 +143,7 @@ class Auth:
                             #(request.headers["Referer"])
                         referer_found = False
                         for referer in service['allowed_referers']:
-                            if ip == service['ip'] and service['enabled'] and service['login_enabled'] and "Referer" in request.headers and request.headers["Referer"].endswith(referer):                
+                            if ip == service['ip'] and service['enabled'] and not service['needs_login'] and "Referer" in request.headers and request.headers["Referer"].endswith(referer):                
                                 return make_response("<h1>You aren't supposed to be here!</h1>", 200)
                         if not referer_found:
                             return failed
