@@ -132,10 +132,12 @@ class Auth:
             if "protocol" not in request.cookies or "ip" not in request.cookies or "port" not in request.cookies:
                 return failed
             
+            protocol = request.cookies.get("protocol")
             ip = request.cookies.get("ip")
+            port = request.cookies.get("port")
             #print(request.headers)
-            for service in self.SERVICES:
-                if ip in service['ips'] and service['enabled'] and not service['needs_login']:
+            for service in self.SERVICES: # services that don't need login
+                if ip in service['ips'] and service['enabled'] and not service['needs_login'] and service['port'] == port and service['protocol'] == protocol:
                     if service['allowed_referers'] == []: 
                         return make_response("<h1>You aren't supposed to be here!</h1>", 200)
                     else:
