@@ -13,6 +13,7 @@ proxmox_nodes:
     - 10.10.10.4
   prod_nodes_contain: "prod" # ensures VMs are not put on development nodes
   user_group: "student"  
+  node_random_select: false # randomly select node for every API request
 proxmox_webapp: # this is the proxmox webapp
   host: "https://ip or domain:5556"
   verifyssl: False

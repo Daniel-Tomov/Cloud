@@ -44,6 +44,10 @@ def get_api_node():
        Returns List, 0 is ip, 1 is type.'''
        
     nodes = system_config['proxmox_nodes']['nodes']
+    
+    if not system_config['proxmox_nodes']['node_random_select']:
+        return choice(nodes)
+    
     while len(nodes) != 0:
         selected_node = choice(nodes)
         try:
