@@ -19,6 +19,12 @@
                 <input name="password" id="password" type="password" required></input>
                 <button type="submit">Submit</button>
             </form>
+
+            {% for auth_method in auth_methods %}
+                {% if auth_method.type =='openid' %}
+                    <a href="/web/openid/{{ auth_method.name }}">Sign in with {{ auth_method.name }}</a>
+                {% endif %}
+            {% endfor %}
             <p>Other pages:</p>
             {% for service in services %}
                 {% if not service['needs_login'] %}

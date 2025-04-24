@@ -1,5 +1,6 @@
 from utils.db.CacheDB import CacheDB
 from utils.db.AuthDB import AuthDB
+from utils.AuthOpenID import AuthOpenID
 from yaml import safe_load
 from flask import Flask
 from Auth import Auth
@@ -19,10 +20,12 @@ class Arguments:
             authentication_method = authentication_method[name]
             if authentication_method['type'] == 'postgres' and authentication_method['enabled']:
                 self.auth_methods.append(AuthDB(authentication_method))
-            if authentication_method['type'] == 'ldap' and authentication_method['enabled']:
+            elif authentication_method['type'] == 'ldap' and authentication_method['enabled']:
                 #print(authentication_method)
                 self.auth_methods.append(LDAPHandler(ldap_config=authentication_method))
-
+            elif authentication_method['type'] == 'openid' and authentication_method['enabled']:
+                #print(authentication_method)
+                self.auth_methods.append(AuthOpenID(openid_config=authentication_method, app=self.app))
 
         self.cache_db = CacheDB(args=self)
         self.auth = Auth(args=self)

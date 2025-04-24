@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from utils.utils import current_time_dt
 banner = open("static/text/banner.txt", "r").read()
 from utils.db.AuthDB import AuthDB
+from utils.AuthOpenID import AuthOpenID
+from os import urandom
 
 
 class Auth:
@@ -60,7 +62,7 @@ class Auth:
     
     def return_login_page(self, page="login", extra_content=""):
         return make_response(
-            render_template("login.html", page=page, extra_content=extra_content, banner=banner, services=self.SERVICES)
+            render_template("login.html", page=page, extra_content=extra_content, banner=banner, services=self.SERVICES, auth_methods=self.auth_methods)
         )
     
     def register_routes(self):
@@ -109,6 +111,8 @@ class Auth:
             if username == "" or password == "":
                 return self.return_login_page(page="login", extra_content="Incorrect username or password")
             for auth_method in self.auth_methods:
+                if auth_method.type == "openid":
+                    continue
                 if auth_method.authenticate_user(username=username, password=password):
                     print(f"authenticated {username} with {auth_method.type}")
                     self.create_session(username=username)
@@ -118,6 +122,41 @@ class Auth:
             r.set_cookie("session", "")
             return r
 
+        @self.app.route("/web/openid/<string:name>")
+        def openid_login(name: str):
+            for auth_method in self.auth_methods:
+                if not isinstance(auth_method, AuthOpenID):
+                    continue
+                if auth_method.name != name:
+                    continue
+                redirect_uri = auth_method.base_redirect_domain + f"/web/openid/{name}/auth"
+                nonce = urandom(16).hex()
+                session["openid_nonce"] = nonce
+                return auth_method.oauth.openid.authorize_redirect(
+                    redirect_uri,
+                    nonce=nonce
+                )
+            return self.invalidate_session()
+        
+        @self.app.route("/web/openid/<string:name>/auth")
+        def openid_auth(name: str):
+            for auth_method in self.auth_methods:
+                if not isinstance(auth_method, AuthOpenID):
+                    continue
+                if auth_method.name != name:
+                    continue
+                
+                nonce = session.pop("openid_nonce", None)
+                if not nonce:
+                    return self.invalidate_session()
+                token = auth_method.oauth.openid.authorize_access_token()
+                user_info = auth_method.oauth.openid.parse_id_token(token, nonce)
+
+                username = user_info['preferred_username']
+                self.create_session(username=username, openid=True)
+                return redirect(url_for("index"))
+            return redirect(url_for('login'))
+        
         @self.app.route("/web/update_session", methods=["GET"])
         def update_session_route():
             self.cache_db.update_session_in_db(session['id'])
@@ -125,6 +164,11 @@ class Auth:
 
         @self.app.route("/web/logout")
         def logout():
+            from_db = self.cache_db.get_session_from_db(session["id"])
+            if from_db[3]: # 3 is the openid bool in db
+                for auth_method in self.auth_methods:
+                    if auth_method.type == "openid":
+                        return self.invalidate_session(auth_method.logout_url)
             return self.invalidate_session()
 
         @self.app.route("/auth-proxy")
@@ -186,14 +230,17 @@ class Auth:
         return self.compare_sessions(from_db[2], current_time_dt())
 
 
-    def create_session(self, username: str):
-        session["id"] = self.cache_db.add_session_to_db(username=username)
+    def create_session(self, username: str, openid=False):
+        session["id"] = self.cache_db.add_session_to_db(username=username, openid=openid)
 
 
-    def invalidate_session(self):
+    def invalidate_session(self, openid_logout_url=None):
         if "id" in session:
             self.cache_db.remove_session_from_db(session["id"])
         session.pop("id", None)
-        r = make_response(redirect(url_for("login")))
+        if openid_logout_url:
+            r = make_response(redirect(openid_logout_url))
+        else:
+            r = make_response(redirect(url_for("login")))
         r.set_cookie("session", "")
         return r

@@ -4,6 +4,7 @@ from yaml import safe_load
 
 class LDAPHandler(object):
     def __init__(self, ldap_config: dict):
+        self.type = ldap_config.get('type')
         self.servers = ldap_config.get('servers', [])
         self.port = ldap_config.get('port', 389)
         self.domain = ldap_config.get('domain')

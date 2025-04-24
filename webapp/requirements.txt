@@ -6,3 +6,4 @@ psycopg2
 gunicorn
 pyyaml
 python-ldap
+Authlib

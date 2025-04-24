@@ -24,7 +24,7 @@ class CacheDB:
         self.host=self.data['host']
         self.port=self.data['port']
         self.sslmode=self.data['sslmode']
-        # {"id": {"id": "", "username": "", "last_accessed": datetime}}
+        # {"id": {"id": "", "username": "", "last_accessed": datetime, "openid": bool}}
         self.sessions_cache = {}
 
         self.session_length = int(args.system_config['session_length'])  # minutes
@@ -48,7 +48,7 @@ class CacheDB:
         
         connection, cursor = self.connect()
         cursor.execute(
-            "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP);"
+            "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP, openid boolean default false);"
         )
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS vm_ips (ip VARCHAR(16) UNIQUE, usernames VARCHAR(65535));"
@@ -60,21 +60,21 @@ class CacheDB:
         connection.commit()
         connection.close()
 
-    def add_session_to_db(self, username: str) -> str:
+    def add_session_to_db(self, username: str, openid: bool = False) -> str:
         username = sanitize_input(username)
         
         id = urandom(16).hex()
-        self.sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt()}
+        self.sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt(), "openid": openid}
 
-        Thread(target=self.async_add_session_to_db, kwargs={"username": username, "id": id}).start()
+        Thread(target=self.async_add_session_to_db, kwargs={"username": username, "id": id, "openid": openid}).start()
         
         return id
 
-    def async_add_session_to_db(self, username: str, id: str):
+    def async_add_session_to_db(self, username: str, id: str, openid: bool):
         connection, cursor = self.connect()
         cursor.execute(
-            f"INSERT INTO sessions (username, id, last_accessed) VALUES (%s, %s, %s)",
-            (username, id, current_time_str())
+            f"INSERT INTO sessions (username, id, last_accessed, openid) VALUES (%s, %s, %s, %s)",
+            (username, id, current_time_str(), openid)
         )
         connection.commit()
         connection.close()
@@ -94,7 +94,7 @@ class CacheDB:
         if len(result) == 0:
             return []
         result = result[0]
-        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2]}
+        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "openid": result[3]}
         connection.close()
         return result
 
