@@ -81,7 +81,7 @@ def async_vm_creation():
                         pass
             used_ids.sort()
             for i in range(4000, 999999999):
-                if i not in valid_ids:
+                if i not in used_ids:
                     valid_id = i
             qentry.valid_id = valid_id
             print(
