@@ -306,7 +306,7 @@ def send_answer_toml():
     midas = qentry.midas
     root_password = qentry.root_password
 
-    if midas == "" or root_password == "" or not ready_for_vm_creation:
+    if midas == "" or root_password == "" or ready_for_vm_creation:
         return {"status": "not expecting VM"}
     data = system_config['vm-provision-options'][qentry.vm_type]
     ready_for_vm_creation = True
