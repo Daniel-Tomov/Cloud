@@ -358,7 +358,7 @@ def does_user_own_vm(
 
 
 
-if system_config['proxmox_nodes'] == "credentials":
+if system_config['proxmox_nodes']['authentication_type'] == "credentials":
     headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}
     create_ticket()
     if headers["Cookie"] == "PVEAuthCookie=":
