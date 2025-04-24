@@ -28,6 +28,7 @@ class Arguments:
                 self.auth_methods.append(AuthOpenID(openid_config=authentication_method, app=self.app))
 
         self.cache_db = CacheDB(args=self)
+        self.proxmox = ""
         self.auth = Auth(args=self)
         self.proxmox = Proxmox(args=self)
 

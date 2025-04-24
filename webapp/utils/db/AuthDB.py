@@ -19,6 +19,7 @@ class AuthDB:
         self.port=data['port']
         self.sslmode=data['sslmode']
         self.type=data['type']
+        self.realm=data['realm']
 
         self.create_tables()
 

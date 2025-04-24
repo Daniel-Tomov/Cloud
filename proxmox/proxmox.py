@@ -83,6 +83,7 @@ def async_vm_creation():
             for i in range(4000, 999999999):
                 if i not in used_ids:
                     valid_id = i
+                    break
             qentry.valid_id = valid_id
             print(
                 f"creating {qentry.vm_type} for {midas} password: {root_password}, on {valid_node} with id {valid_id}"
@@ -106,6 +107,15 @@ def async_vm_creation():
             vm_data['tags'] = midas
             vm_data['pool'] = data['pool']
             create_vm(data=vm_data, node=valid_node, verifySSL=verify_ssl)  # Proxmox VM creation
+
+            #groups = get_endpoint(endpoint="/api2/json/access/groups")
+            create_group = post_endpoint(endpoint="/api2/extjs/access/groups", data={"groupid": valid_id, "comment": ""}) # groupid=4002^&comment=
+            add_vm_to_group = put_endpoint(endpoint="/api2/extjs/access/acl", data={"path": f"/vms/{valid_id}", "groups": valid_id, "roles": system_config['proxmox_nodes']['user_group'], "propagate": 1})
+            domains = get_endpoint(endpoint="/api2/json/access/domains")
+            for domain in domains:
+                realm = domain['realm']           
+                add_user_to_group = put_endpoint(endpoint=f"/api2/extjs/access/users/{midas}@{realm}", data={"groups": valid_id}) # groups=4002&groups=ITS_Cybersecurity_Student_Environment-CybAdm&groups=Student&expire=0&enable=1&firstname=Daniel&lastname=Tomov&email=&comment=&keys=
+            
             if data['needs_postinst'] == False:
                 ready_for_vm_creation = True
                 print("created vm, no need to wait for automatic vm creation, ready for vm creation again")

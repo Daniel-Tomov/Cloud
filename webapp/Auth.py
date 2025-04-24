@@ -17,6 +17,7 @@ from os import urandom
 
 class Auth:
     def __init__(self, args):
+        self.args = args
         self.app = args.app
         self.proxmox_data_cache = args.proxmox_data_cache
         self.system_config = args.system_config
@@ -116,6 +117,11 @@ class Auth:
                 if auth_method.authenticate_user(username=username, password=password):
                     print(f"authenticated {username} with {auth_method.type}")
                     self.create_session(username=username)
+                    if isinstance(auth_method, AuthDB):
+                        self.args.proxmox.create_user(realm=auth_method.realm, username=username, password=password)
+                    else:
+                        self.args.proxmox.create_user(realm=auth_method.realm, username=username)
+                        
                     return redirect(url_for("index"))
 
             r = self.return_login_page(page="login", extra_content="Incorrect username or password")
@@ -149,11 +155,15 @@ class Auth:
                 nonce = session.pop("openid_nonce", None)
                 if not nonce:
                     return self.invalidate_session()
-                token = auth_method.oauth.openid.authorize_access_token()
-                user_info = auth_method.oauth.openid.parse_id_token(token, nonce)
+                try:
+                    token = auth_method.oauth.openid.authorize_access_token()
+                    user_info = auth_method.oauth.openid.parse_id_token(token, nonce)
+                except:
+                    return redirect(url_for('login'))
 
                 username = user_info['preferred_username']
                 self.create_session(username=username, openid=True)
+                self.args.proxmox.create_user(realm=auth_method.realm, username=username)
                 return redirect(url_for("index"))
             return redirect(url_for('login'))
         
@@ -164,6 +174,8 @@ class Auth:
 
         @self.app.route("/web/logout")
         def logout():
+            if "id" not in session:
+                return self.invalidate_session()
             from_db = self.cache_db.get_session_from_db(session["id"])
             if from_db != [] and from_db[3]: # 3 is the openid bool in db
                 for auth_method in self.auth_methods:

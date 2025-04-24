@@ -9,6 +9,7 @@ class AuthOpenID:
         self.base_redirect_domain = openid_config['base_redirect_domain']
         self.metadata_url = openid_config['metadata_url']
         self.logout_url = openid_config['logout_url']
+        self.realm = openid_config['realm']
         
         
         self.oauth.register(

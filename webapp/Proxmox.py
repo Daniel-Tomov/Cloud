@@ -29,6 +29,18 @@ class Proxmox:
 
         self.register_endpoints()
 
+    def create_user(self, realm: str, username: str, password: str = ""):
+        if password == "":
+            r = get(
+                    url=f"{self.PROXMOX_WEBAPP_HOST}/create_user/{realm}/{username}",
+                    verify=self.PROXMOX_WEBAPP_verify_ssl,
+                )
+        else:
+            r = get(
+                    url=f"{self.PROXMOX_WEBAPP_HOST}/create_user/{realm}/{username}/{password}",
+                    verify=self.PROXMOX_WEBAPP_verify_ssl,
+                )
+
     def register_endpoints(self):
         @self.app.route("/web/get_vm_status", methods=["GET"])
         def get_vm_status():
@@ -202,6 +214,8 @@ class Proxmox:
                     verify=self.PROXMOX_WEBAPP_verify_ssl,
                 ).json()["result"]
             }
+            
+        
 
 if __name__ == "__main__":
     """"""

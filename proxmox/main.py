@@ -76,6 +76,24 @@ class Main:
         def get_vm_status(user: str):
             return get_user_vms(user)
 
+        @self.app.route("/create_user/<string:realm>/<string:username>/<string:password>")
+        def create_user_with_password(realm: str, username: str, password: str):
+            #users = get_endpoint(endpoint="/api2/json/access/users")
+            data = {"userid": f'{username}@{realm}', "password": password, "groups": "", "expire": 0, "enable": 1, "firstname": "" ,"lastname": "", "email": "", "comment": "", "keys": ""} # userid=test%40pve&password=password&groups=4002&expire=0&enable=1&firstname=first&lastname=last&email=&comment=&keys=
+            create_user = post_endpoint(endpoint="/api2/extjs/access/users", data=data)
+            
+            return ""
+        
+        @self.app.route("/create_user/<string:realm>/<string:username>")
+        def create_user_with_no_password(realm: str, username: str):
+            #users = get_endpoint(endpoint="/api2/json/access/users")
+            data = {"userid": f'{username}@{realm}', "groups": "", "expire": 0, "enable": 1, "firstname": "" ,"lastname": "", "email": "", "comment": "", "keys": ""} # userid=test%40pve&password=password&groups=4002&expire=0&enable=1&firstname=first&lastname=last&email=&comment=&keys=
+            create_user = post_endpoint(endpoint="/api2/extjs/access/users", data=data)
+            print(create_user)
+            
+            return ""
+        
+        
         @self.app.route(
             "/set_vm_power_state/<string:username>/<string:node>/<string:vm_type>/<string:vmid>/<string:power_value>",
             methods=["GET"],
@@ -102,21 +120,30 @@ class Main:
             username: str, node: str, vm_type: str, vmid: str, username_to_add: str
         ):
             vmid = f'{vm_type}/{vmid}'  # qemu/123 is passed to the request so need to recombine them
-            name, tags = does_user_own_vm(
-                username=username, vmid=vmid
-            )  # returns "" if the user does not own the vm
+            name, tags = does_user_own_vm(username=username, vmid=vmid)  # returns "" if the user does not own the vm
             if name == "":
                 return {"result": "You don't own this VM"}
 
             if username_to_add in tags.split(";"):
                 return {"result": "name already added"}
-            endpoint = f"/api2/extjs/nodes/{node}/{vmid}/config"
 
             tags = tags + ";" + username_to_add
             data = {"tags": tags}
             #print(f'adding {username_to_add}')
-
-            return {"result": put_endpoint(endpoint=endpoint, data=data)}
+            
+            #groups = get_endpoint(endpoint="/api2/json/access/groups")
+            #user_groups = get_endpoint(endpoint="/api2/extjs/access/users/dtomo001%40CybAdm")
+            #domains = get_endpoint(endpoint="/api2/json/access/domains")
+            users = get_endpoint("/api2/json/access/users?full=1")
+            for user in users:
+                if user['userid'].split("@")[0] == username_to_add:
+                    groups = user['groups'].split(",")
+                    groups.append("," + vmid.split("/")[1])
+                    groups = ','.join(groups)
+                    realm = user['userid'].split("@")[1]
+                    r = put_endpoint(f"/api2/extjs/access/users/{username_to_add}@{realm}", data={"groups": groups})
+                
+            return {"result": put_endpoint(endpoint=f"/api2/extjs/nodes/{node}/{vmid}/config", data=data)}
 
         @self.app.route(
             "/remove_tag/<string:username>/<string:node>/<string:vm_type>/<string:vmid>/<string:username_to_remove>",
@@ -138,14 +165,22 @@ class Main:
             if username_to_remove not in tags.split(";"):
                 return {"result": "username is not in tags"}
 
-
-            endpoint = f"/api2/extjs/nodes/{node}/{vmid}/config"
-
+            users = get_endpoint("/api2/json/access/users?full=1")
+            for user in users:
+                if user['userid'].split("@")[0] == username_to_remove:
+                    groups = user['groups'].split(",")
+                    groups.remove(vmid.split("/")[1])
+                    groups = ','.join(groups)
+                    realm = user['userid'].split("@")[1]
+                    r = put_endpoint(f"/api2/extjs/access/users/{username_to_remove}@{realm}", data={"groups": groups})
+            
+            
             tags = tags.split(";")
             tags.remove(username_to_remove)
             tags = ";".join(tags)
             data = {"tags": tags}
-            return {"result": put_endpoint(endpoint=endpoint, data=data)}
+            
+            return {"result": put_endpoint(endpoint=f"/api2/extjs/nodes/{node}/{vmid}/config", data=data)}
                     
 
         @self.app.route("/first-boot.sh", methods=["GET"])

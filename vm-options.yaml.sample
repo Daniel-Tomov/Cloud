@@ -12,12 +12,12 @@ proxmox_nodes:
     - 10.10.10.3
     - 10.10.10.4
   prod_nodes_contain: "prod" # ensures VMs are not put on development nodes
-  user_group: "student"  
-  node_random_select: false # randomly select node for every API request
+  user_group: "student" # role with permissions users should inherit for vms they have access to
+  node_random_select: false # check access to node on every API request. Can slow down performance because 2x API requests.
 proxmox_webapp: # this is the proxmox webapp
-  host: "https://ip or domain:5556"
+  host: "https://ip or domain:5556" # location of the proxmox webapp. This is the app in the proxmox folder
   verifyssl: False
-  pve_nets:
+  pve_nets: # network blocks where user proxmox vm vmbr0 interfaces are. The target IP is checked against this list with "ip.contains()". Lowest network block is /24
     - 10.10.11.
     - 10.10.12.
     - 10.10.13.
@@ -51,16 +51,13 @@ authentication: # priority is in order, top to
       user-filter: (memberOf=CN=VM_Users,OU=Groups,DC=lab,DC=example,DC=org)
       base-dn: OU=LAB,OU=User,DC=lab,DC=example,DC=com
       bind-password: ""
+      realm: "pve"
   - KeyCloak:
       type: "openid"
       enabled: true
       name: KeyCloak
       ssl_verify: False
-      client_id: ""
-      client_secret: ""
-      base_redirect_domain: "https://url"
-      metadata_url: "https://domain/keycloak/realms/master/.well-known/openid-configuration"
-      logout_url: "https://domain/keycloak/realms/master/protocol/openid-connect/logout"
+      realm: "KeyCloak"
 services: 
   - id: "uptimekuma"
     name: "Uptime Kuma"

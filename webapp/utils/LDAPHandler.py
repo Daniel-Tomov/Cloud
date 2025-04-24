@@ -12,6 +12,7 @@ class LDAPHandler(object):
         self.user_filter = ldap_config.get('user-filter')
         self.base_dn  = ldap_config.get('base-dn')
         self.bind_password = ldap_config.get('bind-password')
+        self.realm = ldap_config.get('realm')
 
     def authenticate_user(self, username: str, password: str) -> bool:
         for server in self.servers:
