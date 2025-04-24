@@ -129,7 +129,7 @@ class Auth:
                     continue
                 if auth_method.name != name:
                     continue
-                redirect_uri = auth_method.base_redirect_domain + f"/web/openid/{name}/auth"
+                redirect_uri = "https://" + request.host + f"/web/openid/{name}/auth"
                 nonce = urandom(16).hex()
                 session["openid_nonce"] = nonce
                 return auth_method.oauth.openid.authorize_redirect(
