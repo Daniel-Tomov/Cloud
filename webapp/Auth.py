@@ -82,7 +82,7 @@ class Auth:
                     continue
                 if auth_method.does_user_exist_in_db(username=username):
                     r = self.return_login_page(page="register", extra_content="That username is taken")
-                    r.set_cookie("session", "")
+                    r.set_cookie("webapp-session", "")
                     return r
 
                 password = request.form["password"]
@@ -98,7 +98,7 @@ class Auth:
             if request.method == "GET":
                 if "id" not in session or not self.check_session():
                     r = self.return_login_page(page="login")
-                    r.set_cookie("session", "")
+                    r.set_cookie("webapp-session", "")
                     return r
                 return redirect(url_for("index"))
 
@@ -119,7 +119,7 @@ class Auth:
                     return redirect(url_for("index"))
 
             r = self.return_login_page(page="login", extra_content="Incorrect username or password")
-            r.set_cookie("session", "")
+            r.set_cookie("webapp-session", "")
             return r
 
         @self.app.route("/web/openid/<string:name>")
@@ -165,7 +165,7 @@ class Auth:
         @self.app.route("/web/logout")
         def logout():
             from_db = self.cache_db.get_session_from_db(session["id"])
-            if from_db[3]: # 3 is the openid bool in db
+            if from_db != [] and from_db[3]: # 3 is the openid bool in db
                 for auth_method in self.auth_methods:
                     if auth_method.type == "openid":
                         return self.invalidate_session(auth_method.logout_url)
@@ -242,5 +242,6 @@ class Auth:
             r = make_response(redirect(openid_logout_url))
         else:
             r = make_response(redirect(url_for("login")))
-        r.set_cookie("session", "")
+        r.set_cookie("webapp-session", "")
+        r.set_cookie("PVEAuthCookie", "")
         return r

@@ -51,6 +51,16 @@ authentication: # priority is in order, top to
       user-filter: (memberOf=CN=VM_Users,OU=Groups,DC=lab,DC=example,DC=org)
       base-dn: OU=LAB,OU=User,DC=lab,DC=example,DC=com
       bind-password: ""
+  - KeyCloak:
+      type: "openid"
+      enabled: true
+      name: KeyCloak
+      ssl_verify: False
+      client_id: ""
+      client_secret: ""
+      base_redirect_domain: "https://url"
+      metadata_url: "https://domain/keycloak/realms/master/.well-known/openid-configuration"
+      logout_url: "https://domain/keycloak/realms/master/protocol/openid-connect/logout"
 services: 
   - id: "uptimekuma"
     name: "Uptime Kuma"
@@ -58,13 +68,27 @@ services:
     needs_login: false
     protocol: "http"
     ips:
-      - 192.168.1.1
+      - 10.10.10.100
     port: "3001"
-    url: "/status/status"
+    url: "/status/datacenter"
     allowed_referers:
       - "/web/home"
+      - "/web/login"
+      - "/web/index"
       - "/web/"
-      - "/status/datacenter"
+      - "/status/datacenter"  
+  - id: "proxmox"
+    name: "Proxmox Servers"
+    enabled: true
+    needs_login: true
+    protocol: "https"
+    ips: 
+      - 10.11.11.11
+      - 10.11.11.12
+      - 10.11.11.13
+    port: "8006"
+    url: "/"
+    allowed_referers:
 vm-provision-options:
   proxmox:
     enabled: True
