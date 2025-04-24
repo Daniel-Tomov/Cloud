@@ -14,11 +14,6 @@ from random import choice
 
 
 # TODO
-# 3. Functionality to connect to regular Linux VM with GPU passthrough on Proxmox cluster/host
-# - Give permission to user on the proxmox host
-# - Will need to integrate logins with outside source
-#   - webapp - probably not
-#   - active directory
 # 4. Functionality to create regular Linux VM with GPU passthrough on Proxmox host/cluster
 # 6. Look into using ldap on student vms to authenticate
 #   - question is, can the credentials be found once the student is given full root access to the vm?
