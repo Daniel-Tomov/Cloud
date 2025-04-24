@@ -38,6 +38,7 @@ authentication: # priority is in order, top to
       host: ""
       port: 5432
       sslmode: "require"
+      realm: "pve"
   - LDAP:
       type: "ldap"
       enabled: true
@@ -73,7 +74,7 @@ services:
       - "/web/login"
       - "/web/index"
       - "/web/"
-      - "/status/datacenter"  
+      - "/status/datacenter"
   - id: "proxmox"
     name: "Proxmox Servers"
     enabled: true
