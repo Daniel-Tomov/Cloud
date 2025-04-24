@@ -84,7 +84,7 @@ class CacheDB:
     def get_session_from_db(self, id: str) -> list:
         if id in self.sessions_cache and "username" in self.sessions_cache[id]:
             #print(f'found {id} in cache')
-            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"]]
+            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"], self.sessions_cache[id]["openid"]]
         #else:
             #print(f'Session {id} not found in cache, going to db')
         connection, cursor = self.connect()
