@@ -101,6 +101,7 @@ class Main:
                     r.set_cookie("protocol", service['protocol'])
                     r.set_cookie("ip", choice(service['ips']))
                     r.set_cookie("port", service['port'])
+                    #print(f"opening {requesed_service}")
                     return r
                 
             return redirect(url_for('index'))

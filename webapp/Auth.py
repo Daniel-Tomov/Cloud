@@ -79,7 +79,7 @@ class Auth:
 
             username = request.form["username"]
             for auth_method in self.auth_methods:
-                if not isinstance(auth_method, AuthDB):
+                if auth_method.type != "postgres":
                     continue
                 if auth_method.does_user_exist_in_db(username=username):
                     r = self.return_login_page(page="register", extra_content="That username is taken")
@@ -116,8 +116,8 @@ class Auth:
                     continue
                 if auth_method.authenticate_user(username=username, password=password):
                     print(f"authenticated {username} with {auth_method.type}")
-                    self.create_session(username=username)
-                    if isinstance(auth_method, AuthDB):
+                    self.create_session(username=username, auth_type=auth_method.type)
+                    if auth_method.type == "postgres":
                         self.args.proxmox.create_user(realm=auth_method.realm, username=username, password=password)
                     else:
                         self.args.proxmox.create_user(realm=auth_method.realm, username=username)
@@ -131,7 +131,7 @@ class Auth:
         @self.app.route("/web/openid/<string:name>")
         def openid_login(name: str):
             for auth_method in self.auth_methods:
-                if not isinstance(auth_method, AuthOpenID):
+                if auth_method.type != "openid":
                     continue
                 if auth_method.name != name:
                     continue
@@ -162,7 +162,7 @@ class Auth:
                     return redirect(url_for('login'))
 
                 username = user_info['preferred_username']
-                self.create_session(username=username, openid=True)
+                self.create_session(username=username, auth_type="openid")
                 self.args.proxmox.create_user(realm=auth_method.realm, username=username)
                 return redirect(url_for("index"))
             return redirect(url_for('login'))
@@ -177,7 +177,7 @@ class Auth:
             if "id" not in session:
                 return self.invalidate_session()
             from_db = self.cache_db.get_session_from_db(session["id"])
-            if from_db != [] and from_db[3]: # 3 is the openid bool in db
+            if from_db != [] and from_db[3] == "openid": # 3 is the openid bool in db
                 for auth_method in self.auth_methods:
                     if auth_method.type == "openid":
                         return self.invalidate_session(auth_method.logout_url)
@@ -242,8 +242,8 @@ class Auth:
         return self.compare_sessions(from_db[2], current_time_dt())
 
 
-    def create_session(self, username: str, openid=False):
-        session["id"] = self.cache_db.add_session_to_db(username=username, openid=openid)
+    def create_session(self, username: str, auth_type):
+        session["id"] = self.cache_db.add_session_to_db(username=username, auth_type=auth_type)
 
 
     def invalidate_session(self, openid_logout_url=None):

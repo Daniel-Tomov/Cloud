@@ -24,7 +24,7 @@ class CacheDB:
         self.host=self.data['host']
         self.port=self.data['port']
         self.sslmode=self.data['sslmode']
-        # {"id": {"id": "", "username": "", "last_accessed": datetime, "openid": bool}}
+        # {"id": {"id": "", "username": "", "last_accessed": datetime, "auth_type": str}}
         self.sessions_cache = {}
 
         self.session_length = int(args.system_config['session_length'])  # minutes
@@ -48,7 +48,7 @@ class CacheDB:
         
         connection, cursor = self.connect()
         cursor.execute(
-            "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP, openid boolean default false);"
+            "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP, auth_type VARCHAR(16));"
         )
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS vm_ips (ip VARCHAR(16) UNIQUE, usernames VARCHAR(65535));"
@@ -60,21 +60,21 @@ class CacheDB:
         connection.commit()
         connection.close()
 
-    def add_session_to_db(self, username: str, openid: bool = False) -> str:
+    def add_session_to_db(self, username: str, auth_type: str) -> str:
         username = sanitize_input(username)
         
         id = urandom(16).hex()
-        self.sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt(), "openid": openid}
+        self.sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt(), "auth_type": auth_type}
 
-        Thread(target=self.async_add_session_to_db, kwargs={"username": username, "id": id, "openid": openid}).start()
+        Thread(target=self.async_add_session_to_db, kwargs={"username": username, "id": id, "auth_type": auth_type}).start()
         
         return id
 
-    def async_add_session_to_db(self, username: str, id: str, openid: bool):
+    def async_add_session_to_db(self, username: str, id: str, auth_type: str):
         connection, cursor = self.connect()
         cursor.execute(
-            f"INSERT INTO sessions (username, id, last_accessed, openid) VALUES (%s, %s, %s, %s)",
-            (username, id, current_time_str(), openid)
+            f"INSERT INTO sessions (username, id, last_accessed, auth_type) VALUES (%s, %s, %s, %s)",
+            (username, id, current_time_str(), auth_type)
         )
         connection.commit()
         connection.close()
@@ -82,9 +82,10 @@ class CacheDB:
         
 
     def get_session_from_db(self, id: str) -> list:
+        #print(self.sessions_cache)
         if id in self.sessions_cache and "username" in self.sessions_cache[id]:
             #print(f'found {id} in cache')
-            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"], self.sessions_cache[id]["openid"]]
+            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"], self.sessions_cache[id]["auth_type"]]
         #else:
             #print(f'Session {id} not found in cache, going to db')
         connection, cursor = self.connect()
@@ -94,7 +95,7 @@ class CacheDB:
         if len(result) == 0:
             return []
         result = result[0]
-        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "openid": result[3]}
+        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3]}
         connection.close()
         return result
 
