@@ -79,9 +79,15 @@ class Proxmox:
                     return {"result": "fail"}
                 if "node" not in request.json:
                     return {"result": "fail"}
+                if request.json["power_value"] == None or request.json["power_value"] == "":
+                    return {"result": "fail"}
+                if request.json["vmid"] == None or request.json["vmid"] == "":
+                    return {"result": "fail"}
+                if request.json["node"] == None or request.json["node"] == "":
+                    return {"result": "fail"}
             except Exception:
                 return {"result": "fail"}
-                
+            
 
             node = sanitize_input(data["node"], "-")
             vmid = sanitize_input(data["vmid"], "/")
@@ -117,18 +123,21 @@ class Proxmox:
                     return {"result": "fail"}
                 if "node" not in request.json:
                     return {"result": "fail"}
+                if request.json["username"] == None or request.json["username"] == "":
+                    return {"result": "fail"}
+                if request.json["vmid"] == None or request.json["vmid"] == "":
+                    return {"result": "fail"}
+                if request.json["node"] == None or request.json["node"] == "":
+                    return {"result": "fail"}
             except Exception:
                 return {"result": "fail"}
             
-            data = request.json
             
             username = self.cache_db.get_session_from_db(session["id"])[0]
-            username_to_add = sanitize_input(data["username"])
+            username_to_add = sanitize_input(s=request.json["username"], allowed_characters="")
 
-            if username_to_add == None:
-                return {"result": "fail"}
-            vmid = sanitize_input(data["vmid"], "/")
-            node = sanitize_input(data["node"], "-")
+            vmid = sanitize_input(request.json["vmid"], "/")
+            node = sanitize_input(request.json["node"], "-")
 
             return {
                 "result": get(
@@ -153,16 +162,20 @@ class Proxmox:
                     return {"result": "fail"}
                 if "node" not in request.json:
                     return {"result": "fail"}
+                if request.json["username"] == None or request.json["username"] == "":
+                    return {"result": "fail"}
+                if request.json["vmid"] == None or request.json["vmid"] == "":
+                    return {"result": "fail"}
+                if request.json["node"] == None or request.json["node"] == "":
+                    return {"result": "fail"}
             except Exception:
                 return {"result": "fail"}
-            data = request.json
-            
             
             username = self.cache_db.get_session_from_db(session["id"])[0]
             
-            username_to_remove = sanitize_input(data["username"])
-            vmid = sanitize_input(data["vmid"], "/")
-            node = sanitize_input(data["node"], "-")
+            username_to_remove = sanitize_input(request.json["username"])
+            vmid = sanitize_input(request.json["vmid"], "/")
+            node = sanitize_input(request.json["node"], "-")
 
             return {
                 "result": get(
@@ -184,19 +197,15 @@ class Proxmox:
                     return {"result": "fail"}
                 if "password" not in request.json or "id" not in request.json:
                     return {"result": "fail"}
+                if request.json["id"] == None or request.json["id"] == "":
+                    return {"result": "fail"}
+                vm_type = request.json['id']
+                password = urlencode(request.json["password"])
             except Exception:
                 return {"result": "fail"}
             
-            if request.json['id'] not in self.system_config['vm-provision-options']:
-                return {"result": "fail"}
-            
-            vm_type = request.json['id']
-            password = urlencode(request.json["password"])
-            
             if vm_type == ""  or password == "" or vm_type not in self.system_config['vm-provision-options']:
                 return {"result": "fail"}
-            
-
             
             if len(password) > 500:
                 return {"result": "longer than 500 characters"}
