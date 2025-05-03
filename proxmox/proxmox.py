@@ -24,13 +24,13 @@ answer_file = open("answer.toml").read()
 class QueueEntry:
     def __init__(
         self,
-        midas: str = "bigblue001",
+        username: str = "doesnotexistuser",
         root_password: str = "password",
         vm_ip: str = "",
         valid_node: str = "",
         vm_type: str = "proxmox"
     ):
-        self.midas = midas
+        self.username = username
         self.root_password = root_password
         self.vm_ip = vm_ip
         self.valid_node = valid_node
@@ -66,7 +66,7 @@ def async_vm_creation():
         if not vm_creation_queue.empty() and ready_for_vm_creation:
             ready_for_vm_creation = False
             qentry = vm_creation_queue.get()
-            midas = qentry.midas
+            username = qentry.username
             root_password = qentry.root_password
             valid_node = qentry.valid_node
             used_ids = []
@@ -86,11 +86,11 @@ def async_vm_creation():
                     break
             qentry.valid_id = valid_id
             print(
-                f"creating {qentry.vm_type} for {midas} password: {root_password}, on {valid_node} with id {valid_id}"
+                f"creating {qentry.vm_type} for {username} password: {root_password}, on {valid_node} with id {valid_id}"
             )
             data = system_config['vm-provision-options'][qentry.vm_type]
             vm_data = {}
-            vm_data['name'] = midas + "-" + qentry.vm_type
+            vm_data['name'] = username + "-" + qentry.vm_type
             vm_data['node'] = valid_node
             vm_data['vmid'] = valid_id
             vm_data['cores'] = data['cores']
@@ -104,17 +104,17 @@ def async_vm_creation():
             vm_data['scsi0'] = f"{data['storage_location']}:{data['storage']},iothread=on"
             vm_data['start'] = data['start']
             vm_data['ide2'] = f"{data['iso_location']}:iso/{data['iso']},media=cdrom"
-            vm_data['tags'] = midas
+            vm_data['tags'] = username
             vm_data['pool'] = data['pool']
             create_vm(data=vm_data, node=valid_node, verifySSL=verify_ssl)  # Proxmox VM creation
 
             #groups = get_endpoint(endpoint="/api2/json/access/groups")
-            create_group = post_endpoint(endpoint="/api2/extjs/access/groups", data={"groupid": valid_id, "comment": ""}) # groupid=4002^&comment=
+            create_group = post_endpoint(endpoint="/api2/extjs/access/groups", data={"groupid": valid_id, "comment": ""}) 
             add_vm_to_group = put_endpoint(endpoint="/api2/extjs/access/acl", data={"path": f"/vms/{valid_id}", "groups": valid_id, "roles": system_config['proxmox_nodes']['user_group'], "propagate": 1})
             domains = get_endpoint(endpoint="/api2/json/access/domains")
             for domain in domains:
                 realm = domain['realm']           
-                add_user_to_group = put_endpoint(endpoint=f"/api2/extjs/access/users/{midas}@{realm}", data={"groups": valid_id}) # groups=4002&groups=ITS_Cybersecurity_Student_Environment-CybAdm&groups=Student&expire=0&enable=1&firstname=Daniel&lastname=Tomov&email=&comment=&keys=
+                add_user_to_group = put_endpoint(endpoint=f"/api2/extjs/access/users/{username}@{realm}", data={"groups": valid_id}) 
             
             if data['needs_postinst'] == False:
                 ready_for_vm_creation = True
@@ -303,15 +303,15 @@ def does_have_personal_vm_created(vm_type, username: str) -> bool:
 
 def send_answer_toml():
     global qentry, ready_for_vm_creation
-    midas = qentry.midas
+    username = qentry.username
     root_password = qentry.root_password
 
-    if midas == "" or root_password == "" or ready_for_vm_creation:
+    if username == "" or root_password == "" or ready_for_vm_creation:
         return {"status": "not expecting VM"}
     data = system_config['vm-provision-options'][qentry.vm_type]
     ready_for_vm_creation = True
     return (
-        answer_file.replace("{{ midas }}", midas)
+        answer_file.replace("{{ username }}", username)
         .replace("{{ password }}", root_password)
         .replace("{{ lvm_max_root }}", str(data['lvm_max_root']))
         .replace("{{ proxmox_webapp_url }}", data['proxmox_webapp_url'])

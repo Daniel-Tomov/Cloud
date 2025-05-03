@@ -68,7 +68,7 @@ class Main:
                     nodes.append(entry["node"])
 
             node = choice(nodes)
-            vm_creation_queue.put(QueueEntry(midas=username, root_password=password, vm_ip="", valid_node=node, vm_type=vm_type))
+            vm_creation_queue.put(QueueEntry(username=username, root_password=password, vm_ip="", valid_node=node, vm_type=vm_type))
 
             return {"result": "success"}
 

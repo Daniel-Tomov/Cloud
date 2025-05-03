@@ -376,7 +376,7 @@ document.getElementById('vms_container').addEventListener('click', function (eve
         } else if (action === 'stop') {
             send_power_value(vmId, 'stop', node);
         } else if (action === "add_tag") {
-            send_tag_data(vmId, prompt("Enter the MIDAS of the user:"), node, "add");
+            send_tag_data(vmId, prompt("Enter the username of the user:"), node, "add");
         } else if (action === "create_vm") {
             create_vm();
         } else if (action === "access_page") {

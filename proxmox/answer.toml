@@ -1,8 +1,8 @@
 [global]
 keyboard = "en-us"
 country = "us"
-fqdn = "{{ midas }}.local"
-mailto = "{{ midas }}@odu.edu"
+fqdn = "{{ username }}.local"
+mailto = "{{ username }}@odu.edu"
 timezone = "America/New_York"
 root_password = "{{ password }}"
 
