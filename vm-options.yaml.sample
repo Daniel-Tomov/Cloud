@@ -58,6 +58,11 @@ authentication: # priority is in order, top to
       enabled: true
       name: KeyCloak
       ssl_verify: False
+      client_id: ""
+      client_secret: ""
+      base_redirect_domain: "https://domain"
+      metadata_url: "https://domain/keycloak/realms/master/.well-known/openid-configuration"
+      logout_url: "https://domain/keycloak/realms/master/protocol/openid-connect/logout"
       realm: "KeyCloak"
 services: 
   - id: "uptimekuma"
