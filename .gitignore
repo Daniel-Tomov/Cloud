@@ -153,6 +153,7 @@ cython_debug/
 
 
 .donotpush/
+donotpush/
 *env-configmap.yaml
 *.pem
 vm-options.yaml

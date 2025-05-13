@@ -334,7 +334,7 @@ def send_first_boot_get():
         vm_string += f'qm create {vm_id} '
         vm_string += f'--cdrom {data['iso_location']}:iso/{data['iso']} '
         vm_string += f'--name {image} '
-        vm_string += f'--numa 0 '
+        vm_string += f'--numa {data['numa']} '
         vm_string += f'--ostype l26 '
         vm_string += f'--cpu cputype={data['cpu']} '
         vm_string += f'--cores {data['cores']} '
