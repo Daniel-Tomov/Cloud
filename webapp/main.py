@@ -45,7 +45,7 @@ class Main:
         self.app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
         self.app.config["SESSION_PERMANENT"] = False
         self.app.config["SESSION_TYPE"] = "filesystem"
-        self.app.config["SESSION_COOKIE_NAME"] = "webapp-session"
+        self.app.config["SESSION_COOKIE_NAME"] = self.system_config['session_cookie_name']
         self.app.config.update(
             SESSION_COOKIE_SECURE=True,
             SESSION_COOKIE_HTTPONLY=True,

@@ -1,6 +1,7 @@
 FLASK_SECRET_KEY: ""
 PYTHONWARNINGS: "ignore:Unverified HTTPS request"
 session_length: 60
+session_cookie_name: "webapp-session"
 proxmox_nodes:
   authentication_type: "token" # token or credentials
   token: "" # can leave blank if not using

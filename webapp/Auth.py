@@ -29,6 +29,7 @@ class Auth:
         self.pve_nets = self.system_config['proxmox_webapp']['pve_nets']
 
         self.SERVICES = self.system_config['services']
+        self.session_cookie_name = self.system_config['session_cookie_name']
 
         self.register_routes()
         
@@ -83,7 +84,7 @@ class Auth:
                     continue
                 if auth_method.does_user_exist_in_db(username=username):
                     r = self.return_login_page(page="register", extra_content="That username is taken")
-                    r.set_cookie("webapp-session", "")
+                    r.set_cookie(self.session_cookie_name, "", expires=0)
                     return r
 
                 password = request.form["password"]
@@ -99,7 +100,7 @@ class Auth:
             if request.method == "GET":
                 if "id" not in session or not self.check_session():
                     r = self.return_login_page(page="login")
-                    r.set_cookie("webapp-session", "")
+                    r.set_cookie(self.session_cookie_name, "", expires=0)
                     return r
                 return redirect(url_for("index"))
 
@@ -117,7 +118,7 @@ class Auth:
                 if auth_method.authenticate_user(username=username, password=password):
                     print(f"authenticated {username} with {auth_method.type}")
                     self.create_session(username=username, auth_type=auth_method.type)
-                    if auth_method.type == "postgres":
+                    if auth_method.realm == "pve":
                         self.args.proxmox.create_user(realm=auth_method.realm, username=username, password=password)
                     else:
                         self.args.proxmox.create_user(realm=auth_method.realm, username=username)
@@ -125,7 +126,7 @@ class Auth:
                     return redirect(url_for("index"))
 
             r = self.return_login_page(page="login", extra_content="Incorrect username or password")
-            r.set_cookie("webapp-session", "")
+            r.set_cookie("self.session_cookie_name", "", expires=0)
             return r
 
         @self.app.route("/web/openid/<string:name>")
@@ -186,9 +187,9 @@ class Auth:
         @self.app.route("/auth-proxy")
         def auth_proxy():
             failed = make_response("<h1>Access denied!</h1>", 401)
-            failed.set_cookie("protocol", "")
-            failed.set_cookie("ip", "")
-            failed.set_cookie("port", "")
+            failed.set_cookie("protocol", "", expires=0)
+            failed.set_cookie("ip", "", expires=0)
+            failed.set_cookie("port", "", expires=0)
             
             if "protocol" not in request.cookies or "ip" not in request.cookies or "port" not in request.cookies:
                 return failed
@@ -254,6 +255,7 @@ class Auth:
             r = make_response(redirect(openid_logout_url))
         else:
             r = make_response(redirect(url_for("login")))
-        r.set_cookie("webapp-session", "")
-        r.set_cookie("PVEAuthCookie", "")
+        r.set_cookie("self.session_cookie_name", "", expires=0)
+        r.set_cookie("PVEAuthCookie", "", expires=0)
+        r.
         return r
