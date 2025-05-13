@@ -230,7 +230,7 @@ def async_status():
     while True:
         sleep(10)
         status = get_status()
-        if system_config['proxmox_nodes'] == "credentials":
+        if system_config['proxmox_nodes']['authentication_type'] == "credentials":
             counter += 1
             if counter > 700:  # 7020 seconds
                 counter = 0
