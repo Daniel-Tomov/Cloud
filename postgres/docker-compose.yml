@@ -6,6 +6,6 @@ services:
     ports:
      - 5557:5557
     volumes:
-     - ../vm-options.yaml:/usr/src/vm-options.yaml
+     - ../../vm-options.yaml:/usr/src/vm-options.yaml
 
     
