@@ -126,7 +126,7 @@ class Auth:
                     return redirect(url_for("index"))
 
             r = self.return_login_page(page="login", extra_content="Incorrect username or password")
-            r.set_cookie("self.session_cookie_name", "", expires=0)
+            r.set_cookie(self.session_cookie_name, "", expires=0)
             return r
 
         @self.app.route("/web/openid/<string:name>")
@@ -255,6 +255,6 @@ class Auth:
             r = make_response(redirect(openid_logout_url))
         else:
             r = make_response(redirect(url_for("login")))
-        r.set_cookie("self.session_cookie_name", "", expires=0)
+        r.set_cookie(self.session_cookie_name, "", expires=0)
         r.set_cookie("PVEAuthCookie", "", expires=0)
         return r
