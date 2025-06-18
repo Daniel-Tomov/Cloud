@@ -257,5 +257,4 @@ class Auth:
             r = make_response(redirect(url_for("login")))
         r.set_cookie("self.session_cookie_name", "", expires=0)
         r.set_cookie("PVEAuthCookie", "", expires=0)
-        r.
         return r
