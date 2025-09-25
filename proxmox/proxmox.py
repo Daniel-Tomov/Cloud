@@ -111,13 +111,13 @@ def async_vm_creation():
             #groups = get_endpoint(endpoint="/api2/json/access/groups")
             create_group = post_endpoint(endpoint="/api2/extjs/access/groups", data={"groupid": valid_id, "comment": ""}) 
             add_vm_to_group = put_endpoint(endpoint="/api2/extjs/access/acl", data={"path": f"/vms/{valid_id}", "groups": valid_id, "roles": system_config['proxmox_nodes']['user_group'], "propagate": 1})
-            domains = get_endpoint(endpoint="/api2/json/access/domains")
+            #domains = get_endpoint(endpoint="/api2/json/access/domains")
             
             users = get_endpoint("/api2/json/access/users?full=1")
             for user in users:
                 if user['userid'].split("@")[0] == username:
                     groups = user['groups'].split(",")
-                    groups.append(valid_id)
+                    groups.append(str(valid_id))
                     groups = ','.join(groups)
                     realm = user['userid'].split("@")[1]
                     add_user_to_group = put_endpoint(endpoint=f"/api2/extjs/access/users/{username}@{realm}", data={"groups": groups}) 
