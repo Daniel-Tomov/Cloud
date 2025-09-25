@@ -69,21 +69,7 @@ def async_vm_creation():
             username = qentry.username
             root_password = qentry.root_password
             valid_node = qentry.valid_node
-            used_ids = []
-            valid_id = 4000
-            
-            for entry in range(0, len(status)):
-                if "node" in status[entry]:
-                    id = status[entry]["id"].split("/")[1]
-                    try:
-                        used_ids.append(int(id))
-                    except:
-                        pass
-            used_ids.sort()
-            for i in range(4000, 999999999):
-                if i not in used_ids:
-                    valid_id = i
-                    break
+            valid_id = get_endpoint("/api2/extjs/cluster/nextid")
             qentry.valid_id = valid_id
             print(
                 f"creating {qentry.vm_type} for {username} password: {root_password}, on {valid_node} with id {valid_id}"
