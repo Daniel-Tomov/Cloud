@@ -80,18 +80,17 @@ class Auth:
 
             username = request.form["username"]
             for auth_method in self.auth_methods:
-                if auth_method.type != "postgres":
-                    continue
-                if auth_method.does_user_exist_in_db(username=username):
-                    r = self.return_login_page(page="register", extra_content="That username is taken")
-                    r.set_cookie(self.session_cookie_name, "", expires=0)
-                    return r
+                if auth_method.type == "postgres":
+                    if auth_method.does_user_exist_in_db(username=username):
+                        r = self.return_login_page(page="register", extra_content="That username is taken")
+                        r.set_cookie(self.session_cookie_name, "", expires=0)
+                        return r
 
-                password = request.form["password"]
+                    password = request.form["password"]
 
-                auth_method.add_user_to_db(username=username, password=password)
-                #create_session(username=username)
-                return redirect(url_for("login"))
+                    auth_method.add_user_to_db(username=username, password=password)
+                    #create_session(username=username)
+                    return redirect(url_for("login"))
         
             return redirect(url_for("login"))
 
