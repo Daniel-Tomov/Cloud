@@ -138,7 +138,7 @@ class Main:
             for user in users:
                 if user['userid'].split("@")[0] == username_to_add:
                     groups = user['groups'].split(",")
-                    groups.append("," + vmid.split("/")[1])
+                    groups.append(vmid.split("/")[1])
                     groups = ','.join(groups)
                     realm = user['userid'].split("@")[1]
                     r = put_endpoint(f"/api2/extjs/access/users/{username_to_add}@{realm}", data={"groups": groups})
