@@ -25,15 +25,22 @@ if 'proxmox_nodes' in system_config:
     else:
         errors += "Could not load proxmox_nodes.authentication_type.\n"
 
-    keys = ['verify_ssl', 'nodes', 'prod_nodes_contain', 'user_group', 'check_nodes', 'shutdown_timeout']
+    keys = ['verify_ssl', 'nodes', 'prod_nodes_contain', 'user_group', 'check_nodes', 'shutdown_timeout', 'stop_timeout', 'minimum_vmid', 'exlude_nodes_from_shutdown_endwith']
     for k in keys:
         if k not in system_config['proxmox_nodes']:
             errors += f"Could not load proxmox_nodes.{k}\n"
             continue
 
-        if k == 'nodes':
-            if not isinstance(system_config['proxmox_nodes']['nodes'], list):
+        if k in ['nodes', 'exlude_nodes_from_shutdown_endwith']:
+            if not isinstance(system_config['proxmox_nodes'][k], list):
                 errors += "proxmox_nodes.nodes is not list"
+                
+        if k in ['shutdown_timeout', 'stop_timeout', 'minimum_vmid']:
+            if not isinstance(system_config['proxmox_nodes'][k], int):
+                errors += f"proxmox_nodes.{k} is not int"
+        
+                
+        
 else:
     errors += "Could not load proxmox_nodes.\n"
 

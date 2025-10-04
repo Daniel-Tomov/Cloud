@@ -1,17 +1,16 @@
 import psycopg2
-from os import urandom
-from datetime import timedelta, datetime
 from utils import (
     hash_512,
     sanitize_input,
     current_time_str,
     current_time_dt,
     convert_time_dt_str,
-    add_time_to_current_str
+    add_time_to_current_str,
+    compare_datetime_now
 )
 from threading import Thread
 from time import sleep
-from proxmox import power_off_vms_for_user
+from proxmox import set_vm_power, get_status
 
 
 class VMShutdown:
@@ -26,7 +25,8 @@ class VMShutdown:
         
         self.create_tables()
 
-        Thread(target=self.async_vm_shutdown).start()
+        if self.system_config['proxmox_nodes']['shutdown_timeout'] != 0:
+            Thread(target=self.async_vm_shutdown).start()
 
     def connect(self):
         connection = psycopg2.connect(
@@ -50,7 +50,7 @@ class VMShutdown:
 
     def add_last_login_to_db(self, username: str) -> str:
         username = sanitize_input(username)
-        print(f'User {username} logged in. Adding them to the db.')
+        #print(f'User {username} logged in. Adding them to the db.')
         Thread(target=self.async_add_last_login_to_db, kwargs={"username": username}).start()
 
     def async_add_last_login_to_db(self, username: str):
@@ -67,17 +67,65 @@ class VMShutdown:
 
     def async_vm_shutdown(self):
         while True:
-            sleep(5) # 5 minutes
             connection, cursor = self.connect()
-            cursor.execute(f"SELECT * FROM last_login WHERE timestamp < %s", (add_time_to_current_str(hours=-1 * self.system_config['proxmox_nodes']['shutdown_timeout']),))
-            result = cursor.fetchall()
-            if len(result) == 0:
-                continue
-            connection.close()
 
-            for i in result:
-                power_off_vms_for_user(i[0])
-        
+            # Get cutoff time
+            cutoff_time = add_time_to_current_str(
+                hours=-1 * self.system_config['proxmox_nodes']['shutdown_timeout']
+            )
+
+            # Query only what we need: username + last login
+            cursor.execute("SELECT username, timestamp FROM last_login WHERE timestamp < %s", (cutoff_time,))
+            rows = cursor.fetchall()
+
+            # Build dict for quick lookup: {username: last_login_time}
+            last_logins = {row[0]: row[1] for row in rows}
+
+            vms_powered_on_too_long = []
+            for entry in get_status():
+                if (
+                    "id" in entry and
+                    "name" in entry and
+                    entry['status'] == 'running' and
+                    int(entry['id'].split('/')[1]) >= self.system_config['proxmox_nodes']['minimum_vmid'] and
+                    entry["name"].rsplit("-")[1] not in self.system_config['proxmox_nodes']['exlude_nodes_from_shutdown_endwith']
+                ):
+                    uptime_hours = entry['uptime'] / 3600
+                    timeout = self.system_config['proxmox_nodes']['shutdown_timeout']
+
+                    if uptime_hours > timeout + 1:
+                        cmd = "stop"
+                    elif uptime_hours > timeout:
+                        cmd = "shutdown"
+                    else:
+                        continue
+
+                    vms_powered_on_too_long.append({
+                        "name": entry['name'],
+                        "node": entry['node'],
+                        "vmid": entry['id'],
+                        "command": cmd,
+                    })
+
+            print(f'{vms_powered_on_too_long=}')
+
+            for vm in vms_powered_on_too_long:
+                username = vm['name'].rsplit('-')[0]
+
+                if username in last_logins:
+                    # Compare time difference
+                    delta_hours = compare_datetime_now(last_logins[username]).total_seconds() / 3600
+                    if delta_hours <= self.system_config['proxmox_nodes']['shutdown_timeout'] + self.system_config['proxmox_nodes']['stop_timeout']:
+                        vm['command'] = "shutdown"
+
+                    set_vm_power(vm['node'], vm['vmid'], vm['command'])
+                    print(f"Sending command {vm['command']} to {vm['name']} (ID {vm['vmid']}) on node {vm['node']}")
+
+            connection.commit()
+            connection.close()
+            sleep(600)  # Increase sleep to reduce DB load
+
+
 
 if __name__ == "__main__":
     # cursor.execute("DROP TABLE sessions;")

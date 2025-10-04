@@ -41,3 +41,10 @@ def convert_time_dt_str(time: datetime) -> str:
 
 def add_time_to_current_str(days:float=0.0, hours:float=0.0, minutes:float=0.0, seconds:float=0.0):
     return convert_time_dt_str(current_time_dt() + timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds))
+
+def compare_datetime(time_old: datetime, time_new: datetime) -> timedelta:
+    print(time_new - time_old)
+    return time_new - time_old
+
+def compare_datetime_now(time_old: datetime) -> timedelta:
+    return current_time_dt() - time_old 

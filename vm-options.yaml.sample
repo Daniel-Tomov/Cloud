@@ -16,7 +16,12 @@ proxmox_nodes:
   prod_nodes_contain: "prod" # ensures VMs are not put on development nodes
   user_group: "student" # role with permissions users should inherit for vms they have access to
   check_nodes: false # check access to node on every API request. Can slow down performance because 2x API requests.
-  shutdown_timeout: 48 # in hours
+  shutdown_timeout: 48 # in hours and 0 to disable
+  stop_timeout: 1 # time in hours after shutdown_timeout
+  minimum_vmid: 4000
+  exlude_nodes_from_shutdown_endwith:
+    - "admin"
+    - "dev"
 proxmox_webapp: # this is the proxmox webapp
   host: "https://ip or domain:5556" # location of the proxmox webapp. This is the app in the proxmox folder
   verifyssl: False
