@@ -42,7 +42,7 @@ class Proxmox:
                 )
 
     def register_endpoints(self):
-        @self.app.route("/web/get_vm_status", methods=["GET"])
+        @self.app.route(self.system_config['webapp_root'] + "get_vm_status", methods=["GET"])
         def get_vm_status():
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
@@ -63,7 +63,7 @@ class Proxmox:
                     self.proxmox_data_cache[r[vm]["ip"]] = r[vm]["tags"].split(";")
                     self.cache_db.set_vm_ip_map(r[vm]["ip"], r[vm]["tags"])
             return r
-        @self.app.route("/web/set_vm_power_state", methods=["POST"])
+        @self.app.route(self.system_config['webapp_root'] + "set_vm_power_state", methods=["POST"])
         def set_vm_power_state():
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
@@ -104,7 +104,7 @@ class Proxmox:
                 ).json()["result"]
             }
 
-        @self.app.route("/web/add_tag", methods=["POST"])
+        @self.app.route(self.system_config['webapp_root'] + "add_tag", methods=["POST"])
         def add_tag():
             if "id" not in session:
                 return {"logout": "id not in session"}
@@ -146,7 +146,7 @@ class Proxmox:
                 ).json()["result"]
             }
 
-        @self.app.route("/web/remove_tag", methods=["POST"])
+        @self.app.route(self.system_config['webapp_root'] + "remove_tag", methods=["POST"])
         def remove_tag():
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
@@ -184,7 +184,7 @@ class Proxmox:
                 ).json()["result"]
             }
 
-        @self.app.route("/web/create_vm", methods=["POST"])
+        @self.app.route(self.system_config['webapp_root'] + "create_vm", methods=["POST"])
         def create_vm():
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
@@ -219,7 +219,7 @@ class Proxmox:
            
             return {
                 "result": get(
-                    url=f"{self.PROXMOX_WEBAPP_HOST}/create_vm/{vm_type}/{username}/{password}",
+                    url=f"{self.PROXMOX_WEBAPP_HOST}/create_vm/{vm_type}/{username}/{password}/{realm}",
                     verify=self.PROXMOX_WEBAPP_verify_ssl,
                 ).json()["result"]
             }
