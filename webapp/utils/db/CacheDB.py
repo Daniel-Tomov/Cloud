@@ -48,7 +48,7 @@ class CacheDB:
         
         connection, cursor = self.connect()
         cursor.execute(
-            "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP, auth_type VARCHAR(16));"
+            "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP, auth_type VARCHAR(16), realm VARCHAR(16));"
         )
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS vm_ips (ip VARCHAR(16) UNIQUE, usernames VARCHAR(65535));"
@@ -60,21 +60,21 @@ class CacheDB:
         connection.commit()
         connection.close()
 
-    def add_session_to_db(self, username: str, auth_type: str) -> str:
+    def add_session_to_db(self, username: str, auth_type: str, realm: str) -> str:
         username = sanitize_input(username)
         
         id = urandom(16).hex()
-        self.sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt(), "auth_type": auth_type}
+        self.sessions_cache[id] = {"id": id, "username": username, "last_accessed": current_time_dt(), "auth_type": auth_type, "realm": realm}
 
-        Thread(target=self.async_add_session_to_db, kwargs={"username": username, "id": id, "auth_type": auth_type}).start()
+        Thread(target=self.async_add_session_to_db, kwargs={"username": username, "id": id, "auth_type": auth_type, "realm": realm}).start()
         
         return id
 
-    def async_add_session_to_db(self, username: str, id: str, auth_type: str):
+    def async_add_session_to_db(self, username: str, id: str, auth_type: str, realm:str):
         connection, cursor = self.connect()
         cursor.execute(
-            f"INSERT INTO sessions (username, id, last_accessed, auth_type) VALUES (%s, %s, %s, %s)",
-            (username, id, current_time_str(), auth_type)
+            f"INSERT INTO sessions (username, id, last_accessed, auth_type, realm) VALUES (%s, %s, %s, %s, %s)",
+            (username, id, current_time_str(), auth_type, realm)
         )
         connection.commit()
         connection.close()
@@ -85,7 +85,7 @@ class CacheDB:
         #print(self.sessions_cache)
         if id in self.sessions_cache and "username" in self.sessions_cache[id]:
             #print(f'found {id} in cache')
-            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"], self.sessions_cache[id]["auth_type"]]
+            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"], self.sessions_cache[id]["auth_type"], self.sessions_cache[id]["realm"]]
         #else:
             #print(f'Session {id} not found in cache, going to db')
         connection, cursor = self.connect()
@@ -95,7 +95,7 @@ class CacheDB:
         if len(result) == 0:
             return []
         result = result[0]
-        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3]}
+        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3], "auth_type": result[4]}
         connection.close()
         return result
 

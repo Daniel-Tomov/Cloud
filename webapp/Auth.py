@@ -96,10 +96,22 @@ class Auth:
 
         @self.app.route(self.system_config['webapp_root'] + "login", methods=["GET", "POST"])
         def login():
+            is_openid_only_enabled = True
+            count_openid = 0
             if request.method == "GET":
                 if "id" not in session or not self.check_session():
-                    r = self.return_login_page(page="login")
-                    r.set_cookie(self.session_cookie_name, "", expires=0)
+                    for auth_method in self.auth_methods:
+                        if auth_method.type != "openid":
+                            is_openid_only_enabled = False
+                        else:
+                            count_openid += 1
+                    if not is_openid_only_enabled or count_openid != 1:
+                        r = self.return_login_page(page="login")
+                        r.set_cookie(self.session_cookie_name, "", expires=0)
+                    else:
+                        for auth_method in self.auth_methods:
+                            if auth_method.type == "openid":
+                                r = redirect("https://" + request.host + f"{self.system_config['webapp_root']}openid/{auth_method.name}")
                     return r
                 return redirect(url_for("index"))
 
@@ -116,7 +128,7 @@ class Auth:
                     continue
                 if auth_method.authenticate_user(username=username, password=password):
                     print(f"authenticated {username} with {auth_method.type}")
-                    self.create_session(username=username, auth_type=auth_method.type)
+                    self.create_session(username=username, auth_type=auth_method.type, realm=auth_method.realm)
                     if auth_method.realm == "pve":
                         self.args.proxmox.create_user(realm=auth_method.realm, username=username, password=password)
                     else:
@@ -162,7 +174,7 @@ class Auth:
                     return redirect(url_for('login'))
 
                 username = user_info['preferred_username']
-                self.create_session(username=username, auth_type="openid")
+                self.create_session(username=username, auth_type="openid", realm=auth_method.realm)
                 self.args.proxmox.create_user(realm=auth_method.realm, username=username)
                 return redirect(url_for("index"))
             return redirect(url_for('login'))
@@ -242,8 +254,8 @@ class Auth:
         return self.compare_sessions(from_db[2], current_time_dt())
 
 
-    def create_session(self, username: str, auth_type):
-        session["id"] = self.cache_db.add_session_to_db(username=username, auth_type=auth_type)
+    def create_session(self, username: str, auth_type:str, realm: str):
+        session["id"] = self.cache_db.add_session_to_db(username=username, auth_type=auth_type, realm=realm)
 
 
     def invalidate_session(self, openid_logout_url=None):
