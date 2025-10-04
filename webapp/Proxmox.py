@@ -47,7 +47,7 @@ class Proxmox:
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
             
-            username = self.cache_db.get_session_from_db(session['id'])[0]
+            username = self.cache_db.get_session_from_db(session['id'])['username']
 
             try:
                 r = get(
@@ -96,7 +96,7 @@ class Proxmox:
             if "//" in vmid:
                 return {"result": "fail"}
             
-            username = self.cache_db.get_session_from_db(session["id"])[0]
+            username = self.cache_db.get_session_from_db(session["id"])['username']
             return {
                 "result": get(
                     url=f"{self.PROXMOX_WEBAPP_HOST}/set_vm_power_state/{username}/{node}/{vmid}/{power_value}",
@@ -133,7 +133,7 @@ class Proxmox:
                 return {"result": "fail"}
             
             
-            username = self.cache_db.get_session_from_db(session["id"])[0]
+            username = self.cache_db.get_session_from_db(session["id"])['username']
             username_to_add = sanitize_input(s=request.json["username"], allowed_characters="")
 
             vmid = sanitize_input(request.json["vmid"], "/")
@@ -171,7 +171,7 @@ class Proxmox:
             except Exception:
                 return {"result": "fail"}
             
-            username = self.cache_db.get_session_from_db(session["id"])[0]
+            username = self.cache_db.get_session_from_db(session["id"])['username']
             
             username_to_remove = sanitize_input(request.json["username"])
             vmid = sanitize_input(request.json["vmid"], "/")
@@ -189,7 +189,7 @@ class Proxmox:
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
 
-            username = self.cache_db.get_session_from_db(session["id"])[0]
+            username = self.cache_db.get_session_from_db(session["id"])['username']
             try:
                 if request.json == None:
                     return {"result": "fail"}
@@ -204,7 +204,7 @@ class Proxmox:
             except Exception:
                 return {"result": "fail"}
             
-            if vm_type == ""  or password == "" or vm_type not in self.system_config['vm-provision-options']:
+            if vm_type == ""  or (password == "" and "proxmox" in vm_type.lower()) or vm_type not in self.system_config['vm-provision-options']:
                 return {"result": "fail"}
             
             if len(password) > 500:
@@ -219,7 +219,7 @@ class Proxmox:
            
             return {
                 "result": get(
-                    url=f"{self.PROXMOX_WEBAPP_HOST}/create_vm/{vm_type}/{username}/{password}/{realm}",
+                    url=f"{self.PROXMOX_WEBAPP_HOST}/create_vm/{vm_type}/{username}/{password}",
                     verify=self.PROXMOX_WEBAPP_verify_ssl,
                 ).json()["result"]
             }

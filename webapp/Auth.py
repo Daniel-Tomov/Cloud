@@ -41,7 +41,7 @@ class Auth:
         if not ip_is_in_pve_net:
             return True
         
-        username = self.cache_db.get_session_from_db(session["id"])[0]
+        username = self.cache_db.get_session_from_db(session["id"])['username']
         
         if ip not in self.proxmox_data_cache:
             # need to check db
@@ -189,9 +189,9 @@ class Auth:
             if "id" not in session:
                 return self.invalidate_session()
             from_db = self.cache_db.get_session_from_db(session["id"])
-            if from_db != [] and from_db[3] == "openid": # 3 is the openid bool in db
+            if from_db != {} and from_db['auth_type'] == "openid":
                 for auth_method in self.auth_methods:
-                    if auth_method.type == "openid":
+                    if auth_method.type == "openid" and auth_method.realm == from_db['realm']:
                         return self.invalidate_session(auth_method.logout_url)
             return self.invalidate_session()
 
@@ -251,7 +251,7 @@ class Auth:
         from_db = self.cache_db.get_session_from_db(session["id"])
         if len(from_db) == 0:
             return False 
-        return self.compare_sessions(from_db[2], current_time_dt())
+        return self.compare_sessions(from_db['last_accessed'], current_time_dt())
 
 
     def create_session(self, username: str, auth_type:str, realm: str):

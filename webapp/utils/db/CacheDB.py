@@ -85,7 +85,7 @@ class CacheDB:
         #print(self.sessions_cache)
         if id in self.sessions_cache and "username" in self.sessions_cache[id]:
             #print(f'found {id} in cache')
-            return [self.sessions_cache[id]["username"], self.sessions_cache[id]["id"], self.sessions_cache[id]["last_accessed"], self.sessions_cache[id]["auth_type"], self.sessions_cache[id]["realm"]]
+            return {'username': self.sessions_cache[id]["username"], 'id': self.sessions_cache[id]["id"], 'last_accessed': self.sessions_cache[id]["last_accessed"], 'auth_type': self.sessions_cache[id]["auth_type"], 'realm': self.sessions_cache[id]["realm"]}
         #else:
             #print(f'Session {id} not found in cache, going to db')
         connection, cursor = self.connect()
@@ -95,9 +95,9 @@ class CacheDB:
         if len(result) == 0:
             return []
         result = result[0]
-        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3], "auth_type": result[4]}
+        self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3], "realm": result[4]}
         connection.close()
-        return result
+        return  {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3], "realm": result[4]}
 
 
     def update_session_in_db(self, id: str):
