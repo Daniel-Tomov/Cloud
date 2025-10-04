@@ -15,9 +15,11 @@ from proxmox import (
     QueueEntry,
     vm_creation_queue,
     does_have_personal_vm_created,
-    send_first_boot_get
+    send_first_boot_get,
+    set_vm_power
 )
 from utils import system_config
+from VMShutdown import VMShutdown
 
 class Main:
     def __init__(self):
@@ -46,6 +48,7 @@ class Main:
         )
 
         self.register_endpoints()
+        self.vmshutdown = VMShutdown(system_config)
         #self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False, ssl_context='adhoc') # development server
 
     def start_app(self):
@@ -74,6 +77,7 @@ class Main:
 
         @self.app.route("/get_vm_status/<string:user>", methods=["GET"])
         def get_vm_status(user: str):
+            self.vmshutdown.add_last_login_to_db(user)
             return get_user_vms(user)
 
         @self.app.route("/create_user/<string:realm>/<string:username>/<string:password>")
@@ -89,7 +93,6 @@ class Main:
             #users = get_endpoint(endpoint="/api2/json/access/users")
             data = {"userid": f'{username}@{realm}', "groups": "", "expire": 0, "enable": 1, "firstname": "" ,"lastname": "", "email": "", "comment": "", "keys": ""} # userid=test%40pve&password=password&groups=4002&expire=0&enable=1&firstname=first&lastname=last&email=&comment=&keys=
             create_user = post_endpoint(endpoint="/api2/extjs/access/users", data=data)
-            print(create_user)
             
             return ""
         
@@ -105,11 +108,8 @@ class Main:
             name, tags = does_user_own_vm(username=username, vmid=vmid)
             if name == "" or tags == "":
                 return {"result": "you don't own this vm"}
-
-            endpoint = f"/api2/json/nodes/{node}/{vmid}/status/{power_value}"
-            #print(endpoint)
-            data = {}
-            post_endpoint(endpoint=endpoint, data=data)
+            set_vm_power(node=node, vmid=vmid, power_value=power_value)
+            
             return {"result": "success"}
 
         @self.app.route(

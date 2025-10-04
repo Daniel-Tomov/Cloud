@@ -1,5 +1,5 @@
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from yaml import safe_load
 import string
 
@@ -38,3 +38,6 @@ def convert_time_str_dt(time: str) -> datetime:
 
 def convert_time_dt_str(time: datetime) -> str:
     return time.strftime(date_format)
+
+def add_time_to_current_str(days:float=0.0, hours:float=0.0, minutes:float=0.0, seconds:float=0.0):
+    return convert_time_dt_str(current_time_dt() + timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds))

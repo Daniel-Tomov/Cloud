@@ -45,7 +45,7 @@ def get_api_node():
        
     nodes = system_config['proxmox_nodes']['nodes']
     
-    if not system_config['proxmox_nodes']['node_random_select']:
+    if not system_config['proxmox_nodes']['check_nodes']:
         return choice(nodes)
     
     while len(nodes) != 0:
@@ -261,6 +261,12 @@ def get_user_vms(username: str) -> dict:
     # print(returnDict)
     return returnDict
 
+def power_off_vms_for_user(username:str):
+    for entry in range(0, len(status)):
+        #print(status[entry])
+        if "id" in status[entry] and "name" in status[entry] and username == status[entry]["name"].rsplit("-", 1)[0] and "admin" not in status[entry]["name"]:
+            print(f"Powering off {status[entry]["name"]} with ID {status[entry]['id']} on node{status[entry]['node']}")
+            set_vm_power(status[entry]['node'], status[entry]['id'].split('/')[1], 'shutdown')
 
 def get_interface_ip(node: str, vmid: str) -> str:
     endpoint = f"/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces"
@@ -358,7 +364,11 @@ def does_user_own_vm(
     return "", ""
 
 
-
+def set_vm_power(node: str, vmid: str, power_value: str) -> str:
+    endpoint = f"/api2/json/nodes/{node}/{vmid}/status/{power_value}"
+    #print(endpoint)
+    data = {}
+    post_endpoint(endpoint=endpoint, data=data)
 
 if system_config['proxmox_nodes']['authentication_type'] == "credentials":
     headers = {"CSRFPreventionToken": "", "Cookie": "PVEAuthCookie="}

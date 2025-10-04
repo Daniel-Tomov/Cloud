@@ -25,7 +25,7 @@ if 'proxmox_nodes' in system_config:
     else:
         errors += "Could not load proxmox_nodes.authentication_type.\n"
 
-    keys = ['verify_ssl', 'nodes', 'prod_nodes_contain', 'user_group', 'check_node']
+    keys = ['verify_ssl', 'nodes', 'prod_nodes_contain', 'user_group', 'check_nodes', 'shutdown_timeout']
     for k in keys:
         if k not in system_config['proxmox_nodes']:
             errors += f"Could not load proxmox_nodes.{k}\n"
