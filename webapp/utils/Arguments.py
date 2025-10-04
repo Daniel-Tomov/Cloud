@@ -11,8 +11,7 @@ class Arguments:
     def __init__(self, app: Flask):
         self.app = app
         self.proxmox_data_cache = {}
-        with open('../../vm-options.yaml', 'r') as config:
-            self.system_config = safe_load(config)
+        self.system_config = system_config
 
         self.auth_methods = []
         for authentication_method in self.system_config['authentication']:
@@ -32,3 +31,5 @@ class Arguments:
         self.auth = Auth(args=self)
         self.proxmox = Proxmox(args=self)
 
+with open('../../vm-options.yaml', 'r') as config:
+    system_config = safe_load(config)

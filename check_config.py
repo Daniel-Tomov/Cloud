@@ -10,7 +10,7 @@ if not system_config:
 
 errors = ""
 
-keys = ['FLASK_SECRET_KEY', 'PYTHONWARNINGS', 'session_length', 'session_cookie_name']
+keys = ['FLASK_SECRET_KEY', 'PYTHONWARNINGS', 'session_length', 'session_cookie_name', 'webapp_root']
 for k in keys:
     if k not in system_config:
         errors += f"Could not load {k}\n"

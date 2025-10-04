@@ -68,7 +68,7 @@ class Auth:
         )
     
     def register_routes(self):
-        @self.app.route("/web/register", methods=["GET", "POST"])
+        @self.app.route(self.system_config['webapp_root'] + "register", methods=["GET", "POST"])
         def register():
             if request.method == "GET":
                 if "id" not in session or not self.check_session():
@@ -94,7 +94,7 @@ class Auth:
         
             return redirect(url_for("login"))
 
-        @self.app.route("/web/login", methods=["GET", "POST"])
+        @self.app.route(self.system_config['webapp_root'] + "login", methods=["GET", "POST"])
         def login():
             if request.method == "GET":
                 if "id" not in session or not self.check_session():
@@ -128,14 +128,14 @@ class Auth:
             r.set_cookie(self.session_cookie_name, "", expires=0)
             return r
 
-        @self.app.route("/web/openid/<string:name>")
+        @self.app.route(self.system_config['webapp_root'] + "openid/<string:name>")
         def openid_login(name: str):
             for auth_method in self.auth_methods:
                 if auth_method.type != "openid":
                     continue
                 if auth_method.name != name:
                     continue
-                redirect_uri = "https://" + request.host + f"/web/openid/{name}/auth"
+                redirect_uri = "https://" + request.host + f"{self.system_config['webapp_root']}openid/{name}/auth"
                 nonce = urandom(16).hex()
                 session["openid_nonce"] = nonce
                 return auth_method.oauth.openid.authorize_redirect(
@@ -144,7 +144,7 @@ class Auth:
                 )
             return self.invalidate_session()
         
-        @self.app.route("/web/openid/<string:name>/auth")
+        @self.app.route(self.system_config['webapp_root'] + "openid/<string:name>/auth")
         def openid_auth(name: str):
             for auth_method in self.auth_methods:
                 if not isinstance(auth_method, AuthOpenID):
@@ -167,12 +167,12 @@ class Auth:
                 return redirect(url_for("index"))
             return redirect(url_for('login'))
         
-        @self.app.route("/web/update_session", methods=["GET"])
+        @self.app.route(self.system_config['webapp_root'] + "update_session", methods=["GET"])
         def update_session_route():
             self.cache_db.update_session_in_db(session['id'])
             return "done"
 
-        @self.app.route("/web/logout")
+        @self.app.route(self.system_config['webapp_root'] + "logout")
         def logout():
             if "id" not in session:
                 return self.invalidate_session()
