@@ -31,7 +31,7 @@ class CacheDB:
 
         self.create_tables()
 
-        Thread(target=self.async_session_prune).start()
+        #Thread(target=self.async_session_prune).start()
 
     def connect(self):
         connection = psycopg2.connect(
