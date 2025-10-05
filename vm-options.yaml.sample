@@ -173,7 +173,7 @@ vm-provision-options:
     enabled: false
     option: ubuntu
     name: Ubuntu
-    input_label: "Password: "
+    input_label: "" # can be empty to remove the field
     description: "One Ubuntu with the following: <br>4 cores, 4 gb of ram, 32 gb of storage <br>Running Ubuntu 24.04.2 LTS."
     cores: 4
     cpu: "host"

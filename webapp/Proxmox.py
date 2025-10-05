@@ -204,8 +204,10 @@ class Proxmox:
             except Exception:
                 return {"result": "fail"}
             
-            if vm_type == ""  or (password == "" and "proxmox" in vm_type.lower()) or vm_type not in self.system_config['vm-provision-options']:
+            if vm_type == ""  or vm_type not in self.system_config['vm-provision-options'] or (password == "" and self.system_config['vm-provision-options'][vm_type]['input_label'] != ""):
                 return {"result": "fail"}
+            elif self.system_config['vm-provision-options'][vm_type]['input_label'] != "":
+                password = "password"
             
             if len(password) > 500:
                 return {"result": "longer than 500 characters"}

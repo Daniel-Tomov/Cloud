@@ -289,7 +289,13 @@ async function send_power_value(vmid, value, node) {
 }
 
 async function create_vm(id) {
-    var password = document.getElementById(id+"-password").value;
+    var password = "";
+
+    try {
+        password = document.getElementById(id+"-password").value;
+    } catch (error) {
+        
+    }
 
     await fetch("/web/create_vm", {
         method: "POST",
@@ -304,7 +310,7 @@ async function create_vm(id) {
         // Await the json response
         response.json().then(data => {
             console.log(data); // Log the response data
-            alert(JSON.stringify(data)); // Alert the response data as a string
+            alert(data["result"]); // Alert the response data as a string
         });
 
         // Check if the response is OK
@@ -407,6 +413,15 @@ document.getElementById('vms_container').addEventListener('click', function (eve
         }
         paused = true;
     }
+});
+
+document.getElementById("open-page").addEventListener('click', function (event) {
+    var id = event.target.getAttribute("id");
+    var protocol = document.getElementById(id + "-protocol").value;
+    var ip = document.getElementById(id + "-ip").value;
+    var port = document.getElementById(id + "-port").value;
+    //console.log("/?protocol=" + protocol + "&ip=" + ip + "&port=" + port);
+    window.open("/web/open/" + protocol + "/" + ip + "/" + port, "Lab", "width=1500,height=900");
 });
 
 document.getElementById("provision-options").addEventListener("change", function (event) {

@@ -11,8 +11,10 @@
     <div class="provision-option shown" id="{{ vm_provision_options.keys() | list | first }}">
         <h3>{{ (vm_provision_options.values() | list | first)['name'] }}</h3>
         <p>{{ (vm_provision_options.values() | list | first)['description'] | safe }}</p>
+        {% if (vm_provision_options.values() | list | first)['input_label'] != "" %}
         <label for="{{ vm_provision_options.keys() | list | first }}-password">{{ (vm_provision_options.values() | list | first)['input_label'] }}</label>
         <input class="full-width" type="text" id="{{ vm_provision_options.keys() | list | first }}-password" name="{{ vm_provision_options.keys() | list | first }}-password">
+        {% endif %}
         <button onclick="create_vm('{{ vm_provision_options.keys() | list | first }}')">Create VM</button>
     </div>
 
@@ -21,8 +23,10 @@
         <div class="provision-option hidden" id="{{ option }}">
             <h3>{{ vm_provision_options[option]['name'] }}</h3>
             <p>{{ vm_provision_options[option]['description'] | safe }}</p>
+            {% if vm_provision_options[option]['input_label'] != "" %}
             <label for="{{ option }}-password">{{ vm_provision_options[option]['input_label'] }}</label>
             <input class="full-width" type="text" id="{{ option }}-password" name="{{ option }}-password">
+            {% endif %}
             <button onclick="create_vm('{{ option }}')">Create VM</button>
         </div>
         {% endif %}
