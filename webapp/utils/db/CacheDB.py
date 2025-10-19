@@ -45,7 +45,8 @@ class CacheDB:
         return connection, connection.cursor()
 
     def create_tables(self):
-        
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS sessions (username VARCHAR(16), id VARCHAR(32), last_accessed TIMESTAMP, auth_type VARCHAR(16), realm VARCHAR(16));"
@@ -71,6 +72,8 @@ class CacheDB:
         return id
 
     def async_add_session_to_db(self, username: str, id: str, auth_type: str, realm:str):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(
             f"INSERT INTO sessions (username, id, last_accessed, auth_type, realm) VALUES (%s, %s, %s, %s, %s)",
@@ -88,6 +91,8 @@ class CacheDB:
             return {'username': self.sessions_cache[id]["username"], 'id': self.sessions_cache[id]["id"], 'last_accessed': self.sessions_cache[id]["last_accessed"], 'auth_type': self.sessions_cache[id]["auth_type"], 'realm': self.sessions_cache[id]["realm"]}
         #else:
             #print(f'Session {id} not found in cache, going to db')
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(f"SELECT * FROM sessions WHERE id = %s", (id,))
         result = cursor.fetchall()
@@ -108,6 +113,8 @@ class CacheDB:
         #print("after update session thread")
 
     def async_update_session_in_db(self, id: str):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(
             f"UPDATE sessions SET last_accessed = %s WHERE id = %s", (current_time_str(), id)
@@ -124,12 +131,16 @@ class CacheDB:
         
 
     def async_remove_session_from_db(self, id: str):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(f"DELETE FROM sessions WHERE id = %s", (id,))
         connection.commit()
         connection.close()
 
     def check_ip(self, username: str, ip: str) -> bool:
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(f"SELECT * FROM vm_ips WHERE ip = %s", (ip,))
         result = cursor.fetchall()
@@ -147,6 +158,8 @@ class CacheDB:
         
 
     def async_set_vm_ip_map(self, ip: str, usernames: str):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(f"""
             INSERT INTO vm_ips (ip, usernames) 
@@ -165,6 +178,8 @@ class CacheDB:
         
 
     def async_add_request_to_db(self, username: str, description: str):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(
             f"INSERT INTO vm_requests (username, description) VALUES (%s, %s)",
@@ -184,9 +199,8 @@ class CacheDB:
 
 
     def async_session_prune(self):
-        global status
         while True:
-            status = self.session_prune()
+            self.session_prune()
             sleep(
                 (self.session_length / 2) * 60
             )  # remove expired sessions every session_length / 2 minutes

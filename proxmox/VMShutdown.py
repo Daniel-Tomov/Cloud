@@ -40,6 +40,8 @@ class VMShutdown:
         return connection, connection.cursor()
 
     def create_tables(self):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS last_login (username VARCHAR(16) UNIQUE, timestamp TIMESTAMP);"
@@ -54,6 +56,8 @@ class VMShutdown:
         Thread(target=self.async_add_last_login_to_db, kwargs={"username": username}).start()
 
     def async_add_last_login_to_db(self, username: str):
+        if self.host == "":
+            return
         connection, cursor = self.connect()
         cursor.execute(f"""
             INSERT INTO last_login (username, timestamp) 
@@ -66,6 +70,8 @@ class VMShutdown:
         # cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
 
     def async_vm_shutdown(self):
+        if self.host == "":
+            return
         while True:
             connection, cursor = self.connect()
 
@@ -77,6 +83,8 @@ class VMShutdown:
             # Query only what we need: username + last login
             cursor.execute("SELECT username, timestamp FROM last_login WHERE timestamp < %s", (cutoff_time,))
             rows = cursor.fetchall()
+            connection.commit()
+            connection.close()
 
             # Build dict for quick lookup: {username: last_login_time}
             last_logins = {row[0]: row[1] for row in rows}
@@ -121,8 +129,7 @@ class VMShutdown:
                     set_vm_power(vm['node'], vm['vmid'], vm['command'])
                     print(f"Sending command {vm['command']} to {vm['name']} (ID {vm['vmid']}) on node {vm['node']}")
 
-            connection.commit()
-            connection.close()
+
             sleep(600)  # Increase sleep to reduce DB load
 
 

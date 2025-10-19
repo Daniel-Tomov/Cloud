@@ -249,7 +249,7 @@ class Auth:
 
     def check_session(self) -> bool:
         from_db = self.cache_db.get_session_from_db(session["id"])
-        if len(from_db) == 0:
+        if from_db == None or len(from_db) == 0:
             return False 
         return self.compare_sessions(from_db['last_accessed'], current_time_dt())
 
