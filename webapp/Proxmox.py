@@ -206,7 +206,7 @@ class Proxmox:
             
             if vm_type == ""  or vm_type not in self.system_config['vm-provision-options'] or (password == "" and self.system_config['vm-provision-options'][vm_type]['input_label'] != ""):
                 return {"result": "fail"}
-            elif self.system_config['vm-provision-options'][vm_type]['input_label'] != "":
+            elif self.system_config['vm-provision-options'][vm_type]['input_label'] == "":
                 password = "password"
             
             if len(password) > 500:
@@ -218,7 +218,7 @@ class Proxmox:
                 print(password)
                 self.cache_db.add_request_to_db(username, password)
                 return {"result": "You will be contacted when your VM is created or if we have further questions."}
-           
+
             return {
                 "result": get(
                     url=f"{self.PROXMOX_WEBAPP_HOST}/create_vm/{vm_type}/{username}/{password}",
