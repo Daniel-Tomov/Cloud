@@ -103,10 +103,13 @@ class Main:
         def open_service(requesed_service):
             for service in self.system_config['services']:
                 if service['id'] == requesed_service:
-                    r = redirect(service['url']) # make_response(render_template("redirect.html", url=service['url']))
-                    r.set_cookie("protocol", service['protocol'])
-                    r.set_cookie("ip", choice(service['ips']))
-                    r.set_cookie("port", service['port'])
+                    r = redirect(service['url'])
+                    if service['protocol'] != "":
+                        r.set_cookie("protocol", service['protocol'])
+                    if service['ips'][0] !=  '':
+                        r.set_cookie("ip", choice(service['ips']))
+                    if service['port'] != "":
+                        r.set_cookie("port", service['port'])
                     #print(f"opening {requesed_service}")
                     return r
                 
