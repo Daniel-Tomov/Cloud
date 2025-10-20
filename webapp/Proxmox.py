@@ -67,7 +67,6 @@ class Proxmox:
         def set_vm_power_state():
             if "id" not in session or not self.auth.check_session():
                 return {"logout": True}
-            data = request.json
             try:
                 if request.json == None:
                     return {"result": "fail"}
@@ -89,9 +88,9 @@ class Proxmox:
                 return {"result": "fail"}
             
 
-            node = sanitize_input(data["node"], "-")
-            vmid = sanitize_input(data["vmid"], "/")
-            power_value = sanitize_input(data["power_value"])
+            node = sanitize_input(request.json["node"], "-")
+            vmid = sanitize_input(request.json["vmid"], "/")
+            power_value = sanitize_input(request.json["power_value"])
 
             if "//" in vmid:
                 return {"result": "fail"}
