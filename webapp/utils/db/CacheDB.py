@@ -84,7 +84,7 @@ class CacheDB:
         # cursor.execute(f"SELECT * FROM sessions WHERE id = '{id}';")
         
 
-    def get_session_from_db(self, id: str) -> list:
+    def get_session_from_db(self, id: str) -> dict:
         #print(self.sessions_cache)
         if id in self.sessions_cache and "username" in self.sessions_cache[id]:
             #print(f'found {id} in cache')
@@ -92,13 +92,13 @@ class CacheDB:
         #else:
             #print(f'Session {id} not found in cache, going to db')
         if self.host == "":
-            return
+            return {}
         connection, cursor = self.connect()
         cursor.execute(f"SELECT * FROM sessions WHERE id = %s", (id,))
         result = cursor.fetchall()
         #print(result)
         if len(result) == 0:
-            return []
+            return {}
         result = result[0]
         self.sessions_cache[id] = {"id": result[1], "username": result[0], "last_accessed": result[2], "auth_type": result[3], "realm": result[4]}
         connection.close()
@@ -140,7 +140,7 @@ class CacheDB:
 
     def check_ip(self, username: str, ip: str) -> bool:
         if self.host == "":
-            return
+            return True
         connection, cursor = self.connect()
         cursor.execute(f"SELECT * FROM vm_ips WHERE ip = %s", (ip,))
         result = cursor.fetchall()
@@ -150,7 +150,7 @@ class CacheDB:
         #print(f"found {result} result in db for vm ip cache for ip {ip}")
         result = result[0]
         connection.close()
-        return username in result[1]
+        return username in result[1].split(";")
 
 
     def set_vm_ip_map(self, ip: str, usernames: str):
@@ -171,7 +171,7 @@ class CacheDB:
         connection.commit()
         connection.close()
 
-    def add_request_to_db(self, username: str, description: str) -> str:
+    def add_request_to_db(self, username: str, description: str):
         username = sanitize_input(username)
         description = sanitize_input(description, ",. ")
         Thread(target=self.async_add_request_to_db, kwargs={"username": username, "description": description}).start()

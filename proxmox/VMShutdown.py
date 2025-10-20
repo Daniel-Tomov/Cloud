@@ -50,7 +50,7 @@ class VMShutdown:
         connection.commit()
         connection.close()
 
-    def add_last_login_to_db(self, username: str) -> str:
+    def add_last_login_to_db(self, username: str):
         username = sanitize_input(username)
         #print(f'User {username} logged in. Adding them to the db.')
         Thread(target=self.async_add_last_login_to_db, kwargs={"username": username}).start()
