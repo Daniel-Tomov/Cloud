@@ -140,7 +140,7 @@ class CacheDB:
 
     def check_ip(self, username: str, ip: str) -> bool:
         if self.host == "":
-            return True
+            return False
         connection, cursor = self.connect()
         cursor.execute(f"SELECT * FROM vm_ips WHERE ip = %s", (ip,))
         result = cursor.fetchall()
