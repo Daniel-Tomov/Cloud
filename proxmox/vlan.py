@@ -117,7 +117,10 @@ class VLAN:
     def async_remove_vlan(self, username, vlan):
         vlans = self.get_vlans(username).split(";")
         vlans.remove(vlan)
+        if "" in vlans:
+            vlans.remove("")
         vlans = ';'.join(vlans)
+        
         
         connection, cursor = self.connect()
         cursor.execute(
