@@ -20,6 +20,7 @@ from proxmox import (
 )
 from utils import system_config
 from VMShutdown import VMShutdown
+from vlan import VLAN
 
 class Main:
     def __init__(self):
@@ -49,6 +50,8 @@ class Main:
 
         self.register_endpoints()
         self.vmshutdown = VMShutdown(system_config)
+        if system_config['proxmox_nodes']['vlans']['enabled']:
+            VLAN(self.app, system_config)
         #self.app.run(host="0.0.0.0", port=5556, debug=False, use_reloader=False, ssl_context='adhoc') # development server
 
     def start_app(self):
@@ -105,7 +108,7 @@ class Main:
             username: str, node: str, vm_type: str, vmid: str, power_value: str
         ):
             vmid = f'{vm_type}/{vmid}'
-            name, tags = does_user_own_vm(username=username, vmid=vmid)
+            name, tags, node = does_user_own_vm(username=username, vmid=vmid)
             if name == "" or tags == "":
                 return {"result": "you don't own this vm"}
             set_vm_power(node=node, vmid=vmid, power_value=power_value)
@@ -120,7 +123,7 @@ class Main:
             username: str, node: str, vm_type: str, vmid: str, username_to_add: str
         ):
             vmid = f'{vm_type}/{vmid}'  # qemu/123 is passed to the request so need to recombine them
-            name, tags = does_user_own_vm(username=username, vmid=vmid)  # returns "" if the user does not own the vm
+            name, tags, node = does_user_own_vm(username=username, vmid=vmid)  # returns "" if the user does not own the vm
             if name == "":
                 return {"result": "You don't own this VM"}
 
@@ -153,9 +156,7 @@ class Main:
             username: str, node: str, vm_type: str, vmid: str, username_to_remove: str
         ):
             vmid = f'{vm_type}/{vmid}'  # qemu/123 is passed to the request so need to recombine them
-            name, tags = does_user_own_vm(
-                username=username, vmid=vmid
-            )  # returns "" if the user does not own the vm
+            name, tags, node = does_user_own_vm(username=username, vmid=vmid)  # returns "" if the user does not own the vm
             if name == "":
                 return {"result": "You don't own this VM"}
 

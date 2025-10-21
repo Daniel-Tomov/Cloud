@@ -1,9 +1,10 @@
-from requests import get
+from requests import get, post
 from os import getenv
 from flask import (
     Flask,
     session,
     request,
+    render_template
 )
 from json import loads
 from utils.utils import sanitize_input
@@ -225,6 +226,32 @@ class Proxmox:
                 ).json()["result"]
             }
             
+        @self.app.route(self.system_config['webapp_root'] + "vlan", methods=["GET", "POST"])
+        def vlan():
+            if "id" not in session or not self.auth.check_session():
+                return self.auth.invalidate_session()
+
+            username = self.cache_db.get_session_from_db(session["id"])['username']
+            if request.method == "GET":
+                print()
+                return render_template("vlan.html", user_vlans=self.cache_db.get_vlans(username))# , info=get(url=f"{self.PROXMOX_WEBAPP_HOST}/vlan/{username}/{vmid}", verify=self.PROXMOX_WEBAPP_verify_ssl).json()['result'])
+            elif request.method == "POST":
+                if 'vmid' not in request.json:
+                    return {'result': 'fail'}
+                vmid = request.json['vmid']
+                if vmid == "":
+                    return {"result": "empty"}
+                if 'data' not in request.json:
+                    return get(
+                            url=f"{self.PROXMOX_WEBAPP_HOST}/vlan/{username}/{vmid}",
+                            verify=self.PROXMOX_WEBAPP_verify_ssl,
+                        ).json()
+                return post(
+                        url=f"{self.PROXMOX_WEBAPP_HOST}/vlan/{username}/{vmid}",
+                        verify=self.PROXMOX_WEBAPP_verify_ssl,
+                        json=request.json
+                    ).json()
+            return ""
         
 
 if __name__ == "__main__":

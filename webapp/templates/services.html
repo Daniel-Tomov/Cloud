@@ -1,6 +1,6 @@
 <h1>Other pages:</h1>
 {% for service in services %}
     {% if service['enabled'] %}
-        <a target="_blank" href="/web/open/{{ service['id'] }}">{{ service['name'] }}</a>
+        <a class="services" target="_blank" href="/web/open/{{ service['id'] }}">{{ service['name'] }}</a>
     {% endif %}
 {% endfor %}

@@ -102,6 +102,10 @@ td:has(> progress) {
     margin: 0 0 0 50px;
 }
 
+.services {
+    margin: 0 1%;
+}
+
 .hidden {
     display: none;
 }

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>VLAN Page</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/static.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}"/>
+    </head>
+    <body>
+        <label for="vmid-field">VMID: </label>
+        <input id="vmid-field">
+        <button id="get-data-button">Get VM network data</button>
+        <div id="vm-network-box"></div>
+        <br>
+        <p>Your VLANs (maximum of 10):  {{ user_vlans }} </p>
+    </body>
+    <script defer src="{{ url_for('static', filename='js/vlan.js') }}"></script>
+</html>

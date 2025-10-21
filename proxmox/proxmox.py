@@ -263,19 +263,17 @@ def get_user_vms(username: str) -> dict:
 
 def get_interface_ip(node: str, vmid: str) -> str:
     endpoint = f"/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces"
+    able_to_get_endpoint = False
     for _ in range(0, 3):
-        able_to_get_endpoint = False
         try:
             r = get_endpoint(endpoint=endpoint)
             sleep(0.1)
-            able_to_get_endpoint = True
+            break
         except:
             pass
-        if able_to_get_endpoint:
-            break
-
-    if r == None:
+    if not able_to_get_endpoint:
         return ""
+    
     r = r["result"]
     for interface in r:
         if interface["name"] == "vmbr0":
@@ -350,14 +348,16 @@ def send_first_boot_get():
 
 def does_user_own_vm(
     vmid: str, username: str
-) -> str:  # returns the vm name if the user owns it, otherwise ""
+) -> tuple:  # returns the vm name if the user owns it, otherwise ""
     for entry in range(0, len(status)):
-        if vmid == status[entry]["id"] and username == status[entry]["name"].rsplit("-", 1)[0]:
-            return status[entry]["name"], status[entry]["tags"]
-    return "", ""
+        if vmid == status[entry]["id"].split("/")[1] and username == status[entry]["name"].rsplit("-", 1)[0]:
+            return status[entry]["name"], status[entry]["tags"], status[entry]["node"]
+        elif vmid == status[entry]["id"].split("/")[1] and username in status[entry]["tags"].split(";"):
+            return "", status[entry]["tags"], status[entry]["node"]
+    return "", "", ""
 
 
-def set_vm_power(node: str, vmid: str, power_value: str) -> str:
+def set_vm_power(node: str, vmid: str, power_value: str):
     endpoint = f"/api2/json/nodes/{node}/{vmid}/status/{power_value}"
     #print(endpoint)
     data = {}

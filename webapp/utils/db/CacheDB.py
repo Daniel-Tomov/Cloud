@@ -205,7 +205,19 @@ class CacheDB:
                 (self.session_length / 2) * 60
             )  # remove expired sessions every session_length / 2 minutes
 
-
+    def get_vlans(self, username):
+        connection, cursor = self.connect()
+        cursor.execute(f"SELECT * FROM vlans WHERE username = %s", (username,))
+        result = cursor.fetchall()
+        
+        connection.commit()
+        connection.close()
+        if result == []:
+            return ""
+        if result == None:
+            return ""
+        return result[0][1]
+        
 if __name__ == "__main__":
     # cursor.execute("DROP TABLE sessions;")
     # connection.commit()
