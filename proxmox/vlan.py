@@ -76,12 +76,9 @@ class VLAN:
         if len(result) > 10 and vlan not in result:
             print("too many vlans")
             return False
-        print(result)
-        print(vlan in result)
         if vlan in result:
             return True
         result = self.get_vlans('available-vlans').split(";")
-        print(result)
         if vlan in result:
             self.add_vlan(username, vlan)
             self.remove_vlan('available-vlans', vlan)
@@ -136,7 +133,6 @@ class VLAN:
         @self.app.route("/vlan/<string:username>/<string:vmid>", methods=["GET", "POST"])
         def get_vmid_vlans(username:str, vmid: str) -> dict:
             name, tags, node = does_user_own_vm(vmid, username)
-            print(tags.split(";"))
             if username not in tags.split(";"):
                 return {"result": "You do not own this VM!"}
             r = get_endpoint(f"/api2/json/nodes/{node}/qemu/{vmid}/pending")
