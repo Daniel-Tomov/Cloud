@@ -44,7 +44,7 @@ if 'proxmox_nodes' in system_config:
                 errors += f"Could not load proxmox_nodes.{k}.enabled"
                 
             elif system_config['proxmox_nodes'][k]['enabled']:
-                for j in ['min', 'max', 'regex', 'special', 'allowed_bridges']:
+                for j in ['min', 'max', 'regex', 'special', 'vm_bridge']:
                     if j not in system_config['proxmox_nodes'][k]:
                         errors += f"Could not load proxmox_nodes.{k}.{j}"
         

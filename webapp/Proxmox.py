@@ -252,6 +252,27 @@ class Proxmox:
                     ).json()
             return ""
         
+        @self.app.route(self.system_config['webapp_root'] + "vlan/<string:add_or_remove>", methods=["POST"])
+        def modify_adapters(add_or_remove:str):
+            if "id" not in session or not self.auth.check_session():
+                return self.auth.invalidate_session()
+
+            if add_or_remove not in ["add", "remove"]:
+                return {'result': 'fail'}
+
+            username = self.cache_db.get_session_from_db(session["id"])['username']
+
+            if 'vmid' not in request.json:
+                return {'result': 'fail'}
+            vmid = request.json['vmid']
+
+
+            return post(
+                url=f"{self.PROXMOX_WEBAPP_HOST}/vlan/{username}/{vmid}/{add_or_remove}",
+                verify=self.PROXMOX_WEBAPP_verify_ssl,
+                json=request.json
+            ).json()
+        
 
 if __name__ == "__main__":
     """"""

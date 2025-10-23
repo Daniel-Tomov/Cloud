@@ -7,6 +7,7 @@ import re
 import psycopg2
 from proxmox import does_user_own_vm, get_api_node, get_endpoint, put_endpoint
 from threading import Thread
+from random import choice
 class VLAN:
     def __init__(self, app:Flask, system_config:dict) -> None:
         self.app = app
@@ -181,3 +182,44 @@ class VLAN:
                 return r
             return {'result': 'invalid'}
         
+        @self.app.route("/vlan/<string:username>/<string:vmid>/<string:add_or_remove>", methods=["GET", 'POST'])
+        def modify_adapters(username:str, vmid:str, add_or_remove:str):
+            name, tags, node = does_user_own_vm(vmid, username)
+            if username != name.rsplit("-")[0]:
+                return {"result": "You do not own this VM!"}
+            
+            #net3 = virtio,bridge=vmbr1,tag=1,firewall=1
+
+            if add_or_remove == 'add':
+                r = get_endpoint(f"/api2/json/nodes/{node}/qemu/{vmid}/pending")
+                digest = ""
+                for i in r:
+                    if i['key'] == "digest":
+                        digest = i['value']
+                    
+                if digest == "":
+                    return {'result': 'invalid'}
+                networks = []
+                for i in r:
+                    if 'net' in i['key']:
+                        networks.append(i['key'])
+                        
+                valid_net_id = 11
+                for i in range(0,10):
+                    if f'net{i}' not in networks:
+                        valid_net_id = i
+                        break
+                available_vlans = self.get_vlans(username).split(";")
+                if len(available_vlans) == 0:
+                    self.access_to_vlan(username, choice(self.get_vlans('available-vlans').split(";")))
+                    available_vlans = self.get_vlans(username).split(";")
+                
+                r = put_endpoint(f'/api2/extjs/nodes/{node}/qemu/{vmid}/config', data={'digest': digest, f'net{valid_net_id}': f"virtio,bridge={self.system_config['proxmox_nodes']['vlans']['vm_bridge']},tag={choice(available_vlans)},firewall=0"})
+                return r
+            elif add_or_remove == "remove":
+                r = put_endpoint(f"/api2/extjs/nodes/{node}/qemu/{vmid}/config", data=request.json)
+                return r
+            return {"result": "failed to add"}
+                
+                
+            # https://10.60.76.27:8006/api2/extjs/nodes/cybprodserv2-4/qemu/4007/config

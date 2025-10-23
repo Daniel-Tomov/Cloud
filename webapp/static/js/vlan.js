@@ -1,4 +1,8 @@
 document.getElementById('get-data-button').addEventListener('click', function (event) {
+    get_vlan_data();
+});
+
+function get_vlan_data(){
     const vmid = document.getElementById("vmid-field").value;
     console.log(vmid);
 
@@ -14,6 +18,7 @@ document.getElementById('get-data-button').addEventListener('click', function (e
     .then(response => {
         var table = document.createElement("table");
         table.setAttribute("style", "width: 100%");
+        table.id = "vlan-table";
         var row = document.createElement("tr");
 
         var cell = document.createElement("td");
@@ -25,6 +30,7 @@ document.getElementById('get-data-button').addEventListener('click', function (e
         cell = document.createElement("td");
         h2 = document.createElement("h2");
         h2.innerText = response['node'];
+        h2.id = "node";
         cell.appendChild(h2);
         row.appendChild(cell);
 
@@ -95,16 +101,69 @@ document.getElementById('get-data-button').addEventListener('click', function (e
             });
             cell.appendChild(button);
             row.appendChild(cell);
+
+            cell = document.createElement("td");
+            var button = document.createElement("button");
+            button.innerText = "Remove";
+            
+            button.addEventListener("click", function (event) {
+                
+                fetch("/web/vlan/remove", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        "vmid": vmid,
+                        "delete": key
+                    })
+                })
+                alert("Please wait while the page is updated");
+                sleep(10_000);
+                get_vlan_data();
+            });
+            cell.appendChild(button);
+            row.appendChild(cell);
             
             table.appendChild(row);
         }
+
+        row = document.createElement("tr"); 
+        cell = document.createElement("td");
+        var button = document.createElement("button");
+        button.innerText = "Add Network Adapter";
+        button.addEventListener("click", function (event) {
+            
+
+            fetch("/web/vlan/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "vmid": vmid,
+                })
+            })
+            
+            alert("Please wait while the page is updated");
+            sleep(10_000);
+            get_vlan_data();
+        });
+        cell.appendChild(button);
+        row.appendChild(cell);
+        table.appendChild(row);
+
         document.getElementById("vm-network-box").innerHTML = "";
         document.getElementById("vm-network-box").appendChild(table);
     })
     .catch(err => {
         console.error('Network error:', err);
     });
-});
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 
 function submit_vlan_data(netID) {
