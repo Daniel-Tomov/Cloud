@@ -106,7 +106,7 @@ function get_vlan_data(){
             var button = document.createElement("button");
             button.innerText = "Remove";
             
-            button.addEventListener("click", function (event) {
+            button.addEventListener("click", async function (event) {
                 
                 fetch("/web/vlan/remove", {
                     method: "POST",
@@ -119,7 +119,7 @@ function get_vlan_data(){
                     })
                 })
                 alert("Please wait while the page is updated");
-                sleep(10_000);
+                await sleep(10_000);
                 get_vlan_data();
             });
             cell.appendChild(button);
@@ -132,7 +132,7 @@ function get_vlan_data(){
         cell = document.createElement("td");
         var button = document.createElement("button");
         button.innerText = "Add Network Adapter";
-        button.addEventListener("click", function (event) {
+        button.addEventListener("click", async function (event) {
             
 
             fetch("/web/vlan/add", {
@@ -146,7 +146,7 @@ function get_vlan_data(){
             })
             
             alert("Please wait while the page is updated");
-            sleep(10_000);
+            await sleep(10_000);
             get_vlan_data();
         });
         cell.appendChild(button);
@@ -161,7 +161,7 @@ function get_vlan_data(){
     });
 }
 
-function sleep(ms) {
+async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
