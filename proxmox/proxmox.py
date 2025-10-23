@@ -77,22 +77,31 @@ def async_vm_creation():
             data = system_config['vm-provision-options'][qentry.vm_type]
             vm_data = {}
             vm_data['name'] = username + "-" + qentry.vm_type
-            vm_data['node'] = valid_node
-            vm_data['vmid'] = valid_id
-            vm_data['cores'] = data['cores']
-            vm_data['memory'] = data['memory']
-            vm_data['agent'] = data['agent']
-            vm_data['cpu'] = data['cpu']
+            
+            if "template" in data and data['template']:
+                vm_data['newid'] = valid_id
+                vm_data['pool'] = data['pool']
+                vm_data['target'] = valid_node
+                vm_data['full'] = data['full']
+                create_vm_from_template(vm_data, data['node'], data['vmid'])
+                Thread(target=add_tags_to_template, kwargs={"vm_data": vm_data, 'username': username}).start()
+            else:
+                vm_data['node'] = valid_node
+                vm_data['vmid'] = valid_id
+                vm_data['cores'] = data['cores']
+                vm_data['memory'] = data['memory']
+                vm_data['agent'] = data['agent']
+                vm_data['cpu'] = data['cpu']
 
-            for i in range(0, len(data['networks'])):
-                vm_data['net' + str(i)] = data['networks'][i]
+                for i in range(0, len(data['networks'])):
+                    vm_data['net' + str(i)] = data['networks'][i]
 
-            vm_data['scsi0'] = f"{data['storage_location']}:{data['storage']},iothread=on"
-            vm_data['start'] = data['start']
-            vm_data['ide2'] = f"{data['iso_location']}:iso/{data['iso']},media=cdrom"
-            vm_data['tags'] = username
-            vm_data['pool'] = data['pool']
-            create_vm(data=vm_data, node=valid_node, verifySSL=verify_ssl)  # Proxmox VM creation
+                vm_data['scsi0'] = f"{data['storage_location']}:{data['storage']},iothread=on"
+                vm_data['start'] = data['start']
+                vm_data['ide2'] = f"{data['iso_location']}:iso/{data['iso']},media=cdrom"
+                vm_data['tags'] = username
+                vm_data['pool'] = data['pool']
+                create_vm(data=vm_data, node=valid_node, verifySSL=verify_ssl)  # Proxmox VM creation
 
             #groups = get_endpoint(endpoint="/api2/json/access/groups")
             create_group = post_endpoint(endpoint="/api2/extjs/access/groups", data={"groupid": valid_id, "comment": ""}) 
@@ -102,17 +111,22 @@ def async_vm_creation():
             users = get_endpoint("/api2/json/access/users?full=1")
             for user in users:
                 if user['userid'].split("@")[0] == username:
+                    print(f"adding {user['userid']} to vm {valid_id} because equals username {username}")
                     groups = user['groups'].split(",")
                     groups.append(str(valid_id))
                     groups = ','.join(groups)
                     realm = user['userid'].split("@")[1]
-                    add_user_to_group = put_endpoint(endpoint=f"/api2/extjs/access/users/{username}@{realm}", data={"groups": groups}) 
+                    add_user_to_group = put_endpoint(endpoint=f"/api2/extjs/access/users/{user['userid']}", data={"groups": groups}) 
             
-            if data['needs_postinst'] == False:
+            if 'needs_postinst' not in data or data['needs_postinst'] == False:
                 ready_for_vm_creation = True
                 print("created vm, no need to wait for automatic vm creation, ready for vm creation again")
         sleep(10)
 
+def add_tags_to_template(vm_data: dict, username: str):
+    sleep(100)
+    r = put_endpoint(f"/api2/extjs/nodes/{vm_data['target']}/qemu/{vm_data['newid']}/config", {'tags': username})
+    print(r)
 
 def create_vm(data: dict, node: str, verifySSL: bool = verify_ssl) -> dict:
     endpoint = f"/api2/json/nodes/{node}/qemu"
@@ -121,6 +135,13 @@ def create_vm(data: dict, node: str, verifySSL: bool = verify_ssl) -> dict:
     data['sockets'] = 1
     return post_endpoint(endpoint=endpoint, data=data, verifySSL=verifySSL)
 
+def create_vm_from_template(data:dict, node: str, vmid: str) -> dict:
+    #  /api2/json/nodes/{node}/qemu/{vmid}/clone
+    # /api2/extjs/nodes/{node}/qemu/{vmid}/clone
+    endpoint = f"/api2/extjs/nodes/{node}/qemu/{vmid}/clone"
+    r = post_endpoint(endpoint, data, {"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8"})
+    
+    return r
 
 def recieve_postinst_ip():
     global qentry
@@ -148,15 +169,19 @@ def get_endpoint(endpoint:str, verifySSL:bool=verify_ssl) -> str:
 
 
 def post_endpoint(
-    endpoint: str, data: dict, verifySSL=verify_ssl
+    endpoint: str, data:dict, additional_headers={}, verifySSL=verify_ssl
 ) -> dict:
     ip = get_api_node()
     if ip == "":
         return {"result": "cannot connect to Proxmox"}
+    
+    post_headers = headers
+    for key in additional_headers:
+        post_headers[key] = additional_headers[key]
     r = post(
         url=f"https://{ip}:8006{endpoint}",
         data=data,
-        headers=headers,
+        headers=post_headers,
         verify=verifySSL,
     )
     r = r.json()["data"]
@@ -386,7 +411,9 @@ if __name__ == "__main__":
     """"""
     #print(create_fw())
     status = get_status()
-    print(status)
+    #print(status)
+    r = put_endpoint(f"/api2/extjs/nodes/cybprodserv4-5/qemu/4028/config", {'tags': 'dtomo001'})
+    print(r)
     exit(0)
     r = get_endpoint(endpoint="/api2/json/nodes/proxmox2/qemu/2001/config", headers=headers)
     #print(r)

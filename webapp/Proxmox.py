@@ -233,7 +233,6 @@ class Proxmox:
 
             username = self.cache_db.get_session_from_db(session["id"])['username']
             if request.method == "GET":
-                print()
                 return render_template("vlan.html", user_vlans=self.cache_db.get_vlans(username))# , info=get(url=f"{self.PROXMOX_WEBAPP_HOST}/vlan/{username}/{vmid}", verify=self.PROXMOX_WEBAPP_verify_ssl).json()['result'])
             elif request.method == "POST":
                 if 'vmid' not in request.json:

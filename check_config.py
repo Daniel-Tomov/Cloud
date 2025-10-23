@@ -1,7 +1,7 @@
 from yaml import safe_load
 
 
-with open('vm-options.yaml.sample', 'r') as config:
+with open('../vm-options.yaml', 'r') as config:
     system_config = safe_load(config)
 
 if not system_config:
@@ -25,7 +25,7 @@ if 'proxmox_nodes' in system_config:
     else:
         errors += "Could not load proxmox_nodes.authentication_type.\n"
 
-    keys = ['verify_ssl', 'nodes', 'prod_nodes_contain', 'user_group', 'check_nodes', 'shutdown_timeout', 'stop_timeout', 'minimum_vmid', 'exlude_nodes_from_shutdown_endwith']
+    keys = ['verify_ssl', 'nodes', 'prod_nodes_contain', 'user_group', 'check_nodes', 'shutdown_timeout', 'stop_timeout', 'minimum_vmid', 'exlude_nodes_from_shutdown_endwith', 'vlans']
     for k in keys:
         if k not in system_config['proxmox_nodes']:
             errors += f"Could not load proxmox_nodes.{k}\n"
@@ -39,7 +39,14 @@ if 'proxmox_nodes' in system_config:
             if not isinstance(system_config['proxmox_nodes'][k], int):
                 errors += f"proxmox_nodes.{k} is not int"
         
+        if k == 'vlans':
+            if 'enabled' not in system_config['proxmox_nodes'][k]:
+                errors += f"Could not load proxmox_nodes.{k}.enabled"
                 
+            elif system_config['proxmox_nodes'][k]['enabled']:
+                for j in ['min', 'max', 'regex', 'special', 'allowed_bridges']:
+                    if j not in system_config['proxmox_nodes'][k]:
+                        errors += f"Could not load proxmox_nodes.{k}.{j}"
         
 else:
     errors += "Could not load proxmox_nodes.\n"
@@ -132,6 +139,7 @@ else:
 
 #===============================================================================================================================
 keys = ['enabled', 'option', 'name', 'input_label', 'description', 'cores', 'cpu', 'memory', 'networks', 'iso', 'iso_location', 'storage', 'storage_location', 'bios', 'sockets', 'start', 'numa', 'agent', 'scsihw', 'balloon', 'pool', 'needs_postinst']
+template_keys = ['enabled', 'template', 'option', 'name', 'input_label', 'description', 'pool', 'vmid', 'node', 'full']
 proxmox_keys = ['lvm_max_root', 'proxmox_webapp_url', 'proxmox_webapp_fingerprint', 'images', 'user_vlan', 'provision_vlan']
 proxmox_images_keys = ['image_url', 'image_url_verifyssl', 'cores', 'cpu', 'memory', 'networks', 'iso', 'iso', 'storage', 'storage_location', 'start', 'bios', 'sockets', 'numa', 'scsihw', 'balloon']
 request_keys = ['enabled', 'option', 'name', 'input_label', 'description']
@@ -146,6 +154,12 @@ if 'vm-provision-options' in system_config:
             continue
         if option == 'request':
             for k in request_keys:
+                if k not in system_config['vm-provision-options'][option]:
+                    errors += f"Could not load vm-provision-options.{option}.{k}\n"
+                    continue
+            continue
+        if 'template' in system_config['vm-provision-options'][option]:
+            for k in template_keys:
                 if k not in system_config['vm-provision-options'][option]:
                     errors += f"Could not load vm-provision-options.{option}.{k}\n"
                     continue

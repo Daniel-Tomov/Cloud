@@ -211,7 +211,7 @@ class Auth:
             #print(request.headers)
             for service in self.SERVICES: # services that don't need login
                 if ip in service['ips'] and service['enabled'] and not service['needs_login'] and service['port'] == port and service['protocol'] == protocol:
-                    if service['allowed_referers'] == []: 
+                    if service['allowed_referers'] == [] or service['allowed_referers'] == None: 
                         return make_response("<h1>You aren't supposed to be here!</h1>", 200)
                     else:
                         #if "Referer" in request.headers:

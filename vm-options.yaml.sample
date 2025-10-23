@@ -193,6 +193,17 @@ vm-provision-options:
     pool: ""
     needs_postinst: False
     agent: 0
+  ubuntuserver:
+    enabled: true
+    template: true
+    option: ubuntuserver
+    name: Ubuntu Server
+    input_label: ""
+    description: "One Ubuntu Server with the following: <br>4 cores, 4 gb of ram, 32 gb of storage <br>Running Ubuntu Server 24.04.3 LTS."
+    pool: "Production"
+    vmid: "100" # id of the template
+    node: "pve1" # location of template
+    full: 1
   request:
     enabled: false
     option: request
