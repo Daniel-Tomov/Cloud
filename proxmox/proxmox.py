@@ -51,7 +51,7 @@ def get_api_node():
     while len(nodes) != 0:
         selected_node = choice(nodes)
         try:
-            response = get(url=f'https://{selected_node}:8006/api2/json/version', headers=headers, verify=system_config['proxmox_nodes']['verify_ssl'])
+            response = get(url=f"https://{selected_node}:8006/api2/json/version", headers=headers, verify=system_config['proxmox_nodes']['verify_ssl'])
             if response.status_code == 200:
                 #API node send's a response, use it
                 return selected_node
@@ -340,30 +340,30 @@ def send_first_boot_get():
     vm_id = 100
     for image in system_config['vm-provision-options']['proxmox']['images']:
         data = system_config['vm-provision-options']['proxmox']['images'][image]
-        vm_string += f'wget {data['image_url']} '
+        vm_string += f"wget {data['image_url']} "
         if not data['image_url_verifyssl']:
             vm_string += "--no-check-certificate"
         vm_string += "\n"
 
-        vm_string += f'qm create {vm_id} '
-        vm_string += f'--cdrom {data['iso_location']}:iso/{data['iso']} '
-        vm_string += f'--name {image} '
-        vm_string += f'--numa {data['numa']} '
-        vm_string += f'--ostype l26 '
-        vm_string += f'--cpu cputype={data['cpu']} '
-        vm_string += f'--cores {data['cores']} '
-        vm_string += f'--memory {data['memory']} '
+        vm_string += f"qm create {vm_id} "
+        vm_string += f"--cdrom {data['iso_location']}:iso/{data['iso']} "
+        vm_string += f"--name {image} "
+        vm_string += f"--numa {data['numa']} "
+        vm_string += f"--ostype l26 "
+        vm_string += f"--cpu cputype={data['cpu']} "
+        vm_string += f"--cores {data['cores']} "
+        vm_string += f"--memory {data['memory']} "
 
         network_num=0
         for net in data['networks']:
-            vm_string += f'--net{network_num} {net} '
+            vm_string += f"--net{network_num} {net} "
             network_num += 1
-        #vm_string += f'--bootdisk scsi0,ide0 '
-        vm_string += f'--scsihw virtio-scsi-pci '
-        vm_string += f'--scsi0 file={data['storage_location']}:{data['storage']} '
-        vm_string += f'--balloon {data['balloon']} '
-        vm_string += f'--bios {data['bios']} '
-        vm_string += f'--start {data['start']} '
+        #vm_string += f"--bootdisk scsi0,ide0 "
+        vm_string += f"--scsihw virtio-scsi-pci "
+        vm_string += f"--scsi0 file={data['storage_location']}:{data['storage']} "
+        vm_string += f"--balloon {data['balloon']} "
+        vm_string += f"--bios {data['bios']} "
+        vm_string += f"--start {data['start']} "
         vm_string += "\n\n"
 
         vm_id += 1
