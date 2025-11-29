@@ -375,6 +375,8 @@ def does_user_own_vm(
     vmid: str, username: str
 ) -> tuple:  # returns the vm name if the user owns it, otherwise ""
     for entry in range(0, len(status)):
+        if "/" in vmid:
+            vmid = vmid.split("/")[1]
         if vmid == status[entry]["id"].split("/")[1] and username == status[entry]["name"].rsplit("-", 1)[0]:
             return status[entry]["name"], status[entry]["tags"], status[entry]["node"]
         elif vmid == status[entry]["id"].split("/")[1] and username in status[entry]["tags"].split(";"):
