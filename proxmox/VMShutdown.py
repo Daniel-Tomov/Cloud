@@ -115,7 +115,7 @@ class VMShutdown:
                         "command": cmd,
                     })
 
-            print(f'{vms_powered_on_too_long=}')
+            #print(f'{vms_powered_on_too_long=}')
 
             for vm in vms_powered_on_too_long:
                 username = vm['name'].rsplit('-')[0]
