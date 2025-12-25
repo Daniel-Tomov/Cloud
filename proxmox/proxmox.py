@@ -158,7 +158,7 @@ def recieve_postinst_ip():
     print(r)
 
 
-def get_endpoint(endpoint:str, verifySSL:bool=verify_ssl) -> str:
+def get_endpoint(endpoint:str, verifySSL:bool=verify_ssl) -> dict:
     ip = get_api_node()
     if ip == "":
         return {"result": "cannot connect to Proxmox"}
@@ -288,24 +288,16 @@ def get_user_vms(username: str) -> dict:
 
 def get_interface_ip(node: str, vmid: str) -> str:
     endpoint = f"/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces"
-    able_to_get_endpoint = False
     for _ in range(0, 3):
-        try:
-            r = get_endpoint(endpoint=endpoint)
-            sleep(0.1)
+        r = get_endpoint(endpoint=endpoint)
+        for interface in r:
+            if 'name' in interface and interface["name"] == "vmbr0":
+                for ip_type in range(0, len(interface["ip-addresses"])):
+                    if interface["ip-addresses"][ip_type]["ip-address-type"] == "ipv4":
+                        return interface["ip-addresses"][ip_type]["ip-address"]
             break
-        except:
-            pass
-    if not able_to_get_endpoint:
-        return ""
-    
-    r = r["result"]
-    for interface in r:
-        if interface["name"] == "vmbr0":
-            for ip_type in range(0, len(interface["ip-addresses"])):
-                if interface["ip-addresses"][ip_type]["ip-address-type"] == "ipv4":
-                    return interface["ip-addresses"][ip_type]["ip-address"]
-
+        sleep(0.1)
+    return ""
 
 def does_have_personal_vm_created(vm_type, username: str) -> bool:
     for entry in status:
