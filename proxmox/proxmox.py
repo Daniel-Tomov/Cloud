@@ -371,7 +371,7 @@ def does_user_own_vm(
             vmid = vmid.split("/")[1]
         if vmid == status[entry]["id"].split("/")[1] and username == status[entry]["name"].rsplit("-", 1)[0]:
             return status[entry]["name"], status[entry]["tags"], status[entry]["node"]
-        elif vmid == status[entry]["id"].split("/")[1] and username in status[entry]["tags"].split(";"):
+        elif vmid == status[entry]["id"].split("/")[1] and and "tags" in status[entry] and username in status[entry]["tags"].split(";"):
             return "", status[entry]["tags"], status[entry]["node"]
     return "", "", ""
 
