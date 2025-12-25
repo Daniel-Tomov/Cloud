@@ -290,6 +290,10 @@ def get_interface_ip(node: str, vmid: str) -> str:
     endpoint = f"/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces"
     for _ in range(0, 3):
         r = get_endpoint(endpoint=endpoint)
+        if r == None:
+            break
+        if r['result'] == "cannot connect to Proxmox":
+            continue
         for interface in r:
             if 'name' in interface and interface["name"] == "vmbr0":
                 for ip_type in range(0, len(interface["ip-addresses"])):
