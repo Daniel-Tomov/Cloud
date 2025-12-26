@@ -49,7 +49,6 @@ html,body{
 /* hover lift */
 .vm_table:hover{
     transform:translateY(-6px);
-    box-shadow: 0 14px 30px rgba(2,6,23,0.7);
 }
 
 /* Header */
@@ -79,10 +78,10 @@ html,body{
 
 /* Status color override */
 .running{
-    box-shadow: inset 0 0 0 2px rgba(0,200,120,0.06);
+    box-shadow: inset 0 0 0 2px rgba(0,200,120,0.6);
 }
 .stopped{
-    box-shadow: inset 0 0 0 2px rgba(255,90,90,0.04);
+    box-shadow: inset 0 0 0 2px rgba(255, 90, 90, 0.6);
 }
 
 /* Progress bars */
