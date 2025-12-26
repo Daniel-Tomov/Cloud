@@ -19,7 +19,7 @@
 html,body{
     height:100%;
     font-family:var(--mono);
-    background: linear-gradient(180deg, #081016 0%, var(--bg) 100%);
+    background: var(--bg);
     color:#e6eef7;
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
@@ -37,7 +37,7 @@ html,body{
 
 /* Card-style tables */
 .vm_table{
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), var(--glass));
+    background: var(--bg);
     border-radius:var(--radius);
     padding:12px;
     border:1px solid rgba(255,255,255,0.04);
@@ -117,8 +117,6 @@ progress::-moz-progress-bar{
     color:var(--muted);
     font-size:0.9rem;
     white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
 }
 
 .vm_table .cpu, .vm_table .mem { color:#fff; font-weight:600; }
@@ -214,41 +212,147 @@ button:hover{
 .port{ width:4.5rem; }
 
 /* Provision and services */
-#provision{
-    margin-top:20px;
-    padding:12px;
-    border-radius:var(--radius);
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
-    border:1px solid rgba(255,255,255,0.03);
+#provision {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    padding: 14px;
 }
-.provision-option{ padding:8px 0; }
+#provision > h1, #other-pages > h1, #open-page > h1{
+    font-size: 1.6rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+#provision select#provision-options {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: transparent;
+    color: #eaf6ff;
+    width: 260px;
+    max-width: 100%;
+    outline: none;
+}
+#provision select#provision-options > option {
+    color: black;
+}
+.provision-option {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    width: 100%;
+}
+.provision-option h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #fff;
+}
+.provision-option p {
+    margin: 4px 0 0 0;
+    color: var(--muted);
+    grid-column: 1 / -1;
+}
+.provision-option label {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+.provision-option .full-width {
+    width: 100%;
+    grid-column: 1 / -1;
+}
+.provision-option button {
+    min-width: 140px;
+    justify-self: end;
+    align-self: center;
+}
 
-.services{
-    display:inline-block;
-    margin:6px 12px 6px 0;
-    padding:8px 12px;
-    background:transparent;
-    color:var(--accent);
-    border-radius:8px;
-    text-decoration:none;
-    border:1px solid rgba(40,160,255,0.12);
+/* smaller screens: stack provision elements */
+@media (max-width: 720px) {
+    .provision-option {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    #provision select#provision-options {
+        width: 100%;
+    }
 }
-.services:hover{
+
+/* Services area improvements */
+.services {
+    display: inline-flex;
+    gap: 10px;
+    margin: 6px 8px 6px 0;
+    padding: 8px 12px;
+    background: transparent;
+    color: var(--accent);
+    border-radius: 10px;
+    text-decoration: none;
+    border: 1px solid rgba(40,160,255,0.12);
+    align-items: center;
+    transition: all .14s ease;
+}
+.services:hover,
+.services:focus {
     background: rgba(40,160,255,0.06);
-    color:#eaf6ff;
+    color: #eaf6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(2,6,23,0.35);
 }
 
-/* Page open table */
-table{ width:100%; border-collapse:collapse; margin-top:8px; color:var(--muted); }
-table th, table td{ padding:8px; text-align:left; }
-#open-page{ width:100%; }
+/* Open a page on the network - compact inputs and button */
+table tr td { vertical-align: middle; }
+table tr td .custom-address-input {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: transparent;
+    color: #eaf6ff;
+    outline: none;
+    margin-right: 8px;
+    height: 36px;
+    box-sizing: border-box;
+}
+.custom-address-text {
+    margin: 0 0.5rem 0 0;
+    width: auto;
+    float: left;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.protocol { width: 5.2rem; }
+.ip { width: 12rem; }
+.port { width: 5rem; }
+
+#provision, #other-pages, #open-page {
+    gap: 12px;
+    align-items: stretch;
+    padding: 14px;
+}
+
+#open-page-button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    background: var(--bg);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* responsive tweaks for open page row */
+@media (max-width: 720px) {
+    .protocol, .ip, .port { width: 100%; display: block; margin-bottom: 6px; }
+    table tr td { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+}
 
 /* Responsive tweaks */
 @media (max-width:720px){
     :root{ --radius:8px; }
     #vms_container{ grid-template-columns: 1fr; }
     .vm_table td{ flex-direction:column; align-items:flex-start; gap:6px; }
-    .protocol, .port, .ip{ width:100%; }
 }
 
 /* Subtle scrollbar */

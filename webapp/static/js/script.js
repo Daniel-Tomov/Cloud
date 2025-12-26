@@ -415,7 +415,7 @@ document.getElementById('vms_container').addEventListener('click', function (eve
     }
 });
 
-document.getElementById("open-page").addEventListener('click', function (event) {
+document.getElementById("open-page-button").addEventListener('click', function (event) {
     var id = event.target.getAttribute("id");
     var protocol = document.getElementById(id + "-protocol").value;
     var ip = document.getElementById(id + "-ip").value;

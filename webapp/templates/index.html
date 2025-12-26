@@ -19,22 +19,24 @@
         {% include 'services.html' %}
 
         <hr/>
+        <div id="open-page">
+            <h1>Open a page on the network:</h1>
+            <table>
+                <tr>
+                    <th>Protocol</th>
+                    <th>IP Address</th>
+                    <th>Port</th>
+                    <th>Open</th>
+                </tr>
+                <tr>
+                    <td><input value="http" id="open-page-protocol" class="custom-address-input protocol"></td>
+                    <td><input value="" id="open-page-ip" class="custom-address-input ip"></td>
+                    <td><input value="80" id="open-page-port" class="custom-address-input port"></td>
+                    <td><button action="access_page" id="open-page-button">Open page</button></td>
+                </tr>
+            </table>
+        </div>
         
-        <h1>Open a page on the network:</h1>
-        <table>
-            <tr>
-                <th>Protocol</th>
-                <th>IP Address</th>
-                <th>Port</th>
-                <th>Open</th>
-            </tr>
-            <tr>
-                <td><input value="http" id="open-page-protocol" class="custom-address-input protocol"></td>
-                <td><input value="" id="open-page-ip" class="custom-address-input ip"></td>
-                <td><input value="80" id="open-page-port" class="custom-address-input port"></td>
-                <td><button action="access_page" id="open-page">Open page</button></td>
-            </tr>
-        </table>
     </body>
     <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
 </html>
