@@ -1,0 +1,263 @@
+/* filepath: /home/daniel/onedrive/odu/Cloud/webapp/static/css/dashboard.css */
+/* Sleek virtualization dashboard styling */
+
+:root{
+    --bg:#0f1720;
+    --card:#0f2433;
+    --muted:#7f8a93;
+    --accent:#28a0ff;
+    --accent-2:#00bfa6;
+    --danger:#ff6b6b;
+    --glass: rgba(255,255,255,0.03);
+    --glass-2: rgba(255,255,255,0.04);
+    --radius:10px;
+    --shadow: 0 6px 18px rgba(2,6,23,0.6);
+    --mono: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Base layout */
+html,body{
+    height:100%;
+    font-family:var(--mono);
+    background: linear-gradient(180deg, #081016 0%, var(--bg) 100%);
+    color:#e6eef7;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:24px;
+    box-sizing:border-box;
+}
+
+/* Container holding VM cards */
+#vms_container{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap:20px;
+    align-items:start;
+}
+
+/* Card-style tables */
+.vm_table{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), var(--glass));
+    border-radius:var(--radius);
+    padding:12px;
+    border:1px solid rgba(255,255,255,0.04);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease;
+}
+
+/* hover lift */
+.vm_table:hover{
+    transform:translateY(-6px);
+    box-shadow: 0 14px 30px rgba(2,6,23,0.7);
+}
+
+/* Header */
+.vm_table th{
+    background: transparent;
+    padding:8px 12px;
+    text-align:left;
+}
+
+.vm_table h1{
+    font-size:1.1rem;
+    font-weight:600;
+    color:#fff;
+    letter-spacing:0.2px;
+}
+
+/* Row cells */
+.vm_table td{
+    padding:8px 10px;
+    vertical-align:middle;
+    border-top:1px dashed rgba(255,255,255,0.03);
+    height:auto;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+/* Status color override */
+.running{
+    box-shadow: inset 0 0 0 2px rgba(0,200,120,0.06);
+}
+.stopped{
+    box-shadow: inset 0 0 0 2px rgba(255,90,90,0.04);
+}
+
+/* Progress bars */
+progress{
+    width:100%;
+    height:14px;
+    border-radius:8px;
+    overflow:hidden;
+    background: rgba(255,255,255,0.03);
+    border:none;
+    appearance:none;
+}
+
+/* Webkit */
+progress::-webkit-progress-bar{
+    background: rgba(255,255,255,0.03);
+}
+progress::-webkit-progress-value{
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius:8px;
+    box-shadow: inset 0 -2px 6px rgba(0,0,0,0.25);
+}
+/* Firefox */
+progress::-moz-progress-bar{
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius:8px;
+}
+
+/* Text items */
+.vm_table p{
+    margin:0;
+    color:var(--muted);
+    font-size:0.9rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.vm_table .cpu, .vm_table .mem { color:#fff; font-weight:600; }
+
+/* Power controls */
+.power-options{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:center;
+}
+.power-options .fa{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    background:transparent;
+    color:var(--muted);
+    border:1px solid rgba(255,255,255,0.03);
+    transition: all .14s ease;
+    cursor:pointer;
+}
+.power-options .fa:hover{
+    color:#fff;
+    transform:translateY(-3px);
+    border-color: rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+/* Specific action hint colors */
+.fa-power-off{ color:var(--danger); }
+.fa-play{ color: #8bffb7; }
+.fa-refresh{ color: #ffd36b; }
+.fa-stop{ color:#ffb5b5; }
+
+/* Buttons */
+button{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    color:#eaf6ff;
+    padding:8px 12px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.04);
+    cursor:pointer;
+    font-weight:600;
+}
+button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(2,6,23,0.6);
+}
+
+/* Tag list */
+.tags{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+.tags p{
+    background: rgba(255,255,255,0.02);
+    padding:6px 8px;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--muted);
+    font-size:0.85rem;
+    transition: all .12s ease;
+}
+.tags p:hover{
+    text-decoration:none;
+    color:#fff;
+    background: rgba(255,255,255,0.04);
+    transform:translateY(-2px);
+}
+
+/* Input styles */
+.custom-address-input{
+    padding:6px 8px;
+    border-radius:6px;
+    border:1px solid rgba(255,255,255,0.04);
+    background:transparent;
+    color:#eaf6ff;
+    outline:none;
+    transition: box-shadow .12s ease, border-color .12s ease;
+}
+.custom-address-input:focus{
+    box-shadow:0 4px 16px rgba(40,160,255,0.08);
+    border-color: rgba(40,160,255,0.18);
+}
+
+/* small input widths */
+.protocol{ width:4.2rem; }
+.ip{ width:10.5rem; }
+.port{ width:4.5rem; }
+
+/* Provision and services */
+#provision{
+    margin-top:20px;
+    padding:12px;
+    border-radius:var(--radius);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.03);
+}
+.provision-option{ padding:8px 0; }
+
+.services{
+    display:inline-block;
+    margin:6px 12px 6px 0;
+    padding:8px 12px;
+    background:transparent;
+    color:var(--accent);
+    border-radius:8px;
+    text-decoration:none;
+    border:1px solid rgba(40,160,255,0.12);
+}
+.services:hover{
+    background: rgba(40,160,255,0.06);
+    color:#eaf6ff;
+}
+
+/* Page open table */
+table{ width:100%; border-collapse:collapse; margin-top:8px; color:var(--muted); }
+table th, table td{ padding:8px; text-align:left; }
+#open-page{ width:100%; }
+
+/* Responsive tweaks */
+@media (max-width:720px){
+    :root{ --radius:8px; }
+    #vms_container{ grid-template-columns: 1fr; }
+    .vm_table td{ flex-direction:column; align-items:flex-start; gap:6px; }
+    .protocol, .port, .ip{ width:100%; }
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar{ height:10px; width:10px; }
+::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.03); border-radius:10px; }
+
+
+
+
+.hidden {
+    display: none;
+}
