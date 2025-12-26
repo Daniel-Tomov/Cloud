@@ -169,7 +169,13 @@ class Main:
             users = get_endpoint("/api2/json/access/users?full=1")
             for user in users:
                 if user['userid'].split("@")[0] == username_to_remove:
+                    if "," not in user['groups']:
+                        continue
                     groups = user['groups'].split(",")
+                    if '/' not in vmid:
+                        continue
+                    if vmid.split("/")[1] not in groups:
+                        continue
                     groups.remove(vmid.split("/")[1])
                     groups = ','.join(groups)
                     realm = user['userid'].split("@")[1]
