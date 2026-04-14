@@ -417,9 +417,9 @@ document.getElementById('vms_container').addEventListener('click', function (eve
 
 document.getElementById("open-page-button").addEventListener('click', function (event) {
     var id = event.target.getAttribute("id");
-    var protocol = document.getElementById(id + "-protocol").value;
-    var ip = document.getElementById(id + "-ip").value;
-    var port = document.getElementById(id + "-port").value;
+    var protocol = document.getElementById("open-page-protocol").value;
+    var ip = document.getElementById("open-page-ip").value;
+    var port = document.getElementById("open-page-port").value;
     //console.log("/?protocol=" + protocol + "&ip=" + ip + "&port=" + port);
     window.open("/web/open/" + protocol + "/" + ip + "/" + port, "Lab", "width=1500,height=900");
 });
