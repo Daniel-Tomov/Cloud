@@ -2,7 +2,8 @@
 /* Sleek virtualization dashboard styling */
 
 :root{
-    --bg:#0f1720;
+    /* --bg:#0$f1720; */
+    --bg: #102033;
     --card:#0f2433;
     --muted:#7f8a93;
     --accent:#28a0ff;
@@ -206,9 +207,9 @@ button:hover{
 }
 
 /* small input widths */
-.protocol{ width:4.2rem; }
-.ip{ width:10.5rem; }
-.port{ width:4.5rem; }
+.protocol{ width:3.5rem; }
+.ip{ width:8rem; }
+.port{ width:4rem; }
 
 /* Provision and services */
 #provision {
@@ -322,9 +323,6 @@ table tr td .custom-address-input {
     color: var(--muted);
     font-size: 0.9rem;
 }
-.protocol { width: 5.2rem; }
-.ip { width: 12rem; }
-.port { width: 5rem; }
 
 #provision, #other-pages, #open-page {
     gap: 12px;
