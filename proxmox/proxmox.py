@@ -290,16 +290,15 @@ def get_interface_ip(node: str, vmid: str) -> str:
     endpoint = f"/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces"
     for _ in range(0, 3):
         r = get_endpoint(endpoint=endpoint)
-        if r == None:
+        if r == None: # guest agent not enabled
             break
-        if r['result'] == "cannot connect to Proxmox":
+        if r['result'] == "cannot connect to Proxmox": 
             continue
-        for interface in r:
+        for interface in r['result']:
             if 'name' in interface and interface["name"] == "vmbr0":
                 for ip_type in range(0, len(interface["ip-addresses"])):
                     if interface["ip-addresses"][ip_type]["ip-address-type"] == "ipv4":
                         return interface["ip-addresses"][ip_type]["ip-address"]
-            break
         sleep(0.1)
     return ""
 
@@ -373,7 +372,7 @@ def does_user_own_vm(
     for entry in range(0, len(status)):
         if "/" in vmid:
             vmid = vmid.split("/")[1]
-        if vmid == status[entry]["id"].split("/")[1] and username == status[entry]["name"].rsplit("-", 1)[0]:
+        if vmid == status[entry]["id"].split("/")[1] and username == status[entry]["name"].split("-")[-1]:
             return status[entry]["name"], status[entry]["tags"], status[entry]["node"]
         elif vmid == status[entry]["id"].split("/")[1] and "tags" in status[entry] and username in status[entry]["tags"].split(";"):
             return "", status[entry]["tags"], status[entry]["node"]
