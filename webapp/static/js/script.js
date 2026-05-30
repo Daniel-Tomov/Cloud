@@ -125,7 +125,7 @@ async function get_vm_status() {
                     cell.appendChild(textarea);
                 }
                 button = document.createElement("button");
-                button.innerText = "Open page";
+                button.innerText = "Open";
                 button.setAttribute("action", "access_page");
                 button.setAttribute("id", id);
                 cell.appendChild(button);
@@ -150,13 +150,9 @@ async function get_vm_status() {
             row.appendChild(cell);
             cell = document.createElement("td");
             mem = round(mem, 2);
-            mem = "Memory usage: " + mem + " MB";
-            child = append_text_element(cell, "mem", mem);
+            child = append_text_element(cell, "mem", "Memory usage: " + mem + "/" + maxmem + " MB");
             row.appendChild(cell);
             cell = document.createElement("td");
-            maxmem = "Maximum memory: " + maxmem + " MB";
-            child = append_text_element(cell, "maxmem", maxmem);
-            row.appendChild(cell);
 
             vm_table.appendChild(row);
             row = document.createElement("tr");
@@ -175,15 +171,10 @@ async function get_vm_status() {
             netin = parseInt(response[id]["netin"]);
             netin = netin / Math.pow(1024, 2);
             netin = round(netin, 2);
-            netin = "Network in: " + netin + " Megabits";
-            child = append_text_element(cell, "netin", netin);
-            row.appendChild(cell);
-            cell = document.createElement("td");
             netout = parseInt(response[id]["netout"]);
             netout = netout / Math.pow(1024, 2);
             netout = round(netout, 2);
-            netout = "Network out: " + netout + " Megabits";
-            child = append_text_element(cell, "netout", netout);
+            child = append_text_element(cell, "netout", "Network in/out: " + netin + "/" + netout + " Mb");
             row.appendChild(cell);
 
 
@@ -236,7 +227,7 @@ async function get_vm_status() {
             row.appendChild(cell);
 
             cell = document.createElement("td");
-            append_text_element(cell, "tags", "People with access: ");
+            append_text_element(cell, "tags", "Access:");
             tags = response[id]["tags"];
             tags = tags.split(";");
             tags.forEach(function (t) {

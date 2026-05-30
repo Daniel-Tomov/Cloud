@@ -2,8 +2,8 @@
 /* Sleek virtualization dashboard styling */
 
 :root{
-    /* --bg:#0$f1720; */
-    --bg: #102033;
+    /* --bg:#0f1720; */
+    --bg:#112237;
     --card:#0f2433;
     --muted:#7f8a93;
     --accent:#28a0ff;
@@ -30,10 +30,7 @@ html,body{
 
 /* Container holding VM cards */
 #vms_container{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap:20px;
-    align-items:start;
+    text-align: center;
 }
 
 /* Card-style tables */
@@ -45,6 +42,14 @@ html,body{
     box-shadow:var(--shadow);
     overflow:hidden;
     transition:transform .18s ease, box-shadow .18s ease;
+    display: inline-block;
+    min-width: 23rem;
+    min-height: 32rem;
+    margin: 2px 4px;
+}
+
+.vm_table tbody, .vm_table tr, .vm_table th, .vm_table td {
+    display:block;
 }
 
 /* hover lift */
@@ -74,7 +79,7 @@ html,body{
     height:auto;
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:1px;
 }
 
 /* Status color override */
@@ -200,6 +205,9 @@ button:hover{
     color:#eaf6ff;
     outline:none;
     transition: box-shadow .12s ease, border-color .12s ease;
+    /* margin-right: 8px; */
+    height: 36px;
+    box-sizing: border-box;
 }
 .custom-address-input:focus{
     box-shadow:0 4px 16px rgba(40,160,255,0.08);
@@ -305,17 +313,7 @@ button:hover{
 
 /* Open a page on the network - compact inputs and button */
 table tr td { vertical-align: middle; }
-table tr td .custom-address-input {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.04);
-    background: transparent;
-    color: #eaf6ff;
-    outline: none;
-    margin-right: 8px;
-    height: 36px;
-    box-sizing: border-box;
-}
+
 .custom-address-text {
     margin: 0 0.5rem 0 0;
     width: auto;
